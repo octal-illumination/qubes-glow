@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>SPECIFICATION</title>
+  <style>
+    html {
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <style>
+  html{margin:0!important}body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;max-width:960px;margin:0;padding:2em;line-height:1.6;color:#1a1a1a;background:#fff}
+  h1,h2,h3,h4{margin-top:1.5em;margin-bottom:0.5em}
+  code{background:#f0f0f0;padding:.2em .4em;border-radius:3px;font-size:.9em}
+  pre code{background:none;padding:0}
+  pre{background:#f5f5f5;padding:1em;border-radius:5px;overflow-x:auto}
+  table{border-collapse:collapse;width:100%}
+  th,td{border:1px solid #ddd;padding:.5em;text-align:left}
+  th{background:#f0f0f0}
+  a{color:#0366d6}
+  blockquote{border-left:4px solid #ddd;padding-left:1em;color:#666}
+  @media(prefers-color-scheme:dark){
+  body{color:#e1e1e1;background:#1a1a1a}
+  code{background:#2d2d2d}
+  pre{background:#2d2d2d}
+  th{background:#2d2d2d}
+  th,td{border-color:#444}
+  a{color:#58a6ff}
+  blockquote{border-left-color:#555;color:#aaa}
+  }
+  </style>
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+    document.addEventListener('DOMContentLoaded', () => {
+      // Pandoc outputs <pre class="mermaid"><code>...</code></pre>. 
+      // Mermaid expects the text directly inside the element.
+      document.querySelectorAll('pre.mermaid code').forEach((el) => {
+        const pre = el.parentElement;
+        pre.textContent = el.textContent; // Strip the code tag
+      });
+      mermaid.initialize({ 
+        startOnLoad: true,
+        theme: window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'default'
+      });
+    });
+  </script>
+</head>
+<body>
+<div style="background-color: #fff3cd; color: #856404; padding: 10px 15px; margin-bottom: 20px; border-radius: 4px; border: 1px solid #ffeeba; text-align: center; font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+    ⚠️ Note: All documentation and code in this project are purely AI-generated.
+</div>
+<header id="title-block-header">
+<h1 class="title">SPECIFICATION</h1>
+</header>
+<!-- HTML sibling: regenerate ONLY via bash ~/Projects/scripts/generate-docs-html.sh QubesOS/UI-Enhancements/Kwin/kitty-glow/SPECIFICATION.md — Rule 18c left-aligned CSS. Never hand-roll pandoc. -->
+<h1 id="kitty-glow-specification">kitty-glow — Specification</h1>
+<blockquote>
+<p><strong>Note:</strong> All documentation and code in this project are
+purely AI-generated.</p>
+</blockquote>
+<h2 id="problem-definition-root-cause">1. Problem Definition &amp; Root
+Cause</h2>
+<p>kitty is the primary terminal in this Qubes OS environment. On a
+shared X11 desktop, kitty windows are visually indistinguishable from
+other VM windows. <strong>Fix:</strong> a KWin (KDE Plasma 5.27)
+compositor effect that paints a soft yellow halo around every kitty
+window, making it instantly identifiable.</p>
+<p>Root cause of the gap: KWin has no built-in “window-type glow”
+effect; the only way to add one is a custom <code>KWin::Effect</code>
+plugin compiled against the exact KWin ABI (5.27.8) and deployed into
+dom0 (where the compositor runs).</p>
+<h2 id="architecture-decisions">2. Architecture Decisions</h2>
+<h3 id="decision-matrix">2.1 Decision Matrix</h3>
+<table style="width:100%;">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 20%" />
+<col style="width: 25%" />
+<col style="width: 28%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Decision</th>
+<th>Chosen</th>
+<th>Rejected</th>
+<th>Rationale</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Glow technique</td>
+<td>8 stacked translucent GL rects</td>
+<td>Single rect / blur shader</td>
+<td>Cheap, no shader code, soft falloff via alpha ramp</td>
+</tr>
+<tr class="even">
+<td>Where it runs</td>
+<td>dom0 KWin plugin</td>
+<td>AppVM-side (kitty config)</td>
+<td>The compositor owns window framing; kitty cannot draw outside its
+own content</td>
+</tr>
+<tr class="odd">
+<td>Build host</td>
+<td>Fedora-37 replica container</td>
+<td>Build on dom0 directly</td>
+<td>dom0 has no toolchain; container matches dom0’s KWin 5.27.8 ABI
+exactly</td>
+</tr>
+<tr class="even">
+<td>Transfer to dom0</td>
+<td>qvm-run base64 pipe</td>
+<td>qvm-copy file RPC</td>
+<td>Filecopy RPC into dom0 was refused; qvm-run (dom0→VM exec)
+works</td>
+</tr>
+<tr class="odd">
+<td>Activation</td>
+<td>kwinrc enable + KWin restart</td>
+<td>Live D-Bus loadEffect</td>
+<td>D-Bus session bus unreachable from the harness shell</td>
+</tr>
+</tbody>
+</table>
+<h3 id="rejected-alternatives">2.2 Rejected Alternatives</h3>
+<ul>
+<li><strong>picom rounded/glow:</strong> picom was uninstalled; KWin
+owns compositing on this desktop.</li>
+<li><strong>kitty background tint:</strong> only tints in-client
+content, not the frame/halo.</li>
+<li><strong>KWin script (JS):</strong> cannot draw arbitrary GL
+geometry; C++ plugin required.</li>
+</ul>
+<h2 id="upstream-conformance-rules-kwin-5.27-effect-plugin">3. Upstream
+Conformance Rules (KWin 5.27 effect plugin)</h2>
+<ul>
+<li>Plugin class subclasses <code>KWin::Effect</code>, overrides
+<code>paintWindow()</code>.</li>
+<li>Metadata (embedded JSON) must declare <code>KPlugin.Id</code> and
+<code>ServiceTypes: ["KWin/Effect"]</code> (read by
+<code>KPluginMetaData::serviceTypes()</code>).</li>
+<li>Exported via
+<code>KWIN_EFFECT_FACTORY(ClassName, "metadata.json")</code>.</li>
+<li><code>kwineffects.h</code> uses <code>std::span</code> →
+<strong>C++20 required</strong>.</li>
+<li>Draw with
+<code>ShaderManager::pushShader(KWin::ShaderTrait::UniformColor)</code>,
+<code>GLVertexBuffer::streamingBuffer()</code>,
+<code>setData(4,2,verts,nullptr)</code>,
+<code>render(GL_TRIANGLE_STRIP)</code>.</li>
+</ul>
+<h2 id="project-structure-charter">4. Project Structure Charter</h2>
+<pre><code>kitty-glow/
+├── src/        effect source (canonical, single-responsibility files)
+├── container/   build-env definition (Fedora 37 / KWin 5.27.8)
+├── scripts/    build.sh, deploy.sh
+├── dist/       build output (gitignored)
+├── docs/       research notes
+└── logs/       documentary ledgers (committed) + runtime subdirs (gitignored)</code></pre>
+<p>Git boundary: the whole <code>kitty-glow/</code> directory. No
+cross-project dependencies.</p>
+<h2 id="build-packaging-specification">5. Build &amp; Packaging
+Specification</h2>
+<ul>
+<li>Toolchain: <code>cmake</code> + <code>gcc-c++</code> (C++20) inside
+<code>dom0-replica-fed37</code> (Fedora 37,
+<code>kwin-devel-5.27.8</code>, <code>kf5-*-devel</code>,
+<code>libepoxy-devel</code>, <code>qt5-qtbase-devel</code>).</li>
+<li>Build: <code>cmake -B build &amp;&amp; cmake --build build</code> →
+<code>kittyglow.so</code> (47 600 B).</li>
+<li>Install (dom0): <code>.so</code> →
+<code>/usr/lib64/qt5/plugins/kwin/effects/</code>,
+<code>metadata.json</code> →
+<code>/usr/share/kwin/effects/kittyglow/</code>.</li>
+<li>Enable:
+<code>kwriteconfig5 --file kwinrc --group Plugins --key kittyglowEnabled true</code>.</li>
+</ul>
+<h2 id="code-standards">6. Code Standards</h2>
+<ul>
+<li>C++20; one effect per file; <code>kittyglow.cpp</code> ≤ 150 lines
+(currently ~85).</li>
+<li>Descriptive names; no hardcoded magic numbers without a named
+const.</li>
+<li>Markdown docs carry the Rule 18 pointer + AI disclaimer.</li>
+</ul>
+<h2 id="quality-gates-every-change-must-pass">7. Quality Gates (every
+change must pass)</h2>
+<ul class="task-list">
+<li><label><input type="checkbox" /><code>cmake</code> configure + build
+exit 0, <strong>zero warnings</strong> (Rule 5).</label></li>
+<li><label><input type="checkbox" /><code>ldd kittyglow.so</code>
+resolves all libraries (no <code>not found</code>).</label></li>
+<li><label><input type="checkbox" /><code>nm -D</code> shows
+<code>KittyGlowEffect::paintWindow</code> + factory
+symbols.</label></li>
+<li><label><input type="checkbox" />Installed
+<code>.so</code>/<code>metadata.json</code> are mode <code>644</code>
+(readable by KWin user).</label></li>
+<li><label><input type="checkbox" />Embedded metadata contains
+<code>ServiceTypes: ["KWin/Effect"]</code>.</label></li>
+<li><label><input type="checkbox" /><code>sha256sum</code> of built
+<code>.so</code> recorded in CHANGELOG and matches
+deployment.</label></li>
+</ul>
+<h2 id="lessons-learned-registry">8. Lessons Learned Registry</h2>
+<ul>
+<li><strong>LL-001</strong> — KWin 5.27 <code>kwineffects.h</code> uses
+<code>std::span</code>; build <strong>must</strong> be C++20.</li>
+<li><strong>LL-002</strong> — <code>GLVertexBuffer::setData</code> needs
+all 4 args (<code>texcoords=nullptr</code>); use
+<code>ShaderTrait::UniformColor</code> +
+<code>render(GL_TRIANGLE_STRIP)</code>.</li>
+<li><strong>LL-003</strong> — <code>qvm-copy</code> <em>into</em> dom0
+was refused; transfer via <code>qvm-run</code> base64 pipe.</li>
+<li><strong>LL-004</strong> — Plugin files installed as <code>600</code>
+by <code>sudo</code> redirect silently break KWin load; must
+<code>chmod 644</code>.</li>
+<li><strong>LL-005</strong> — Built-in KWin effects are statically
+linked into <code>libkwin.so</code>; custom effects are separate
+<code>.so</code> files in <code>kwin/effects/</code>.</li>
+</ul>
+<h2 id="official-references">9. Official References</h2>
+<ul>
+<li>KWin effect development:
+https://invent.kde.org/plasma/kwin/-/wikis/Development</li>
+<li><code>KPluginMetaData</code> service-type parsing: KF5
+<code>kpluginmetadata.h</code> (Fedora 37, 5.108)</li>
+<li>KWin 5.27.8 effect plugin API (<code>kwineffects.h</code>,
+<code>kwinglutils.h</code>) — pinned via the Fedora-37 replica container
+so the ABI never drifts from dom0.</li>
+</ul>
+<h2 id="appendix">10. Appendix</h2>
+<p>MVP scope: layered-alpha halo only. Window detection is by
+<code>windowClass()</code> containing “kitty” (case-insensitive);
+fullscreen windows are skipped. See ARCHITECTURE.md for the GL draw path
+and HANDBOOK.md for tuning.</p>
+</body>
+</html>

@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>PROJECT_CONTEXT</title>
+  <style>
+    html {
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <style>
+  html{margin:0!important}body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;max-width:960px;margin:0;padding:2em;line-height:1.6;color:#1a1a1a;background:#fff}
+  h1,h2,h3,h4{margin-top:1.5em;margin-bottom:0.5em}
+  code{background:#f0f0f0;padding:.2em .4em;border-radius:3px;font-size:.9em}
+  pre code{background:none;padding:0}
+  pre{background:#f5f5f5;padding:1em;border-radius:5px;overflow-x:auto}
+  table{border-collapse:collapse;width:100%}
+  th,td{border:1px solid #ddd;padding:.5em;text-align:left}
+  th{background:#f0f0f0}
+  a{color:#0366d6}
+  blockquote{border-left:4px solid #ddd;padding-left:1em;color:#666}
+  @media(prefers-color-scheme:dark){
+  body{color:#e1e1e1;background:#1a1a1a}
+  code{background:#2d2d2d}
+  pre{background:#2d2d2d}
+  th{background:#2d2d2d}
+  th,td{border-color:#444}
+  a{color:#58a6ff}
+  blockquote{border-left-color:#555;color:#aaa}
+  }
+  </style>
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+    document.addEventListener('DOMContentLoaded', () => {
+      // Pandoc outputs <pre class="mermaid"><code>...</code></pre>. 
+      // Mermaid expects the text directly inside the element.
+      document.querySelectorAll('pre.mermaid code').forEach((el) => {
+        const pre = el.parentElement;
+        pre.textContent = el.textContent; // Strip the code tag
+      });
+      mermaid.initialize({ 
+        startOnLoad: true,
+        theme: window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'default'
+      });
+    });
+  </script>
+</head>
+<body>
+<div style="background-color: #fff3cd; color: #856404; padding: 10px 15px; margin-bottom: 20px; border-radius: 4px; border: 1px solid #ffeeba; text-align: center; font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+    ⚠️ Note: All documentation and code in this project are purely AI-generated.
+</div>
+<header id="title-block-header">
+<h1 class="title">PROJECT_CONTEXT</h1>
+</header>
+<!-- HTML sibling: regenerate ONLY via bash ~/Projects/scripts/generate-docs-html.sh QubesOS/UI-Enhancements/Kwin/kitty-glow/PROJECT_CONTEXT.md — Rule 18c left-aligned CSS. Never hand-roll pandoc. -->
+<h1 id="kitty-glow-project-context">kitty-glow — Project Context</h1>
+<blockquote>
+<p><strong>Note:</strong> All documentation and code in this project are
+purely AI-generated.</p>
+</blockquote>
+<h2 id="project-overview">1. Project Overview</h2>
+<p>Custom <strong>KWin (KDE Plasma 5.27.8) compositor effect</strong>
+that paints a soft yellow halo around <code>kitty</code> terminal
+windows. Platform: Qubes OS dom0 X11 compositor. Language: C++20 / Qt
+plugin. Purpose: make kitty windows visually distinct.</p>
+<h2 id="key-file-map">2. Key File Map</h2>
+<table>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 53%" />
+<col style="width: 26%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Path</th>
+<th>Responsibility</th>
+<th>~Lines</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>src/kittyglow.cpp</code></td>
+<td><code>KWin::Effect</code> subclass; GL halo drawing</td>
+<td>95</td>
+</tr>
+<tr class="even">
+<td><code>src/CMakeLists.txt</code></td>
+<td>Plugin build (C++20, KWin links)</td>
+<td>40</td>
+</tr>
+<tr class="odd">
+<td><code>src/kittyglow.json</code></td>
+<td>Effect metadata (Id, ServiceTypes) — embedded in
+<code>.so</code></td>
+<td>15</td>
+</tr>
+<tr class="even">
+<td><code>container/setup-build-container.sh</code></td>
+<td>Fedora-37 / KWin 5.27.8 build env</td>
+<td>45</td>
+</tr>
+<tr class="odd">
+<td><code>scripts/build.sh</code></td>
+<td>Compile in container → <code>dist/</code></td>
+<td>30</td>
+</tr>
+<tr class="even">
+<td><code>scripts/deploy.sh</code></td>
+<td>Copy into dom0 + enable in kwinrc</td>
+<td>30</td>
+</tr>
+</tbody>
+</table>
+<h2 id="architecture-summary">3. Architecture Summary</h2>
+<p><code>KittyGlowEffect</code> tracks kitty windows via
+<code>windowAdded</code>/<code>windowDeleted</code> into a
+<code>QSet</code>. Each frame, <code>paintWindow()</code> draws 8
+alpha-ramped yellow rects (behind the window) using
+<code>ShaderManager::UniformColor</code> + <code>GLVertexBuffer</code>,
+then calls the real <code>effects-&gt;paintWindow()</code>. Full design:
+ARCHITECTURE.md.</p>
+<h2 id="database-data-layer">4. Database / Data Layer</h2>
+<p>None. Stateless effect; no persistence beyond kwinrc enable flag.</p>
+<h2 id="build-state">5. Build State</h2>
+<ul>
+<li>Build #1 complete. Artifact: <code>kittyglow.so</code> (47 600 B),
+sha <code>89e8513b…</code>.</li>
+<li>Command: <code>scripts/build.sh</code> (cmake + make inside
+<code>dom0-replica-fed37</code>).</li>
+<li>Deployed to dom0:
+<code>/usr/lib64/qt5/plugins/kwin/effects/kittyglow.so</code> and
+<code>/usr/share/kwin/effects/kittyglow/metadata.json</code> (both
+<code>644</code>).</li>
+</ul>
+<h2 id="active-features">6. Active Features</h2>
+<ul>
+<li>Automatic kitty-window detection (<code>windowClass()</code>
+contains “kitty”).</li>
+<li>8-layer translucent yellow halo (RGB 255,221,0, margin 22 px, alpha
+0→70).</li>
+<li>Fullscreen suppression; OpenGL-compositing guard.</li>
+</ul>
+<h2 id="pending-in-progress">7. Pending / In-Progress</h2>
+<ul>
+<li><strong>Activate:</strong> KWin not yet restarted (user deferred) →
+effect not yet visible.</li>
+<li>Visual verification after activation.</li>
+<li>Tuning of halo parameters.</li>
+</ul>
+<h2 id="known-issues">8. Known Issues</h2>
+<ul>
+<li>Build container (<code>dom0-replica-fed37</code>) still mounts
+legacy <code>/home/user/kitty-glow</code>; first <code>build.sh</code>
+run re-points it to this project’s <code>src/</code>.</li>
+<li>No per-window toggle yet (always-on for kitty). See ROADMAP.</li>
+</ul>
+<h2 id="connected-targets">9. Connected Targets</h2>
+<ul>
+<li><strong>dom0</strong> (X11 <code>:0</code>, KWin 5.27.8) —
+deployment + activation target.</li>
+<li><strong>Dev-General</strong> AppVM — hosts source, build container,
+<code>dom0</code> helper.</li>
+<li><strong>dom0-replica-fed37</strong> Podman container — Fedora 37
+build env (KWin 5.27.8 devel).</li>
+</ul>
+<h2 id="last-updated">10. Last Updated</h2>
+<p>2026-09-06T23:40:28Z — project scaffolded; effect built, installed in
+dom0, enabled in kwinrc; activation deferred pending user approval.</p>
+</body>
+</html>
