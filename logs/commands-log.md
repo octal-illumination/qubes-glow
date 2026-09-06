@@ -24,3 +24,7 @@
 ## 2026-09-06T23:52:44+00:00 — Remove legacy kitty-glow dir
 - Command: `rm -rf /home/user/kitty-glow`
 - Reason: clean up redundant pre-project working copy (user-approved; kitty-glow-out retained).
+
+## 2026-09-06T23:53:14+00:00 — Remove kitty-glow-out
+- Command: `rm -rf /home/user/kitty-glow-out`
+- Reason: user-approved cleanup of redundant build-artifact copy.

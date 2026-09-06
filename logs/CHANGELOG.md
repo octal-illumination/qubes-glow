@@ -25,3 +25,8 @@
 - Deleted `/home/user/kitty-glow/` (redundant pre-project working copy). Project
   `src/` is now the sole canonical source. `kitty-glow-out/` (build artifacts) kept.
 - Container mount and all project files unaffected.
+
+## 2026-09-06T23:53:14+00:00 — Removed redundant build-artifact dir
+- Deleted `/home/user/kitty-glow-out/` (copy of compiled `kittyglow.so` + `kittyglow.json`).
+  Canonical artifacts live in `dist/`; build container keeps its own `/src/build`.
+- No project file references the removed dir.
