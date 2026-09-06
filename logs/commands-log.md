@@ -20,3 +20,7 @@
 ## (prior session) Enable plugin
 - Command: `dom0 "kwriteconfig5 --file kwinrc --group Plugins --key kittyglowEnabled true"`
 - Reason: register the effect so KWin loads it on next (re)start.
+
+## 2026-09-06T23:52:44+00:00 — Remove legacy kitty-glow dir
+- Command: `rm -rf /home/user/kitty-glow`
+- Reason: clean up redundant pre-project working copy (user-approved; kitty-glow-out retained).

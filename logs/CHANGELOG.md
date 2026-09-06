@@ -20,3 +20,8 @@
   already deployed to dom0 plugin paths and enabled in kwinrc; KWin activation
   (restart) deferred per user.
 - See SPECIFICATION.md §8 (Lessons Learned) and HANDBOOK.md for build/deploy/activate.
+
+## 2026-09-06T23:52:44+00:00 — Removed legacy working directory
+- Deleted `/home/user/kitty-glow/` (redundant pre-project working copy). Project
+  `src/` is now the sole canonical source. `kitty-glow-out/` (build artifacts) kept.
+- Container mount and all project files unaffected.
