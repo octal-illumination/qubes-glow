@@ -1,0 +1,21 @@
+# Build artifacts (Rule 22f: runtime logs are gitignored, not committed)
+/dist/
+*.so
+*.o
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
+build/
+
+# Runtime logs (committed ledgers live at logs/*.md, not in subdirs)
+/logs/build/
+/logs/output/
+/logs/error/
+/logs/run/
+
+# Editor / OS noise
+*.swp
+*.swo
+.DS_Store
+*~
