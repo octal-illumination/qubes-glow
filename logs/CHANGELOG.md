@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2026-09-06T23:50:19Z — Re-pointed build container to project src
+- Ran `container/setup-build-container.sh`: committed live container to image
+  `dom0-replica-fed37-img` (preserves the KWin 5.27.8 toolchain), then recreated
+  `dom0-replica-fed37` mounting `src/` at `/src`.
+- Project now fully self-consistent: `scripts/build.sh` compiles the canonical
+  source directly. Legacy `/home/user/kitty-glow` no longer used by the build.
+
 ## 2026-09-06T23:40:28Z — Project created; effect imported & documented
 - Created `~/Projects/QubesOS/UI-Enhancements/Kwin/kitty-glow/` with full
   AGENTS.md-compliant structure (`src/`, `container/`, `scripts/`, `docs/`, `logs/`).

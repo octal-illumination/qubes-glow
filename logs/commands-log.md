@@ -1,5 +1,10 @@
 # Commands Log
 
+## 2026-09-06T23:50:19Z — Re-point build container
+- Command: `bash container/setup-build-container.sh`
+- Reason: address item #2 — make the build container mount the project's `src/`
+  and capture the toolchain into image `dom0-replica-fed37-img` so deps persist.
+
 ## 2026-09-06T23:40:28Z — Scaffold project tree + import source
 - Command: `mkdir -p .../kitty-glow/{src,container,scripts,docs/research,logs/{build,output,error,run},dist}` then `cp /home/user/kitty-glow/{kittyglow.cpp,CMakeLists.txt,kittyglow.json} .../src/`
 - Reason: create AGENTS.md-compliant project structure and import canonical source.

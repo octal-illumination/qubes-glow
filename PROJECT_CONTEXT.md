@@ -44,8 +44,9 @@ None. Stateless effect; no persistence beyond kwinrc enable flag.
 - Tuning of halo parameters.
 
 ## 8. Known Issues
-- Build container (`dom0-replica-fed37`) still mounts legacy `/home/user/kitty-glow`;
-  first `build.sh` run re-points it to this project's `src/`.
+- ~~Build container (`dom0-replica-fed37`) still mounts legacy `/home/user/kitty-glow`~~
+  **RESOLVED 2026-09-06T23:50:19Z:** container re-created mounting this project's
+  `src/` at `/src` (committed image `dom0-replica-fed37-img` preserves toolchain).
 - No per-window toggle yet (always-on for kitty). See ROADMAP.
 
 ## 9. Connected Targets
@@ -54,5 +55,6 @@ None. Stateless effect; no persistence beyond kwinrc enable flag.
 - **dom0-replica-fed37** Podman container — Fedora 37 build env (KWin 5.27.8 devel).
 
 ## 10. Last Updated
-2026-09-06T23:40:28Z — project scaffolded; effect built, installed in dom0,
-enabled in kwinrc; activation deferred pending user approval.
+2026-09-06T23:50:19Z — build container re-pointed to project `src/` (item #2).
+Effect built, installed in dom0, enabled in kwinrc; activation deferred pending
+user approval.

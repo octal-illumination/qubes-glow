@@ -73,5 +73,5 @@ dom0 "kwriteconfig5 --file kwinrc --group Plugins --key kittyglowEnabled false"
 - Effect is always-on for kitty windows (no per-window toggle yet — see ROADMAP).
 - Coordinate space assumes KWin's standard screen-space GL projection; if the halo
   renders offset, the projection handling in `paintQuad` needs adjustment.
-- The live build container currently mounts the legacy `/home/user/kitty-glow`;
-  first `build.sh` run re-points it to this project's `src/` automatically.
+- The build container (`dom0-replica-fed37`) mounts this project's `src/` at
+  `/src` (re-pointed 2026-09-06T23:50:19Z); `build.sh` builds straight from it.

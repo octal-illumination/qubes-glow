@@ -1,7 +1,7 @@
 # Session State (pre-compaction brain dump)
 
 ## Timestamp
-2026-09-06T23:40:28Z
+2026-09-06T23:50:19Z
 
 ## Current Objective
 Scaffold the kitty-glow KWin-effect project under
@@ -12,7 +12,8 @@ Scaffold the kitty-glow KWin-effect project under
 - KWin in dom0: 5.27.8 (Fedora 37). Built-in effects are statically linked into
   `libkwin.so`; custom effects are separate `.so` files in `kwin/effects/`.
 - Build container: `dom0-replica-fed37` (Fedora 37, kwin-devel 5.27.8, KF5 5.108).
-  Live container currently mounts legacy `/home/user/kitty-glow:/src`.
+  Now mounts this project's `src/` at `/src` (image `dom0-replica-fed37-img`,
+  re-pointed 2026-09-06T23:50:19Z). Legacy `/home/user/kitty-glow` no longer used.
 - Effect `.so` sha: `89e8513b9d282aacd9763fa3fd20cedf89b377f16f63ee18e7fade04bde228d4`.
 - KWin reads the plugin list only at startup → activation needs `kwin_x11 --replace`.
 
@@ -33,7 +34,7 @@ Scaffold the kitty-glow KWin-effect project under
 ## Pending Work
 1. (User approval) Restart KWin to activate the effect.
 2. Visual verification of the halo; tune params (`margin`/`layers`/color/alpha) if needed.
-3. Optional: re-point build container mount to project src (auto-handled on first `build.sh`).
+3. ~~Optional: re-point build container mount to project src~~ DONE 2026-09-06T23:50:19Z.
 
 ## Next Agent Handoff
 - To activate: run the KWin restart command in HANDBOOK.md §5 (needs explicit user

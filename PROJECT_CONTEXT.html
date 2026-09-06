@@ -308,9 +308,11 @@ effect not yet visible.</li>
 </ul>
 <h2 id="known-issues">8. Known Issues</h2>
 <ul>
-<li>Build container (<code>dom0-replica-fed37</code>) still mounts
-legacy <code>/home/user/kitty-glow</code>; first <code>build.sh</code>
-run re-points it to this project’s <code>src/</code>.</li>
+<li><del>Build container (<code>dom0-replica-fed37</code>) still mounts
+legacy <code>/home/user/kitty-glow</code></del> <strong>RESOLVED
+2026-09-06T23:50:19Z:</strong> container re-created mounting this
+project’s <code>src/</code> at <code>/src</code> (committed image
+<code>dom0-replica-fed37-img</code> preserves toolchain).</li>
 <li>No per-window toggle yet (always-on for kitty). See ROADMAP.</li>
 </ul>
 <h2 id="connected-targets">9. Connected Targets</h2>
@@ -323,7 +325,8 @@ deployment + activation target.</li>
 build env (KWin 5.27.8 devel).</li>
 </ul>
 <h2 id="last-updated">10. Last Updated</h2>
-<p>2026-09-06T23:40:28Z — project scaffolded; effect built, installed in
-dom0, enabled in kwinrc; activation deferred pending user approval.</p>
+<p>2026-09-06T23:50:19Z — build container re-pointed to project
+<code>src/</code> (item #2). Effect built, installed in dom0, enabled in
+kwinrc; activation deferred pending user approval.</p>
 </body>
 </html>
