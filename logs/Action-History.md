@@ -163,3 +163,32 @@ Deployed new effect+script to dom0 (auto-load confirmed); deleted kwinrulesrc ki
 - Rounds 2-4 completed after two cancelled/expired dialogs: BOTH shortcuts registered (B=Toggle Kitty Borderless, T=Window No Border), kittyglow.so mapped 5x in kwin 32660 memory, kwinrc flag true, restart log 0 errors, metadata perms fixed.
 - Discovered: KWin 5.27.8 org.kde.kwin.Effects exposes neither loadedEffects() nor isLoaded(s) — /proc/PID/maps grep is the reliable load proof (recorded for future sessions).
 - PROJECT_CONTEXT.md + HTML regenerated; Build #9 verification CLOSED. Pending: visual panel acceptance test.
+
+## 2026-09-09T17:41:36Z
+#### User Request
+LL-019 reports: (1) glow still penetrates a front window when nothing is behind kitty; (2) with a behind window, artifact appears only when the front window starts on the right half of kitty.
+#### Verbatim Output Response
+- Read full kittyglow.cpp paint/damage/occluder flow; analysis logged to output-history.md (LL-019 section): scissor is sole protection, 120ms cache race + topmost-kitty selection are prime code suspects; right/left asymmetry cannot originate in clip math (no side branch) -> environment geometry suspected.
+- No code changes; probe campaign + 3 targeted questions proposed, awaiting user go.
+
+## 2026-09-09T17:47:00Z
+#### User Request
+"continue" (after right/left asymmetry observation)
+#### Verbatim Output Response
+- Read glowshader.cpp + glowconfig.h: shader/config symmetric -> left/right asymmetry not in clip math; logged to output-history.md.
+- Identified DEFECT A (occluder scan anchored to topmost kitty, not painted window) + DEFECT B (120 ms stale-cache race, empty-list skip). Fix proposed, awaiting 'implement changes'; discriminating questions posed to user.
+
+## 2026-09-09T18:09:11Z
+#### User Request
+"continue" (LL-019 right/left asymmetry investigation)
+#### Verbatim Output Response
+- Fetched KWin v5.27.8 kwinglutils.cpp; GLVertexBuffer::draw scissor path verified symmetric (per-rect loop, no limits/fallbacks) -> upstream ruled out as left/right source.
+- Found DEFECT C (occluder lag during drags -> leading-edge leak persisting on idle kitty) and DEFECT D (halo color stale after focus change). Logged to output-history.md; SESSION_STATE.md refreshed; 3 discriminating questions + probe + fix bundle proposed, awaiting user go.
+
+## 2026-09-09T18:29:08Z
+#### User Request
+"Actually, the left and right doesn't matter, a window maximised behind doesn't matter, the glow penetrating artifact happens to any unmaximised unminimised window that is placed in front of it. This happens to anywaind i guess, beause i tested with konsole terminal and firefox, both exhibitted the same behaviour."
+#### Verbatim Output Response
+- LL-019 diagnosis revised: left/right asymmetry theory discarded; artifact is systematic (transition-frame unclipped halo + unfocused-kitty never-repaint persistence amplifier).
+- Verified upstream 5.27.8 APIs for the fix: stackingOrderChanged() signal, windowActivated() signal (not activeWindowChanged), EffectWindow::isUserMove(); no EffectsHandler::movingWindow().
+- Revised 5-item fix bundle proposed (all in src/kittyglow.cpp); session log updates committed; awaiting explicit "implement changes" per Rule 1a.

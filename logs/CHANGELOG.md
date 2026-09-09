@@ -198,3 +198,9 @@
 - Shortcuts: Toggle Kitty Borderless (B) + Window No Border (T) both registered post-restart (LL-011 self-heal verified).
 - dom0 metadata dir perms normalized 755/644 (was chenpan-unreadable; would have blocked effect metadata).
 - Remaining: visual panel acceptance test / probe re-run.
+
+### 2026-09-09T18:30:25Z — LL-019 addendum 3: repro simplified (any front window), API verification, session recovery
+- Recovered prior-session state after 2M-token session death; committed pending log updates (session-recovery commit).
+- User re-test: artifact is systematic — ANY unmaximised/unminimised window placed in front of kitty penetrates (konsole, firefox; position-independent; back windows irrelevant).
+- Upstream 5.27.8 API checks: stackingOrderChanged() EXISTS (line 1820, since 4.10); windowActivated() is the correct focus signal (activeWindowChanged does NOT exist); no EffectsHandler::movingWindow(); isUserMove() available.
+- Revised 5-item fix bundle proposed in logs/SESSION_STATE.md §5; source untouched pending Rule 1a consent.

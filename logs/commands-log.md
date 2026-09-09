@@ -266,3 +266,14 @@
 2026-09-09T16:55:43Z | dom0 checks round 3 — BOTH shortcuts confirmed (Toggle Kitty Borderless + Window No Border) | Complete LL-011 healing evidence
 2026-09-09T16:55:43Z | dom0 checks round 4 — kittyglow.so mapped in kwin 32660 /proc/maps (5 mappings), kwinrc true; loadedEffects DBus API nonexistent on this build (both signatures) | Definitive load proof
 2026-09-09T16:55:43Z | rm logs/build.log logs/build9.log symlinks — Build #9 complete, Rule 2 cleanup | Mandatory post-task cleanup
+2026-09-09T17:41:36Z | source analysis of kittyglow.cpp for LL-019 (read-only, no shell side effects) | Rule 1a: propose before probe/code | logged
+2026-09-09T17:47:00Z | read glowshader.cpp + glowconfig.h (analysis only) | Rule 1a gating | logged
+2026-09-09T18:09:11Z | curl KWin v5.27.8 kwinglutils.cpp from invent.kde.org; grep+read GLVertexBuffer::draw | verify upstream scissor clip path for left/right branch (LL-019) | logged
+
+## 2026-09-09T18:29:08Z
+- Command: curl -sSL https://invent.kde.org/plasma/kwin/-/raw/v5.27.8/src/effects.h -o /tmp/effects-5.27.8.h
+  Reason: first fetch attempt for EffectsHandler API verification (turned out to be the internal impl header).
+- Command: curl -sSL https://invent.kde.org/plasma/kwin/-/raw/v5.27.8/src/libkwineffects/kwineffects.h -o /tmp/kwineffects-5.27.8.h
+  Reason: fetch the public effects API header to verify stackingOrderChanged/windowActivated/isUserMove exist in 5.27.8 before proposing the fix bundle.
+- Command: grep -n "stackingOrderChanged|movingWindow|resizedWindow|windowFrameGeometryChanged" /tmp/kwineffects-5.27.8.h (+ follow-up sed/grep context reads)
+  Reason: confirm exact signal/method names and line numbers so the proposed fix compiles against 5.27.8 first try.
