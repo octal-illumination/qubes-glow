@@ -80,6 +80,12 @@ Two independent toggles exist:
   kitty window rule `[kitty-borderless]` in `kwinrulesrc` (noborder Force),
   then loopback-reconfigures KWin so the Force rule re-applies to all mapped
   kitty windows immediately. State survives reboots.
+  Since build #7 the lookup is content-based (`kittyborderrule.cpp`): the
+  ACTIVE rule is found by Description/wmclass — NOT by group name, because
+  KWin renames groups on re-save (recurred as `[1]`, proven again as `[3]`) —
+  an inert kitty rule is self-healed by re-listing it under
+  `[General] rules=`, and the file is re-parsed per toggle so a stale
+  in-process snapshot can never resurrect renamed groups.
 - **Meta+Shift+T — Window No Border (native KWin).** Per-focused-window
   titlebar/frame toggle, rebound from Meta+Shift+B when the effect needed B
   (kglobalshortcutsrc, applied via `plasma-kglobalaccel` unit restart — the

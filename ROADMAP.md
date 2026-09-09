@@ -9,14 +9,14 @@
 - [x] Deploy `.so` + `metadata.json` into dom0 plugin paths (perms `644`).
 - [x] Enable via `kwinrc` `[Plugins] kittyglowEnabled=true`.
 
-## Phase 2 — Activate  ⏳ PENDING (user approval)
-- [ ] Restart KWin (`kwin_x11 --replace`) so the plugin list is re-read.
-- [ ] Verify KWin stays alive + no `kittyglow` load error in journalctl.
+## Phase 2 — Activate  ✅ DONE
+- [x] Restart KWin (`kwin_x11 --replace`) so the plugin list is re-read.
+- [x] Verify KWin stays alive + no `kittyglow` load error in journalctl.
 
-## Phase 3 — Visual Verify & Tune  ⏳ BLOCKED on Phase 2
-- [ ] Open a kitty window → confirm yellow halo; fullscreen → no halo.
-- [ ] If halo is offset, fix projection handling in `paintQuad`.
-- [ ] Tune `margin` / `layers` / color / alpha to taste.
+## Phase 3 — Visual Verify & Tune  ✅ DONE
+- [x] Open a kitty window → confirm yellow halo; fullscreen → no halo.
+- [x] Halo projection fixed/verified (SDF shader, v3).
+- [x] Tuned `margin` / `layers` / color / alpha (kwinrc `[Effect-kittyglow]`).
 
 ## Phase 4 — Enhancements  🔜 PLANNED
 - [ ] Per-window toggle hotkey (e.g. Meta+Shift+G) to enable/disable the glow.
@@ -25,6 +25,19 @@
 
 ## Phase 5 — Packaging  🔜 OPTIONAL
 - [ ] Consider a repeatable RPM/spec or a one-shot installer script wrapping
+
+## Phase 6 — Shortcut Reliability (v3.4)  ✅ DONE (2026-09-09)
+- [x] Heal Meta+Shift+B/T lost to the kwin-before-kglobalaccel boot race
+      (kwin restart AFTER the daemon — SPEC LL-011).
+- [x] Normalize kwinrulesrc to a single ACTIVE canonical rule group
+      ([1] vs [kitty-borderless] duplication — LL-007 family).
+- [x] Step C: extract content-based rule toggle (`kittyborderrule.cpp/.h`)
+      with inert-rule self-heal + per-toggle `reparseConfiguration()`
+      (SPEC LL-014/LL-015); `kittyglow.cpp` modularized.
+- [x] Build #7 zero-warning, deployed (badf8df7…), live-reloaded; E2E
+      keypress verified; group-rename immunity proven (rename → toggles
+      still work → restore). Recovery re-validated by a real kwin crash
+      (auto-restart re-registered both shortcuts).
       `build.sh` + `deploy.sh` for clean reinstalls after KWin upgrades.
 
 ## Notes

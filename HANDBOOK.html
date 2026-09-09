@@ -351,7 +351,14 @@ wmclass <code>kitty</code>.</p>
 kitty window rule <code>[kitty-borderless]</code> in
 <code>kwinrulesrc</code> (noborder Force), then loopback-reconfigures
 KWin so the Force rule re-applies to all mapped kitty windows
-immediately. State survives reboots.</li>
+immediately. State survives reboots. Since build #7 the lookup is
+content-based (<code>kittyborderrule.cpp</code>): the ACTIVE rule is
+found by Description/wmclass — NOT by group name, because KWin renames
+groups on re-save (recurred as <code>[1]</code>, proven again as
+<code>[3]</code>) — an inert kitty rule is self-healed by re-listing it
+under <code>[General] rules=</code>, and the file is re-parsed per
+toggle so a stale in-process snapshot can never resurrect renamed
+groups.</li>
 <li><strong>Meta+Shift+T — Window No Border (native KWin).</strong>
 Per-focused-window titlebar/frame toggle, rebound from Meta+Shift+B when
 the effect needed B (kglobalshortcutsrc, applied via

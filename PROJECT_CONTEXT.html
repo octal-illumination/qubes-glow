@@ -241,41 +241,46 @@ plugin. Purpose: make kitty windows visually distinct.</p>
 <td><code>src/kittyglow.cpp</code></td>
 <td><code>KWin::Effect</code> subclass; quad + shortcut + repaint
 hooks</td>
-<td>169</td>
+<td>274</td>
 </tr>
 <tr class="even">
+<td><code>src/kittyborderrule.cpp/.h</code></td>
+<td>Content-based kitty rule toggle in kwinrulesrc (rename-immune)</td>
+<td>70</td>
+</tr>
+<tr class="odd">
 <td><code>src/glowshader.cpp/.h</code></td>
 <td>GLSL SDF glow shader (per-side soft falloff)</td>
 <td>130</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td><code>src/glowconfig.h</code></td>
 <td>kwinrc <code>[Effect-kittyglow]</code> config reader
 (live-reload)</td>
 <td>80</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td><code>src/CMakeLists.txt</code></td>
 <td>Plugin build (C++20, KWin links)</td>
 <td>40</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td><code>src/kittyglow.json</code></td>
 <td>Effect metadata (Id, ServiceTypes) — embedded in
 <code>.so</code></td>
 <td>15</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td><code>container/setup-build-container.sh</code></td>
 <td>Fedora-37 / KWin 5.27.8 build env</td>
 <td>45</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td><code>scripts/build.sh</code></td>
 <td>Compile in container → <code>dist/</code></td>
 <td>30</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td><code>scripts/deploy.sh</code></td>
 <td>Copy into dom0 + enable in kwinrc</td>
 <td>30</td>
@@ -297,33 +302,37 @@ halo never smears. Full design: ARCHITECTURE.md.</p>
 <p>None. Stateless effect; no persistence beyond kwinrc enable flag.</p>
 <h2 id="build-state">5. Build State</h2>
 <ul>
-<li><strong>Build #6 (v3.3)</strong> built zero-warning, deployed +
-live-verified. Artifact: <code>dist/kittyglow.so</code>, sha256 prefix
-<code>097b3e24bffe</code> (metadata.json <code>3a3f66bc…</code>). v3 SDF
-renderer + animation-transform tracking + opacity fade +
-occlusion-clipped halo + seamless minimize (no isMinimized paint guard,
-isKittyWindow filter retained) + autorepeat-gated Meta+Shift+B. Build #5
-(d445c704…) was defective — it accidentally dropped the isKittyWindow
-filter (halo on every window); superseded within the round.</li>
+<li><strong>Build #7 (v3.4, Step C)</strong> built zero-warning,
+deployed + E2E-verified. Artifact: <code>dist/kittyglow.so</code>,
+sha256 prefix <code>badf8df70b6a</code> (metadata.json
+<code>3a3f66bc…</code>). Adds <code>kittyborderrule.cpp</code> —
+content-based (Description / wmclass) lookup of the ACTIVE kitty rule,
+inert-rule self-heal via <code>[General] rules=</code>, and
+<code>KSharedConfig::reparseConfiguration()</code> per toggle (LL-014).
+Group-rename immunity PROVEN E2E: active group renamed to
+<code>[3]</code> → toggles still flip parity, <code>rules=</code>
+preserved, canonical name restored after.</li>
+<li><strong>Shortcut recovery (dom0, this session):</strong> Sep 08 boot
+race (kwin 08:58:11 before kglobalaccel 08:58:13) killed B/T
+registration. kwin restarted AFTER daemon → both shortcuts live
+(B=301989954, T=301989972); kwinrulesrc normalized to single active
+<code>[kitty-borderless]</code>. Lesson LL-011. A real kwin crash during
+testing auto-recovered and re-registered both shortcuts (daemon already
+up) — boot-order theory re-validated.</li>
 <li>Command: <code>scripts/build.sh</code> (cmake + make inside
 <code>dom0-replica-fed37</code>).</li>
 <li>Deployed to dom0:
 <code>/usr/lib64/qt5/plugins/kwin/effects/plugins/kittyglow.so</code>
 and <code>/usr/share/kwin/effects/kittyglow/metadata.json</code> (both
-<code>644</code>).</li>
-<li>Enabled in <code>kwinrc</code>
-<code>[Plugins] kittyglowEnabled=true</code>; loaded at runtime via
-<code>org.kde.kwin.Effects.loadEffect</code> → <code>true</code>,
-survived full <code>reconfigure</code>.</li>
-<li>Live kwin PID 211257 (<code>--replace</code>, clean — no
-<code>--crashes</code>); deployed dom0 sha256 matches <code>dist/</code>
+<code>644</code>); dom0 sha256 matches <code>dist/</code>
 byte-for-byte.</li>
-<li>Shortcut config repaired: <code>kglobalshortcutsrc</code>
-<code>Window No Border</code> active field restored
-(<code>Meta+Shift+T,Meta+Shift+T,</code>),
-<code>plasma-kglobalaccel</code> restarted (single daemon, PID 210789),
-<code>kwinrulesrc</code> noborder parity restored to
-<code>true</code>.</li>
+<li>Enabled in <code>kwinrc</code>
+<code>[Plugins] kittyglowEnabled=true</code>; live via
+<code>org.kde.kwin.Effects.loadEffect</code> → <code>true</code>. Live
+kwin PID 15974 (<code>--crashes 1</code> — recovered from the test-time
+crash; stable since).</li>
+<li>Parity at rest: <code>rules=kitty-borderless</code>,
+<code>noborder=true</code> (borderless).</li>
 </ul>
 <h2 id="active-features">6. Active Features</h2>
 <ul>
@@ -338,12 +347,15 @@ compositor restart.</li>
 (<code>[kitty-borderless]</code>, noborder Force=2, wmclassmatch
 RegExp=3, listed under <code>[General] rules=</code>).</li>
 <li><strong>Meta+Shift+B</strong> → effect-registered
-<code>Toggle Kitty Borderless</code>: flips the persistent
-<code>[kitty-borderless]</code> rule and loopback-reconfigures
-KWin.</li>
+<code>Toggle Kitty Borderless</code>: flips the persistent kitty window
+rule (content-matched via <code>kittyborderrule.cpp</code>, survives
+KWin group renames) and loopback-reconfigures KWin.</li>
 <li><strong>Meta+Shift+T</strong> → native <code>Window No Border</code>
 (per-focused-window toggle); rebound from Meta+Shift+B, dead
 <code>kitty-toggle-border</code> entry deleted.</li>
+<li>Shortcut registration self-heals whenever kwin starts after
+kglobalaccel (incl. crash auto-restarts); manual healing = restart
+kwin_x11 last (LL-011).</li>
 </ul>
 <h2 id="pending-in-progress">7. Pending / In-Progress</h2>
 <ul>
@@ -383,11 +395,10 @@ deployment + activation target.</li>
 build env (KWin 5.27.8 devel).</li>
 </ul>
 <h2 id="last-updated">10. Last Updated</h2>
-<p>2026-09-08T00:02:28+05:30 — v3.3 completion (build #6, 097b3e24…):
-occlusion-clipped halo, seamless minimize, autorepeat-gated B, T
-reactivation, noborder parity restore, single-daemon 210789, kwin
-–replace PID 211257. Build #5 regression (missing isKittyWindow filter →
-halo on all windows) user-reported and fixed same round; lesson LL-010
-recorded.</p>
+<p>2026-09-09T~04:35Z — Step C complete (build #7, badf8df7…):
+rename-immune content-based rule toggle, reparse hardening, E2E +
+rename-immunity verified; Sep 08 shortcut-registration outage
+root-caused (LL-011 boot race) and healed (kwin restart after daemon);
+kwinrulesrc normalized; LL-011..015 recorded.</p>
 </body>
 </html>

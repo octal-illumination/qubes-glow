@@ -232,24 +232,24 @@ KWin 5.27.8 container; clean build, zero warnings.</label></li>
 <code>kwinrc</code>
 <code>[Plugins] kittyglowEnabled=true</code>.</label></li>
 </ul>
-<h2 id="phase-2-activate-pending-user-approval">Phase 2 — Activate ⏳
-PENDING (user approval)</h2>
+<h2 id="phase-2-activate-done">Phase 2 — Activate ✅ DONE</h2>
 <ul class="task-list">
-<li><label><input type="checkbox" />Restart KWin
+<li><label><input type="checkbox" checked="" />Restart KWin
 (<code>kwin_x11 --replace</code>) so the plugin list is
 re-read.</label></li>
-<li><label><input type="checkbox" />Verify KWin stays alive + no
-<code>kittyglow</code> load error in journalctl.</label></li>
+<li><label><input type="checkbox" checked="" />Verify KWin stays alive +
+no <code>kittyglow</code> load error in journalctl.</label></li>
 </ul>
-<h2 id="phase-3-visual-verify-tune-blocked-on-phase-2">Phase 3 — Visual
-Verify &amp; Tune ⏳ BLOCKED on Phase 2</h2>
+<h2 id="phase-3-visual-verify-tune-done">Phase 3 — Visual Verify &amp;
+Tune ✅ DONE</h2>
 <ul class="task-list">
-<li><label><input type="checkbox" />Open a kitty window → confirm yellow
-halo; fullscreen → no halo.</label></li>
-<li><label><input type="checkbox" />If halo is offset, fix projection
-handling in <code>paintQuad</code>.</label></li>
-<li><label><input type="checkbox" />Tune <code>margin</code> /
-<code>layers</code> / color / alpha to taste.</label></li>
+<li><label><input type="checkbox" checked="" />Open a kitty window →
+confirm yellow halo; fullscreen → no halo.</label></li>
+<li><label><input type="checkbox" checked="" />Halo projection
+fixed/verified (SDF shader, v3).</label></li>
+<li><label><input type="checkbox" checked="" />Tuned <code>margin</code>
+/ <code>layers</code> / color / alpha (kwinrc
+<code>[Effect-kittyglow]</code>).</label></li>
 </ul>
 <h2 id="phase-4-enhancements-planned">Phase 4 — Enhancements 🔜
 PLANNED</h2>
@@ -264,9 +264,28 @@ vs. full halo.</label></li>
 <h2 id="phase-5-packaging-optional">Phase 5 — Packaging 🔜 OPTIONAL</h2>
 <ul class="task-list">
 <li><label><input type="checkbox" />Consider a repeatable RPM/spec or a
-one-shot installer script wrapping <code>build.sh</code> +
-<code>deploy.sh</code> for clean reinstalls after KWin
-upgrades.</label></li>
+one-shot installer script wrapping</label></li>
+</ul>
+<h2 id="phase-6-shortcut-reliability-v3.4-done-2026-09-09">Phase 6 —
+Shortcut Reliability (v3.4) ✅ DONE (2026-09-09)</h2>
+<ul class="task-list">
+<li><label><input type="checkbox" checked="" />Heal Meta+Shift+B/T lost
+to the kwin-before-kglobalaccel boot race (kwin restart AFTER the daemon
+— SPEC LL-011).</label></li>
+<li><label><input type="checkbox" checked="" />Normalize kwinrulesrc to
+a single ACTIVE canonical rule group ([1] vs [kitty-borderless]
+duplication — LL-007 family).</label></li>
+<li><label><input type="checkbox" checked="" />Step C: extract
+content-based rule toggle (<code>kittyborderrule.cpp/.h</code>) with
+inert-rule self-heal + per-toggle <code>reparseConfiguration()</code>
+(SPEC LL-014/LL-015); <code>kittyglow.cpp</code>
+modularized.</label></li>
+<li><label><input type="checkbox" checked="" />Build #7 zero-warning,
+deployed (badf8df7…), live-reloaded; E2E keypress verified; group-rename
+immunity proven (rename → toggles still work → restore). Recovery
+re-validated by a real kwin crash (auto-restart re-registered both
+shortcuts). <code>build.sh</code> + <code>deploy.sh</code> for clean
+reinstalls after KWin upgrades.</label></li>
 </ul>
 <h2 id="notes">Notes</h2>
 <p>Phases are gated: Phase 3 cannot be validated until Phase 2

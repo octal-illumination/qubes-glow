@@ -131,3 +131,10 @@
 - Immunity test: active group renamed [kitty-borderless]→[3] + reconfigure → presses still toggle the right group (content-based lookup + reparse working). Restored canonical name after.
 - Incident logged: kwin crash during stale-binary test presses (pre-reparse build was live); auto-restart healed registration (boot-order theory re-confirmed by real crash). No user-visible damage; parity restored to noborder=true.
 - Pending: docs phase (HANDBOOK/PROJECT_CONTEXT/SPECIFICATION LL-011..014/ROADMAP + HTML regen) then final commit.
+
+## 2026-09-09T10:09:50+05:30 — Docs phase complete (build #7 / Step C round closed)
+- SPECIFICATION.md: LL-011 (kwin-before-kglobalaccel boot race; heal = kwin restart AFTER daemon; crash-recovery re-validation), LL-012 (Qt modifier bit encoding; Meta=0x10000000), LL-013 (xdotool meta=Alt, super=Mod4), LL-014 (KSharedConfig process-wide cache → reparseConfiguration per toggle), LL-015 (content-based rule identity for UUID/numeric group names; no-arg allShortcutInfos as robust ownership query). Code standards: kittyglow.cpp 274-ln overage recorded as accepted tech debt; kittyborderrule module noted.
+- HANDBOOK.md §6b: B toggle now documented as content-matched/self-healing/reparse-per-toggle (build #7).
+- PROJECT_CONTEXT.md: build #7 state (badf8df7…), shortcut-recovery summary, file map +274/70 ln, live PID 15974, parity at rest.
+- ROADMAP.md: Phases 2–3 marked DONE (long complete); Phase 6 (Shortcut Reliability v3.4) added, all items checked.
+- HTML siblings regenerated via sanctioned generator; 18e doc-zone equality diff clean.

@@ -336,8 +336,12 @@ Specification</h2>
 </ul>
 <h2 id="code-standards">6. Code Standards</h2>
 <ul>
-<li>C++20; one effect per file; <code>kittyglow.cpp</code> ≤ 150 lines
-(currently ~85).</li>
+<li>C++20; one effect per file; rule-management extracted to
+<code>kittyborderrule.cpp</code> (single responsibility: kwinrulesrc
+rule toggle).</li>
+<li><code>kittyglow.cpp</code> is 274 lines — over the 150 budget. The
+overage is the cohesive GL render path (LL-recorded accepted tech debt,
+2026-09-09); do NOT add logic to it without extracting first.</li>
 <li>Descriptive names; no hardcoded magic numbers without a named
 const.</li>
 <li>Markdown docs carry the Rule 18 pointer + AI disclaimer.</li>
@@ -412,6 +416,35 @@ restated — dropping <code>isKittyWindow()</code> from
 incl. the panel. After any guard edit: re-read the function and
 <code>grep -n "isKittyWindow\|isMinimized"</code> before building. Never
 replace a compound guard line with prose-only text.</li>
+<li><strong>LL-011</strong> — Shortcut registration is ORDER-dependent:
+kwin_x11 starting BEFORE <code>plasma-kglobalaccel</code> loses all its
+global shortcuts for the whole session (Sep 08 boot). Restarting
+kglobalaccel alone does NOT heal (kwin never re-registers); restarting
+kwin AFTER the daemon does. Re-validated by a real crash: kwin
+auto-restart with the daemon already up re-registered every
+shortcut.</li>
+<li><strong>LL-012</strong> — kglobalaccel key ints use Qt modifier
+bits: SHIFT=0x02000000, CTRL=0x04000000, ALT=0x08000000,
+<strong>META=0x10000000</strong>. Meta+Shift+B = 0x12000042 = 301989954;
+Meta+Shift+T = 0x12000054 = 301989972. Probes with wrong modifier bits
+silently address the wrong keys (Ctrl+Shift instead of Meta+Shift).</li>
+<li><strong>LL-013</strong> — xdotool: <code>meta</code> modifier = Alt
+(Mod1); the Super/Win key is <code>super</code>. E2E shortcut tests must
+use <code>xdotool key super+shift+b</code>.</li>
+<li><strong>LL-014</strong> — <code>KSharedConfig::openConfig()</code>
+caches the parsed file PROCESS-wide. Effects toggling files that KWin’s
+RuleBook rewrites must call <code>reparseConfiguration()</code> per
+toggle or they act on a stale snapshot; <code>sync()</code> from a stale
+snapshot can resurrect groups KWin renamed/removed (and once crashed
+kwin during testing).</li>
+<li><strong>LL-015</strong> — Rule groups in <code>kwinrulesrc</code>
+may carry UUID or numeric names (KWin re-save). Identify rules by
+CONTENT (<code>Description</code>/<code>wmclass</code>), never by group
+name (see <code>kittyborderrule.cpp</code>). Robust ownership query on
+kglobalaccel is the NO-ARG <code>allShortcutInfos</code> on
+<code>/component/kwin</code>; keyed queries
+(<code>getGlobalShortcutsByKey</code>, <code>action()</code>) require
+exactly encoded key ints (LL-012).</li>
 </ul>
 <h2 id="official-references">9. Official References</h2>
 <ul>
