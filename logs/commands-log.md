@@ -118,3 +118,12 @@
 - Command: `git add -A` + `git commit -m "v2→v3.3: ..."` + `.gitignore` += `src/test_create`
 - Reason: previous 2M-token session (01a077e8) died before committing any v2→v3.3 work; user precondition for continuing was an up-to-date git state.
 - Result: commit d697c0f (24 files, +1533/−197), tree clean. Probe binary `src/test_create` ignored (kept `src/test_create.cpp`).
+
+## 2026-09-09T03:20:48Z — Post-reboot shortcut diagnosis (dom0 read-only probes via dom0 helper)
+- **Command:** dom0 'pgrep kwin_x11; grep kglobalshortcutsrc (Toggle Kitty Borderless|Window No Border); grep kwinrulesrc kitty-borderless'
+  - **Reason:** Verify on-disk shortcut bindings and rule state after Sep 08 boot.
+- **Command:** dom0 'qdbus org.kde.kglobalaccel /kglobalaccel introspect; qdbus org.kde.kwin.Effects /Effects loadedEffects; qdbus org.kde.KWin buildId; cat -n kwinrulesrc; awk section-map kglobalshortcutsrc; journalctl -b kwin/kglobalaccel'
+  - **Reason:** Determine live DBus service state, full kwinrulesrc contents, journal evidence.
+- **Command:** dom0 'busctl getGlobalShortcutsByKey + shortcut queries' — **CANCELLED by user** (password dialog dismissed).
+  - **Reason:** Confirm live kglobalaccel ownership of Meta+Shift+B / Meta+Shift+T.
+- **Findings:** org.kde.kwin.Effects bus service missing/flaky; kittyglow effect loads OK per journal; kwinrulesrc has ACTIVE group [1] (noborder=true, rules=1) + INERT duplicate [kitty-borderless] (noborder=false) — effect toggles the INERT group.
