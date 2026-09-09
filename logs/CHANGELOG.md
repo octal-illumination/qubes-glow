@@ -266,3 +266,5 @@
   HTML sibling regenerated (Rule 18a).
 - Build logs: logs/build/build-10-*.log, logs/build/deploy-10-*.log.
 - Rule 2 cleanup: no monitoring symlinks created (foreground tee capture).
+## 2026-09-10T01:50:00Z — LL-019 v3.4 live repro campaign (no code change)
+- Empirical probe campaign on live dom0 (kwin 36048): PIL ImageGrab + numpy strict-gold forensics; static states A/B/C verified LL-017/019-correct; two transient unclipped frames (d02/d16) captured at interaction boundaries; progressive-accumulation hypothesis formed from user's "intensity/thickness increases" report. See logs/SESSION_STATE.md for full state and next step. No source modified.

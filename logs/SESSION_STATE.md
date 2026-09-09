@@ -1,77 +1,29 @@
-# SESSION_STATE.md — kitty-glow pre-compaction brain dump
-
-> **Note:** All documentation and code in this project are purely AI-generated.
-
-## 1. Timestamp
-2026-09-09T18:58:09Z — pi session rooted at ~/Projects/QubesOS/UI-Enhancements (Build agent).
-
-## 2. Current Objective
-LL-019 (halo penetrates front windows): approved v3.4 bundle IMPLEMENTED and
-committed; Build #10 (compile+deploy+kwin restart) awaits explicit consent.
-
-## 3. Discovered Facts
-- Prior 2M-token session (01a077e8) fully recovered from ledgers; commits:
-  b7ddcf1 (Build #9 live in kwin 32660) → 82e60e5 (repro+API verify) →
-  e415dff (v3.4 fix) → 612442a (18e pointer strip). Git clean.
-- LL-019 user repro: ANY konsole/firefox window over UNFOCUSED kitty lets the
-  halo penetrate; position-independent; back windows irrelevant → systematic.
-- Root cause: 120 ms occluder cache rebuilt only inside paintWindow (old
-  stacking still valid), never on stacking change; unfocused kitty never
-  repaints → one unclipped frame persists forever.
-- Upstream kwineffects.h 5.27.8 verified: stackingOrderChanged() (no args) and
-  windowActivated(EffectWindow*) exist; `activeWindowChanged` does NOT exist.
-- Prior-session registry gap: LL-017/LL-018 existed only in HANDBOOK, never in
-  SPECIFICATION.md — repaired this session.
-- logs/SESSION_STATE.md carried a stray HTML-sibling pointer (the generator
-  selection key) → kept regenerating orphan logs/SESSION_STATE.html; stripped
-  per Rule 22f; scoped 18e equality diff now clean.
-- Workspace-literal 18e diff command is structurally broken (recursive
-  grep -rl vs non-recursive ls; hundreds of pre-existing pairs; exempt
-  docs/mdns_visualizer.html) — reported to user; scoped variant used.
-
-## 4. File Changes
-- src/kittyglow.cpp — v3.4: occluders rebuilt on EVERY halo paint (cache
-  symbols deleted); occludedAboveKitty(kitty, halo, scale) anchored to the
-  PAINTED kitty; repaintAllKittyHalos() added; stackingOrderChanged +
-  windowActivated connected in ctor; header v3.3→v3.4.
-- ARCHITECTURE.md — full rewrite (was stale v1/v2: 8-layer drawGlow, m_windows).
-- SPECIFICATION.md — LL-017/018 added, LL-019 added, LL-015/016 reformatted.
-- HANDBOOK.md — renderer/occlusion bullets → v3.4. PROJECT_CONTEXT.md —
-  Known Issues/Pending/Last Updated synced. 4 HTML siblings regenerated;
-  orphan logs/SESSION_STATE.html deleted; this file rewritten.
-- Ledgers appended: CHANGELOG, Audit-CHANGELOG, commands-log, Action-History.
-
-## 5. Decisions & Rationale
-- No cross-frame occlusion cache at all (vs widening 120 ms): halo paints at
-  blink cadence; per-paint stackingOrder() walk is negligible; cache WAS the race.
-- Repaint hooks over damage-healing: deterministic; windowActivated also fixes
-  stale ACTIVE-gold halo after focus loss.
-- Fail-open when painted kitty ∉ stackingOrder (window closing).
-- Did not edit broken 18e rule text (Rule 11 sync gating); reported instead.
-
-## 6. Active Blockers
-- None technical. Build #10 gated on explicit "build the app" (Rule 1b).
-
-## 7. Pending Work
-1. On "build the app": HANDBOOK build steps → deploy → kwin restart → verify
-   .so in /proc/$(pidof kwin_x11)/maps + B/T shortcuts via allShortcutInfos.
-2. User acceptance (PROJECT_CONTEXT §7): front window over unfocused kitty →
-   no penetration incl. right-after-raise; focus recolor; minimize/restore
-   tracking; B/T single-fire; panel clipping (LL-018) still clean.
-3. On pass: Known Issues LL-019 → resolved; commit; regenerate HTMLs.
-
-## 8. Full Context Dump
-- Occluder filters per paint: skip deleted/minimized; skip !isDock &&
-  opacity<0.99; require isOnCurrentDesktop+isOnCurrentActivity; rect =
-  expandedGeometry()*scale (+1 px fatten); intersect halo rect; GL flips
-  scissor rects itself (top-left-origin device px).
-- Compile runs in Dev-General container (F37, KWin 5.27 headers — dom0 has
-  none); deploy via base64 pipe + sudo cp to dom0 plugin dir (exact path in
-  HANDBOOK build section); kwin_x11 restart needed to load new .so.
-
-## 9. Next Agent Handoff Message
-Fresh agent: read PROJECT_CONTEXT.md §7/§8 and the HANDBOOK build section.
-Ask the user: "Build the app?" If yes, run HANDBOOK build → deploy → restart
-→ verify (.so maps + B/T shortcuts), then user acceptance per §7; on pass set
-Known Issues LL-019 resolved and commit (HTMLs too). Do not edit the broken
-workspace-level 18e rule text without Rule 11 sync approval.
+# SESSION_STATE — 2026-09-10T01:50:00Z
+## Current Objective
+Root-cause LL-019 residue on v3.4 (Build #10, kwin 36048): user reports gold glow penetrating the ACTIVE front window in front of kitty, with intensity/thickness GROWING the longer it sits.
+## Discovered Facts
+- Live dom0: kwin_x11 PID 36048, session chenpan, XAUTHORITY=/tmp/xauth_PCByVw, DISPLAY=:0, screen 1366x768.
+- Bridge runs as chenpan (no su); password dialog per dom0() call; batch everything per call.
+- kitty (0x4c01004/79695876) at (189,94,902,469); offset konsole (0x4c00291/79692433) at (159,81,902,469) BEHIND kitty; pi konsoles fullscreen (0,23,1366,725); firefox (0x4c004b5/79692981) at (439,108,902,469); plasmashell panel y748.
+- kwinrc has NO [Effect-kittyglow] section → all defaults from glowconfig.h (gold 255,215,0 @153/77 alpha).
+- isKittyWindow = windowClass().toLower().contains("kitty"); only one kitty window.
+- Capture loop: dom0 PIL ImageGrab(xdisplay=":0") → base64 over bridge → numpy+PIL strict mask (r-g>18, r-b>60, g-b>30, r>80); inactive-tuned mask (r-g>6) for 30% halo; wallpaper is olive (g>=r) — must use strict.
+- STATIC STATES ALL CORRECT: kitty-top full halo hugging frame; konsole-top full suppression; firefox-over-kitty → over_firefox=39≈0, exposed segments paint.
+- TRANSIENTS CAPTURED: d02 (post windowActivate(firefox), +300ms) and d16 (post mouseup) show unclipped ring over firefox: +2111/+2174 strict px (right ring col x~1160 y96-512; bottom y544-576); re-clip within 350ms.
+- Interpretation: transient unclipped halo paints at interaction boundaries; with static front window, no repaint erases them → alpha accumulates per kitty repaint (cursor blink cadence) → growing thickness/intensity (user's exact complaint).
+- xdotool titlebar drag FAILED to move firefox (pointer ended 935,378; window stayed 439,108) — interactive-move repro needs retry (maybe wmphys/key modifier or ydelays).
+- Effect has NO isUserMove/moved-hook; occluders rebuilt per paint from stackingOrder(); kittyIdx<0 → draws UNCLIPPED (suspect path).
+## File Changes
+- None to code. New captures: /tmp/kgprobe/{kg_p1,p2,p3,p4,p5,user,a1,b1,c1,c2}.png, burst/kg_d01..16.png.
+## Decisions & Rationale
+- Strict gold mask over loose: wallpaper olive passes loose (r-b>40,g-b>25) → false washes; strict (r-g>18) separates gold hue from olive.
+- Verified stacking immediately before each grab: xdotool windowactivate raise timing made unverified stacks uninterpretable.
+## Active Blockers
+- Root cause of transient unclipped paints unidentified (candidates: kittyIdx<0 during transitions; stacking async during activation/move-end; occluder set empty in the event→paint window).
+## Pending Work
+1. Blink/repaint-cadence burst in state C: kitty unfocused, static firefox on top; force repeated windowActivated hook fires (re-activate firefox every ~400ms ×20) → prove accumulation (monotonic gold growth over firefox).
+2. Dump kwin journal around transient; correlate with effect log lines.
+3. Root-cause in src/kittyglow.cpp (occludedAboveKitty / paint path / repaint hooks) → propose LL-019b fix; await "implement changes".
+4. Log ledgers + changelog + commit per Rules 3/9/10/23 (already partially appended this session).
+## Next Agent Handoff
+Run the state-C repetition experiment (dom0 batch: activate firefox, loop grabs + windowactivate firefox every 400ms), analyze monotonic gold growth over firefox rect; then read src/kittyglow.cpp lines 148-227 + 252-278 with the transient timing in mind. Ask user nothing yet; artifact is reproducible programmatically.

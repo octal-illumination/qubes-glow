@@ -318,3 +318,34 @@
   Reason: recover correct DBus interface name (org.kde.kglobalaccel.Component).
 - Command: git add -A && git commit
   Reason: atomic commit of build-state docs + ledgers (Rule 14).
+## 2026-09-10T01:15:00Z–01:45:00Z — LL-019 v3.4 live-state empirical probe campaign
+- Command: `ls src/kwin-script/kglowprobe logs/probe; head main.js; grep kglowprobe logs/commands-log.md`
+  Reason: Recover prior session's probe tooling and analysis loop for reuse.
+- Command: `grep colorActive src/glowconfig.h; dom0 'grep -A12 Effect-kittyglow kwinrc'`
+  Reason: Establish live halo colors (gold 255,215,0 @ 60%/30%) and confirm no config overrides.
+- Command: `dom0 'which import convert xwd xwininfo xdotool python3; ls /tmp/*.png'`
+  Reason: Inventory dom0 capture tooling; found prior session captures in /tmp.
+- Command: `dom0 'python3 -c "import PyQt5/PIL"; which spectacle qdbus dbus-send'`
+  Reason: Confirm PIL+PyQt5 available for screenshot capture on dom0.
+- Command: `dom0 'whoami; ps -ef|grep kwin_x11; ls /tmp/xauth*; grep Effect-kittyglow kwinrc'`
+  Reason: Identify bridge user (chenpan), session type (kwin_x11), Xauthority path, default config.
+- Command: `dom0 'PIL ImageGrab x2 (1.5s apart) + xprop stacking + xdotool geometries'`
+  Reason: Baseline captures kg_p1/p2 + live window rects (kitty 189,94 902x469; konsole offset 159,81).
+- Command: `dom0 'base64 PNG -> Dev-General decode'` (×5 rounds)
+  Reason: Transfer captures for numpy gold-pixel analysis (strict/inactive masks).
+- Command: `python3 gold-mask/cluster/ring-band/rowcol-profile analyses (numpy+PIL)`
+  Reason: Spatial forensics: halo edges vs wallpaper separation; found strict mask needed (r-g>18).
+- Command: `dom0 'xdotool windowactivate kitty/kon + PIL grabs kg_p3/p4 + stacking'`
+  Reason: State A/B test: kitty-on-top full halo vs konsole-on-top suppression.
+- Command: `dom0 'kg_p5 (settled kitty-active) + RGB samples + strict maps'`
+  Reason: Confirm p3 was not an animation frame; verify ring edges x182-188/x1091-1101/y91-93/y563-572.
+- Command: `dom0 'xprop WM_CLASS of all stacking windows + window names/geometries'`
+  Reason: Rule out second kitty-class window; identified plasmashell/konsoles/firefox/dolphin inventory.
+- Command: `python3 kg_user capture analysis + inactive-tuned ring scans`
+  Reason: User's live screen: no halo anywhere (correct: fullscreen pi-konsole occluder covers all).
+- Command: `dom0 'A/B/C state test: activate kon/kitty/firefox + grabs kg_a1/b1/c1/c2 + verified stacking'`
+  Reason: Deterministic static-state verification: firefox-over-kitty → over_firefox=39≈0 (clipped, correct).
+- Command: `dom0 'background 16-frame burst @350ms + xdotool titlebar drag of firefox'` (timed out at 30s; drag failed to move window)
+  Reason: Mid-drag transient capture; caught unclipped frames d02/d16 (+2100 gold over firefox).
+- Command: `python3 extra-gold diff d02/d16 vs d08 + maps`
+  Reason: Localized transient unclipped ring segments over firefox (right ring x1160, bottom y544-576).

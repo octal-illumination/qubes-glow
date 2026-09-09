@@ -217,3 +217,13 @@ restarted twice (activation; LL-011 heal) → PID 36048. Verified live:
 isEffectLoaded=true, .so mapped 5×, Meta+Shift+B/T shortcut structs
 registered. PROJECT_CONTEXT + ledgers updated + committed. User acceptance
 test (front window over unfocused kitty → no penetration) now requested.
+## 2026-09-10T00:55:00Z–01:45:00Z (continuation)
+#### User Request
+"The artifact still exisits, i can see the gold penetrate" + "The intensity, and thickness of the golden glow increases as the distortion is left visible on the active front window infornt of kitty"
+#### Verbatim Output Response
+- Resumed from prior-session probe harness (kglowprobe, logs/probe/*.png, PIL+numpy loop).
+- Established live ground truth: kwin_x11 session, kitty 189,94 902x469; offset konsole 159,81 behind it; colors gold@60%/30%; no kwinrc overrides.
+- Static-state verification (A/B/C, stacking verified per-grab): kitty-on-top → correct full halo (edges hug frame ±0-10px); konsole-on-top → halo fully suppressed (baseline noise); firefox-over-kitty → halo clipped under firefox (over_firefox=39≈0), exposed segments paint (ringB left segment 1806). ALL CORRECT per LL-017/019 design.
+- BURST CAPTURE (16 frames @350ms + interactive drag): two transient frames (d02 post-activation, d16 post-move-end) show UNCLIPPED ring segments over firefox (+2100 strict gold px: right ring x1160 y96-512, bottom y544-576) that re-clip within 350ms.
+- Synthesis: transient unclipped paints at interaction boundaries + static front window (no self-repaint) => progressive alpha accumulation on the front window's presented region => user-visible growing thickness/intensity ("increases as the distortion is left visible"). Matches original "blink" reports (kitty-blink cadence repaints).
+- NEXT: blink-cadence burst in state C (kitty unfocused, static firefox on top) with repeated re-activation to force halo repaints; count accumulation frames; inspect kwin journal for the occluder-empty trigger window; then root-cause in occludedAboveKitty()/paint-path.
