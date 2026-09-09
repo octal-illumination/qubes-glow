@@ -108,3 +108,6 @@
 
 ## 2026-09-09T03:27:54Z — Session state snapshot written (logs/SESSION_STATE.md)
 - Post-reboot diagnosis milestone: B-key root cause identified (kwinrulesrc active group renamed [kitty-borderless]→[1] by KWin re-save; effect toggles inert group). T-key live state pending one dom0 probe (cancelled at password dialog).
+
+## 2026-09-09T03:39:35Z — kglobalaccel restart done; re-registration absent; kwin restart required
+- Live keys B/T still unowned after daemon restart. Next: kwin_x11 --replace (pending consent) + one-time kwinrulesrc normalize.

@@ -127,3 +127,9 @@
 - **Command:** dom0 'busctl getGlobalShortcutsByKey + shortcut queries' — **CANCELLED by user** (password dialog dismissed).
   - **Reason:** Confirm live kglobalaccel ownership of Meta+Shift+B / Meta+Shift+T.
 - **Findings:** org.kde.kwin.Effects bus service missing/flaky; kittyglow effect loads OK per journal; kwinrulesrc has ACTIVE group [1] (noborder=true, rules=1) + INERT duplicate [kitty-borderless] (noborder=false) — effect toggles the INERT group.
+
+## 2026-09-09T03:39:35Z — kglobalaccel restart + live-state verification (dom0)
+- **Command:** dom0 'systemctl --user restart plasma-kglobalaccel.service; busctl action(B/T); qdbus /component/kwin shortcutNames; journalctl'
+  - **Reason:** Approved recovery step: restart kglobalaccel to trigger re-registration; verify live key ownership.
+- **Result:** Daemon restarted cleanly (09:07:34, active). Keys B/T STILL unowned (as 0), kwin component 0 shortcuts → kwin does NOT re-register on daemon restart. Execution context discovered: dom0 helper runs as chenpan uid 1000; hardcoded XDG_RUNTIME_DIR=/run/user/1000 export required.
+- **Conclusion:** Registration loss (kwin 08:58:11 before kglobalaccel 08:58:13 at boot) can only be healed by restarting kwin_x11 itself.
