@@ -78,16 +78,25 @@ None. Stateless effect; no persistence beyond kwinrc enable flag.
   (incl. crash auto-restarts); manual healing = restart kwin_x11 last (LL-011).
 
 ## 7. Pending / In-Progress
-- Visual verification of v3.3 with a real kitty window: seamless minimize
-  (halo tracks shrink), halo clipping under overlapping windows during drags,
-  single-fire B per press, live T.
+- v3.4 (LL-019 fix) user acceptance test after Build #10 deploy + kwin
+  restart: place konsole/firefox window over unfocused kitty → NO glow
+  penetration, including right after raise; halo recolors on focus change;
+  minimize/restore tracking + B/T single-fire unaffected; panel clipping
+  (LL-018) still clean.
 
 ## 8. Known Issues
+- Halo penetrates any window placed in front of kitty (LL-019): the 120 ms
+  occluder snapshot lagged restacks and an unfocused kitty never repainted
+  the one unclipped frame away (repro: konsole AND firefox, position-
+  independent; back windows irrelevant). **Fix implemented (v3.4): occluders
+  rebuilt on every halo paint, anchored to painted kitty, plus
+  stackingOrderChanged/windowActivated full-ring repaint hooks. Build #10
+  compile + deploy + kwin restart pending explicit build consent.**
 - Halo paints over translucent plasma panel (LL-018): panel (opacity < 0.99)
   was never an occluder, so halo repaints left gold on panel chrome (probe:
-  1,450 px vs 48 px baseline). **Fix built (#9), deployed, and confirmed
-  loaded in kwin 32660 (/proc maps, 5 mappings); shortcuts B+T re-registered
-  after restart. Visual panel acceptance test pending.**
+  1,450 px vs 48 px baseline). **Fix shipped in Build #9, live in kwin 32660;
+  v3.4 keeps the docks-always-clip rule in the per-paint occluder walk.
+  Visual panel acceptance test still pending.**
 - ~~Build container (`dom0-replica-fed37`) still mounts legacy `/home/user/kitty-glow`~~
   **RESOLVED 2026-09-06T23:50:19Z:** container re-created mounting this project's
   `src/` at `/src` (committed image `dom0-replica-fed37-img` preserves toolchain).
@@ -108,6 +117,12 @@ None. Stateless effect; no persistence beyond kwinrc enable flag.
 - **dom0-replica-fed37** Podman container — Fedora 37 build env (KWin 5.27.8 devel).
 
 ## 10. Last Updated
+2026-09-09T20:xxZ — LL-019 fix implemented (v3.4) in src/kittyglow.cpp:
+occluders rebuilt on every halo paint (120 ms cache deleted), anchored to
+the painted kitty window, stackingOrderChanged + windowActivated full-ring
+repaint hooks added. SPECIFICATION LL-017/018 registry gap repaired, LL-019
+added; HANDBOOK occlusion section synced. Build #10 pending explicit build
+consent.
 2026-09-09T19:xxZ — Build #9 (LL-018 fix) VERIFIED LIVE: .so mapped in kwin
 32660 (5 mappings), B+T shortcuts re-registered, restart log 0 errors,
 metadata dir perms fixed to 755/644. Remaining: visual panel test + re-run

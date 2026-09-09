@@ -192,3 +192,17 @@ LL-019 reports: (1) glow still penetrates a front window when nothing is behind 
 - LL-019 diagnosis revised: left/right asymmetry theory discarded; artifact is systematic (transition-frame unclipped halo + unfocused-kitty never-repaint persistence amplifier).
 - Verified upstream 5.27.8 APIs for the fix: stackingOrderChanged() signal, windowActivated() signal (not activeWindowChanged), EffectWindow::isUserMove(); no EffectsHandler::movingWindow().
 - Revised 5-item fix bundle proposed (all in src/kittyglow.cpp); session log updates committed; awaiting explicit "implement changes" per Rule 1a.
+
+## 2026-09-09T18:55:33Z
+#### User Request
+"implement changes"
+#### Verbatim Output Response
+Implemented the approved LL-019 fix bundle (v3.4) in src/kittyglow.cpp:
+occluders rebuilt from stackingOrder() on every halo paint (120 ms cache
+deleted), occluder set anchored to the painted kitty window, plus
+stackingOrderChanged/windowActivated full-ring repaint hooks
+(repaintAllKittyHalos). Repaired SPECIFICATION LL-017/018 registry gap and
+added LL-019; synced HANDBOOK + PROJECT_CONTEXT; rewrote stale ARCHITECTURE
+(v1/v2 → v3.4 SDF). Regenerated 4 HTML siblings, reverted orphan
+logs/SESSION_STATE.html, --check OK, Rule 16 verification clean. Build #10
+awaits explicit "build the app" per Rule 1b.

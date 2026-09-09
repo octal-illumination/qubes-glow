@@ -47,3 +47,14 @@
 
 ## 2026-09-09T16:55:43Z — audit: dom0 system changes during Build #9 verification
 - /usr/share/kwin/effects/kittyglow/ dir chmod 700→755 (file 644 unchanged) — root-created dir was not traversable by kwin user; normalized to standard. System change recorded per Rule 3 scope.
+
+## 2026-09-09T18:55:33Z — Doc-zone audit + LL-019 fix review
+- Rule 18e audit: workspace-wide literal command is structurally broken
+  (recursive grep -rl vs non-recursive ls; hundreds of pre-existing pairs
+  outside this project) — reported to user, rule text untouched (Rule 11
+  gates rule edits). Corrected scoped check: kitty-glow pointer set ↔ HTML
+  set equal after deleting orphan logs/SESSION_STATE.html (Rule 22f).
+- generate-docs-html.sh --check: OK for this project directory.
+- Rule 21 (isolation): all edits confined to
+  QubesOS/UI-Enhancements/Kwin/kitty-glow/; no cross-project references
+  introduced.

@@ -140,13 +140,31 @@ Git boundary: the whole `kitty-glow/` directory. No cross-project dependencies.
 - **LL-015** — Rule groups in `kwinrulesrc` may carry UUID or numeric names
   (KWin re-save). Identify rules by CONTENT (`Description`/`wmclass`), never
   by group name (once relevant to `kittyborderrule.cpp`, now retired).
-  **LL-016** — KWin property precedence: a loaded window *rule* overrides
+- **LL-016** — KWin property precedence: a loaded window *rule* overrides
   KWin *scripting* property writes. A `noborderrule` Force value in
   kwinrulesrc makes every script `noBorder` write revert at next state
   evaluation (live-proven 2026-09-09: rule removed → script wins).
   Consequence: the kitty borderless state is persisted in `kittyglowrc` and
   applied by script; kwinrulesrc must never again carry `noborderrule` for
-  kitty. Robust ownership query on
+  kitty.
+- **LL-017** — Front-window occlusion must clip using `expandedGeometry()`
+  (frame + shadow), not `frameGeometry()`: front windows paint translucent
+  shadow gradients well past the frame, and frame-only clipping let the halo
+  shine through those shadows (penetration artifact, 2026-09-09).
+- **LL-018** — Docks/panels are screen chrome and ALWAYS clip the halo, even
+  when translucent (adaptive plasma panel; probe: 1,450 gold px on panel vs
+  48 px baseline). Genuinely translucent non-dock windows keep the
+  bloom-through behavior by design.
+- **LL-019** — Occlusion state must never be cached across frames, and every
+  stacking change must repaint kitty halos: occluders are rebuilt from
+  `stackingOrder()` on EVERY halo paint (a 120 ms snapshot lagged raise/drag
+  transitions — one unclipped frame), anchored to the PAINTED kitty window
+  (correct occluder set with 2+ kitty windows), and
+  `stackingOrderChanged`/`windowActivated` trigger full-ring repaints,
+  because an unfocused kitty otherwise never repaints and one bad frame
+  persists indefinitely (user repro 2026-09-09: any konsole/firefox window
+  placed in front of kitty penetrated, position-independent).
+- Robust ownership query on
   kglobalaccel is the NO-ARG `allShortcutInfos` on `/component/kwin`;
   keyed queries (`getGlobalShortcutsByKey`, `action()`) require exactly
   encoded key ints (LL-012).

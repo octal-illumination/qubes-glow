@@ -277,3 +277,18 @@
   Reason: fetch the public effects API header to verify stackingOrderChanged/windowActivated/isUserMove exist in 5.27.8 before proposing the fix bundle.
 - Command: grep -n "stackingOrderChanged|movingWindow|resizedWindow|windowFrameGeometryChanged" /tmp/kwineffects-5.27.8.h (+ follow-up sed/grep context reads)
   Reason: confirm exact signal/method names and line numbers so the proposed fix compiles against 5.27.8 first try.
+
+## 2026-09-09T18:55:33Z
+- Command: edit src/kittyglow.cpp (6 blocks, via edit tool); edits to
+  SPECIFICATION.md / HANDBOOK.md / PROJECT_CONTEXT.md / ARCHITECTURE.md.
+  Reason: implement approved LL-019 fix bundle (v3.4) and sync documents.
+- Command: bash ~/Projects/scripts/generate-docs-html.sh <4 md files> ;
+  generate-docs-html.sh --check QubesOS/UI-Enhancements/Kwin/kitty-glow
+  Reason: Rule 18a HTML sibling regeneration + sanctioned audit mode.
+- Command: rm -f logs/SESSION_STATE.html
+  Reason: revert orphan HTML flagged by the scoped 18e equality diff
+  (logs/ ledgers are not HTML-generated per Rule 22f).
+- Command: grep -rn "updateOccluders|m_occluders|m_stackingStamp" src/
+  Reason: Rule 16 verification — confirm removed cache symbols are gone.
+- Command: git add -A && git commit (this commit)
+  Reason: atomic commit of fix + docs + ledgers (Rule 14).

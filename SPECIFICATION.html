@@ -441,15 +441,37 @@ kwin during testing).</li>
 <li><strong>LL-015</strong> — Rule groups in <code>kwinrulesrc</code>
 may carry UUID or numeric names (KWin re-save). Identify rules by
 CONTENT (<code>Description</code>/<code>wmclass</code>), never by group
-name (once relevant to <code>kittyborderrule.cpp</code>, now retired).
-<strong>LL-016</strong> — KWin property precedence: a loaded window
+name (once relevant to <code>kittyborderrule.cpp</code>, now
+retired).</li>
+<li><strong>LL-016</strong> — KWin property precedence: a loaded window
 <em>rule</em> overrides KWin <em>scripting</em> property writes. A
 <code>noborderrule</code> Force value in kwinrulesrc makes every script
 <code>noBorder</code> write revert at next state evaluation (live-proven
 2026-09-09: rule removed → script wins). Consequence: the kitty
 borderless state is persisted in <code>kittyglowrc</code> and applied by
 script; kwinrulesrc must never again carry <code>noborderrule</code> for
-kitty. Robust ownership query on kglobalaccel is the NO-ARG
+kitty.</li>
+<li><strong>LL-017</strong> — Front-window occlusion must clip using
+<code>expandedGeometry()</code> (frame + shadow), not
+<code>frameGeometry()</code>: front windows paint translucent shadow
+gradients well past the frame, and frame-only clipping let the halo
+shine through those shadows (penetration artifact, 2026-09-09).</li>
+<li><strong>LL-018</strong> — Docks/panels are screen chrome and ALWAYS
+clip the halo, even when translucent (adaptive plasma panel; probe:
+1,450 gold px on panel vs 48 px baseline). Genuinely translucent
+non-dock windows keep the bloom-through behavior by design.</li>
+<li><strong>LL-019</strong> — Occlusion state must never be cached
+across frames, and every stacking change must repaint kitty halos:
+occluders are rebuilt from <code>stackingOrder()</code> on EVERY halo
+paint (a 120 ms snapshot lagged raise/drag transitions — one unclipped
+frame), anchored to the PAINTED kitty window (correct occluder set with
+2+ kitty windows), and
+<code>stackingOrderChanged</code>/<code>windowActivated</code> trigger
+full-ring repaints, because an unfocused kitty otherwise never repaints
+and one bad frame persists indefinitely (user repro 2026-09-09: any
+konsole/firefox window placed in front of kitty penetrated,
+position-independent).</li>
+<li>Robust ownership query on kglobalaccel is the NO-ARG
 <code>allShortcutInfos</code> on <code>/component/kwin</code>; keyed
 queries (<code>getGlobalShortcutsByKey</code>, <code>action()</code>)
 require exactly encoded key ints (LL-012).</li>

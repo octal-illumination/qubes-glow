@@ -159,19 +159,23 @@ dom0 "kwriteconfig5 --file kwinrc --group Plugins --key kittyglowEnabled false"
 
 - Effect is always-on for kitty windows (the Meta+Shift+B toggle flips the
   rule class-wide, not per-window — see ROADMAP).
-- v3.3 renderer: one SDF quad per kitty window, mapped through the scene's
+- v3.4 renderer: one SDF quad per kitty window, mapped through the scene's
   animation transform (scale about frame top-left + translation, the same
   affine model stock BlurEffect uses), so the glow tracks minimize/restore
   mid-flight and fades with `data.opacity()`; non-uniform animation scale
   slightly distorts corner radius for the animation's duration (<300 ms).
-- Occlusion clipping (v3.3): windows logically stacked above kitty (per
-  `stackingOrder()`, same desktop/activity, not minimized) subtract their
-  frames from the halo's scissor region, so the halo never paints over other
-  applications during drags or over panels when maximized. Opaque windows and
-  docks/panels (even translucent ones, e.g. an adaptive plasma panel) always
-  clip; other genuinely translucent windows are skipped, letting the halo
-  show through them by design (LL-018).
-- Meta+Shift+B is autorepeat-gated (220 ms): one rule flip per physical key
+- Occlusion clipping (rebuilt every halo paint since v3.4): windows logically
+  stacked above the PAINTED kitty (per `stackingOrder()`, same
+  desktop/activity, not minimized) subtract their frame+shadow rectangles
+  (`expandedGeometry()`) from the halo's scissor region, so the halo never
+  paints over other applications. The occluder set is recomputed on every
+  halo paint (no cache), and stacking/activation changes
+  (`stackingOrderChanged`, `windowActivated`) force a full halo repaint — a
+  window raised above an unfocused kitty clips correctly on the very next
+  frame (LL-019). Opaque windows and docks/panels (even translucent ones,
+  e.g. an adaptive plasma panel) always clip; other genuinely translucent
+  windows are skipped, letting the halo show through them by design (LL-018).
+- Meta+Shift+B is autorepeat-gated (220 ms): one state flip per physical key
   press; a held key cannot churn the rule (v3.3).
 - Meta+Shift+T and B are also affected by kglobalaccel state: if the daemon
   ever deactivates a shortcut it persists an empty active field in

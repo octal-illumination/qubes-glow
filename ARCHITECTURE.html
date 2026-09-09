@@ -166,70 +166,6 @@
       vertical-align: middle;
     }
     .display.math{display: block; text-align: center; margin: 0.5rem auto;}
-    /* CSS for syntax highlighting */
-    pre > code.sourceCode { white-space: pre; position: relative; }
-    pre > code.sourceCode > span { line-height: 1.25; }
-    pre > code.sourceCode > span:empty { height: 1.2em; }
-    .sourceCode { overflow: visible; }
-    code.sourceCode > span { color: inherit; text-decoration: inherit; }
-    div.sourceCode { margin: 1em 0; }
-    pre.sourceCode { margin: 0; }
-    @media screen {
-    div.sourceCode { overflow: auto; }
-    }
-    @media print {
-    pre > code.sourceCode { white-space: pre-wrap; }
-    pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
-    }
-    pre.numberSource code
-      { counter-reset: source-line 0; }
-    pre.numberSource code > span
-      { position: relative; left: -4em; counter-increment: source-line; }
-    pre.numberSource code > span > a:first-child::before
-      { content: counter(source-line);
-        position: relative; left: -1em; text-align: right; vertical-align: baseline;
-        border: none; display: inline-block;
-        -webkit-touch-callout: none; -webkit-user-select: none;
-        -khtml-user-select: none; -moz-user-select: none;
-        -ms-user-select: none; user-select: none;
-        padding: 0 4px; width: 4em;
-        color: #aaaaaa;
-      }
-    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
-    div.sourceCode
-      {   }
-    @media screen {
-    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
-    }
-    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
-    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
-    code span.at { color: #7d9029; } /* Attribute */
-    code span.bn { color: #40a070; } /* BaseN */
-    code span.bu { color: #008000; } /* BuiltIn */
-    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
-    code span.ch { color: #4070a0; } /* Char */
-    code span.cn { color: #880000; } /* Constant */
-    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
-    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
-    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
-    code span.dt { color: #902000; } /* DataType */
-    code span.dv { color: #40a070; } /* DecVal */
-    code span.er { color: #ff0000; font-weight: bold; } /* Error */
-    code span.ex { } /* Extension */
-    code span.fl { color: #40a070; } /* Float */
-    code span.fu { color: #06287e; } /* Function */
-    code span.im { color: #008000; font-weight: bold; } /* Import */
-    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
-    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
-    code span.op { color: #666666; } /* Operator */
-    code span.ot { color: #007020; } /* Other */
-    code span.pp { color: #bc7a00; } /* Preprocessor */
-    code span.sc { color: #4070a0; } /* SpecialChar */
-    code span.ss { color: #bb6688; } /* SpecialString */
-    code span.st { color: #4070a0; } /* String */
-    code span.va { color: #19177c; } /* Variable */
-    code span.vs { color: #4070a0; } /* VerbatimString */
-    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
   </style>
   <style>
   html{margin:0!important}body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;max-width:960px;margin:0;padding:2em;line-height:1.6;color:#1a1a1a;background:#fff}
@@ -287,74 +223,98 @@ purely AI-generated.</p>
  │ src/kittyglow.*  │  base64 pipe   │ /usr/lib64/.../effects/      │
  │ build container  │ ─────────────▶ │   kittyglow.so  (loaded by   │
  │ (F37/KWin 5.27)  │  (sudo cp)     │   KWin via kwinrc Plugins)   │
- └──────────────────┘                │        │ paintWindow hook      │
+ └──────────────────┘                │        │ paintWindow hook     │
                                      │        ▼                      │
-                                     │   GL halo quads ─▶ screen    │
+                                     │   SDF halo quad ─▶ screen    │
                                      └──────────────────────────────┘</code></pre>
 <h2 id="component-details">2. Component Details</h2>
 <h3 id="kittygloweffect-srckittyglow.cpp">2.1
 <code>KittyGlowEffect</code> (src/kittyglow.cpp)</h3>
-<p>Subclasses <code>KWin::Effect</code>. On construction it connects
-<code>windowAdded</code> / <code>windowDeleted</code>, seeds the current
-stacking order, and inserts any window whose <code>windowClass()</code>
-contains “kitty” (case-insensitive) into <code>m_windows</code>
-(<code>QSet&lt;EffectWindow*&gt;</code>). Overrides
-<code>paintWindow()</code>.</p>
-<h3 id="drawgloweffectwindow">2.2
-<code>drawGlow(EffectWindow*)</code></h3>
-<p>Skips fullscreen windows. Reads <code>frameGeometry()</code>, then
-draws <code>layers = 8</code> concentric translucent rects, each inset
-by <code>t * margin</code> (margin = 22 px) and with alpha
-<code>70 * t</code> (brighter toward the window edge) in
-<code>RGB(255,221,0)</code>.</p>
-<h3 id="paintquadqrect-qcolor">2.3
-<code>paintQuad(QRect, QColor)</code></h3>
-<p>The actual GL work:</p>
-<div class="sourceCode" id="cb2"><pre
-class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>ShaderManager <span class="op">*</span>sm <span class="op">=</span> ShaderManager<span class="op">::</span>instance<span class="op">();</span></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>GLShader <span class="op">*</span>sh <span class="op">=</span> sm<span class="op">-&gt;</span>pushShader<span class="op">(</span>KWin<span class="op">::</span>ShaderTrait<span class="op">::</span>UniformColor<span class="op">);</span></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>GLVertexBuffer <span class="op">*</span>vb <span class="op">=</span> GLVertexBuffer<span class="op">::</span>streamingBuffer<span class="op">();</span></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>vb<span class="op">-&gt;</span>setColor<span class="op">(</span>c<span class="op">);</span></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>vb<span class="op">-&gt;</span>setData<span class="op">(</span><span class="dv">4</span><span class="op">,</span> <span class="dv">2</span><span class="op">,</span> verts<span class="op">,</span> <span class="kw">nullptr</span><span class="op">);</span>   <span class="co">// 4 verts, 2D, no texcoords</span></span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>vb<span class="op">-&gt;</span>render<span class="op">(</span>GL_TRIANGLE_STRIP<span class="op">);</span></span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>sm<span class="op">-&gt;</span>popShader<span class="op">();</span></span></code></pre></div>
+<p><code>KWin::Effect</code> subclass. Constructor wires the shortcut
+(Meta+Shift+B → <code>toggleKittyBorderless()</code>, autorepeat-gated
+220 ms) and the repaint hooks: - <code>windowFrameGeometryChanged</code>
+/ <code>windowMinimized</code> / <code>windowUnminimized</code> →
+repaint the halo ring (old + new geometry) so the halo never smears; -
+<code>stackingOrderChanged</code> → <code>repaintAllKittyHalos()</code>
+— a window raised above kitty re-clips the halo on the very next frame
+(LL-019); - <code>windowActivated</code> →
+<code>repaintAllKittyHalos()</code> — halo recolors ACTIVE/inactive on
+focus changes (LL-019); - <code>KittyToggle::init()</code> — DBus apply
+channel for the borderless state (<code>kittyglowrc</code> via
+<code>kittyglowstate.cpp</code>; kwinrulesrc retired, LL-016).</p>
+<h3 id="render-path-v3.4-one-sdf-quad">2.2 Render path (v3.4, one SDF
+quad)</h3>
+<p><code>prePaintWindow()</code> widens kitty’s repaint to the halo ring
+and marks the window translucent. <code>paintWindow()</code> paints
+kitty normally, then draws ONE hardware-blended triangle-fan quad around
+the frame rect with the GLSL SDF shader (<code>glowshader.cpp</code>):
+per-side soft falloff from <code>u_extents</code>, corner radius,
+active/inactive color. The quad is mapped through the scene’s animation
+transform (scale about frame top-left + translation) so the halo tracks
+minimize/restore mid-flight, and fades with
+<code>data.opacity()</code>.</p>
+<h3 id="occlusion-clip-occludedabovekitty-per-paint">2.3 Occlusion clip
+(<code>occludedAboveKitty</code>, per paint)</h3>
+<pre><code>clip = paintRegion ∩ haloRect
+clip -= union of expandedGeometry(wi) for every opaque wi logically ABOVE
+        the painted kitty in stackingOrder() (same desktop/activity, not
+        minimized; docks/panels always count — LL-018; other translucent
+        windows are skipped → intentional bloom-through)
+GLVertexBuffer::render(clip, GL_TRIANGLES, true)   // per-rect scissor;
+                                                   // GL flips y itself</code></pre>
+<p>Rebuilt on EVERY halo paint — no cache: the old 120 ms stacking
+snapshot lagged raise/drag transitions and one unclipped frame then
+persisted forever (an unfocused kitty never repaints; LL-019). Anchored
+to the PAINTED kitty window, not “the topmost kitty”, so multi-kitty
+stacks clip correctly.</p>
+<h3 id="glowconfig-glowconfig.h">2.4 <code>GlowConfig</code>
+(glowconfig.h)</h3>
+<p>Reads kwinrc <code>[Effect-kittyglow]</code> (thickness per side,
+corner radius, active/inactive colors) with live reload via
+<code>reconfigureEffect</code> — no compositor restart for tuning.</p>
 <h2 id="data-flow">3. Data Flow</h2>
-<pre><code>[window opens] windowAdded ─▶ m_windows.insert(w)
+<pre><code>[stacking/focus/geometry change]
+        │ stackingOrderChanged / windowActivated / windowFrameGeometryChanged
+        ▼
+addRepaint(halo ring) ──▶ KWin repaints the damaged region
         │
-[each frame] KWin calls paintWindow(w, …)
-        │
-        ├─ if w ∉ m_windows OR not OpenGLCompositing → just paintWindow()
-        └─ else: drawGlow(w)  (8 alpha-ramped rects, BEHIND window)
-                 └─ effects-&gt;paintWindow(w, …)   // real window on top</code></pre>
-<p>Because the halo is drawn before the window’s own paint,
-painter’s-order keeps it behind the terminal content.</p>
+[kitty&#39;s paintWindow]
+        ├─ effects-&gt;paintWindow(w, …)           // real window first
+        └─ clip = region ∩ halo − occluders     // occluders built THIS frame
+                 └─ GLVertexBuffer::render(clip) // halo quad over content</code></pre>
+<p>The halo draws after the window’s own paint (blending, no depth test)
+but is scissored away wherever an opaque window sits above kitty, so it
+never lands on front applications.</p>
 <h2 id="key-abstractions">4. Key Abstractions</h2>
 <ul>
-<li><code>KWin::Effect</code> — base class; <code>paintWindow</code> is
-the per-frame hook.</li>
-<li><code>KWin::ShaderManager::pushShader(ShaderTrait::UniformColor)</code>
-— solid-color GL program.</li>
-<li><code>KWin::GLVertexBuffer::streamingBuffer()</code> — reusable
-dynamic vertex buffer.</li>
-<li><code>KWin::EffectsHandler::compositingType()</code> — guards
-GL-only drawing.</li>
+<li><code>KWin::Effect</code> / <code>EffectsHandler</code> — paint
+hooks + repaint requests.</li>
+<li><code>KWin::GLShader</code> +
+<code>ShaderManager::pushShader/popShader</code> — the SDF program
+(effect-owned, rebuilt in <code>reconfigure</code>).</li>
+<li><code>KWin::GLVertexBuffer::streamingBuffer()</code> — per-frame
+quad upload; <code>render(region, GL_TRIANGLES, true)</code> scissors
+the draw to <code>region</code>.</li>
+<li><code>stackingOrder()</code> — logical bottom→top order; NOT
+reordered during a drag (elevation is paint-time only) — see the note in
+<code>occludedAboveKitty</code>.</li>
 </ul>
 <h2 id="error-handling-strategy">5. Error Handling Strategy</h2>
 <ul>
-<li><strong>Non-OpenGL compositing:</strong> effect is a no-op (guard in
-<code>paintWindow</code>).</li>
-<li><strong>Fullscreen kitty:</strong> skipped to avoid tinting the
-whole screen.</li>
-<li><strong>GL errors:</strong> <code>UniformColor</code> shader +
-<code>GLVertexBuffer</code> are KWin-internal and error-tolerant; a bad
-quad at worst renders nothing, not a crash.</li>
-<li><strong>Missing/invalid plugin:</strong> KWin logs a load failure
-and continues; it does not abort the compositor (verified intent — see
-HANDBOOK verification steps).</li>
+<li><strong>Non-OpenGL compositing:</strong> <code>paintWindow</code>
+returns before any GL call (QPainter-fallback safety).</li>
+<li><strong>Window not in stacking order:</strong>
+<code>occludedAboveKitty</code> fails OPEN (draws unclipped) rather than
+clipping the halo against the whole stack.</li>
+<li><strong>Empty clip / alpha ≤ 0.01:</strong> early return before
+shader/vertex setup.</li>
+<li><strong>Missing/invalid plugin:</strong> KWin logs the load failure
+and continues; it does not abort the compositor.</li>
 </ul>
 <h2 id="problem-context">6. Problem Context</h2>
 <p>The compositor (not the app) owns window framing, so the glow must be
-a KWin plugin in dom0. Full problem statement and conformance rules:
-SPECIFICATION.md. Build/deploy/activate steps: HANDBOOK.md.</p>
+a KWin plugin in dom0. Full problem statement and lessons registry
+(LL-01x): SPECIFICATION.md. Build/deploy/activate steps:
+HANDBOOK.md.</p>
 </body>
 </html>

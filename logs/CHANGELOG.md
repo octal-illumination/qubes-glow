@@ -204,3 +204,34 @@
 - User re-test: artifact is systematic — ANY unmaximised/unminimised window placed in front of kitty penetrates (konsole, firefox; position-independent; back windows irrelevant).
 - Upstream 5.27.8 API checks: stackingOrderChanged() EXISTS (line 1820, since 4.10); windowActivated() is the correct focus signal (activeWindowChanged does NOT exist); no EffectsHandler::movingWindow(); isUserMove() available.
 - Revised 5-item fix bundle proposed in logs/SESSION_STATE.md §5; source untouched pending Rule 1a consent.
+
+## 2026-09-09T18:55:33Z — LL-019 penetration fix implemented (v3.4, Build #10 pending consent)
+- src/kittyglow.cpp: occluders rebuilt from stackingOrder() on EVERY halo
+  paint — 120 ms cache deleted (m_occluders/m_stackingStamp/updateOccluders
+  removed); occluder set anchored to the PAINTED kitty window (was topmost
+  kitty — wrong set with 2+ kitty windows); added stackingOrderChanged +
+  windowActivated connections repainting the full kitty halo ring via new
+  KittyGlowEffect::repaintAllKittyHalos(); header v3.3→v3.4.
+- SPECIFICATION.md: Lessons Learned registry repaired — LL-017/LL-018 were
+  never entered (Build #9 fixes existed only in HANDBOOK); added LL-017
+  (expandedGeometry shadows), LL-018 (docks always clip), LL-019 (no
+  cross-frame occlusion cache; stacking/activation repaint hooks); fixed
+  LL-015/LL-016 bullet formatting; orphaned kglobalaccel note kept as own
+  bullet.
+- HANDBOOK.md: renderer/occlusion bullets updated to v3.4 per-paint
+  semantics (HANDBOOK.md, §Limitations).
+- PROJECT_CONTEXT.md: Known Issues LL-019 entry (fix coded, Build #10
+  pending explicit build consent), Pending = v3.4 acceptance test,
+  Last Updated prepended.
+- ARCHITECTURE.md: rewritten — still described retired v1/v2 design
+  (8-layer drawGlow, m_windows QSet, windowAdded seeding); now documents
+  the v3.4 SDF pipeline incl. per-paint occlusion and repaint hooks.
+- Rule 18: 4 HTML siblings regenerated via sanctioned script; --check OK;
+  scoped 18e equality diff clean after reverting orphan
+  logs/SESSION_STATE.html (logs/ ledgers are not HTML-generated, Rule 22f).
+- Rule 16: no stale symbols; stackingOrderChanged()/windowActivated()
+  verified against upstream kwineffects.h 5.27.8; brace balance OK; changed
+  regions re-read (paintWindow clip block, repaintAllKittyHalos,
+  occludedAboveKitty, constructor wiring).
+- Build #10 (compile + deploy + kwin restart) NOT run — Rule 1b: awaiting
+  explicit "build the app".

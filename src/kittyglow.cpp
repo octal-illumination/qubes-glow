@@ -1,4 +1,5 @@
-// kittyglow — v3.3: occlusion-clipped SDF glow, animation-mapped halo, repeat-gated shortcut.
+// kittyglow — v3.4: occlusion-clipped SDF glow (per-paint occluder rebuild),
+// animation-mapped halo, repeat-gated shortcut.
 // Note: This code is purely AI-generated.
 //
 // Render path: one hardware-blended triangle fan quad around the frame rect;
@@ -58,16 +59,14 @@ public:
 private:
     void toggleKittyBorderless();
     void repaintHalo(const QRectF &frame);
-    void updateOccluders();
-    QRegion occludedAboveKitty(const QRectF &halo, qreal scale) const;
+    void repaintAllKittyHalos();
+    QRegion occludedAboveKitty(KWin::EffectWindow *kitty, const QRectF &halo,
+                               qreal scale) const;
     KittyGlow::GlowConfig m_cfg;
     std::unique_ptr<KWin::GLShader> m_shader;
     // Key autorepeat made Meta+Shift+B flip the rule dozens of times per hold
     // (flicker + final parity depended on hold duration); gate per press.
     QElapsedTimer m_toggleGate;
-    // Windows stacked above kitty whose opaque frames must clip the halo.
-    QVector<KWin::EffectWindow *> m_occluders;
-    QElapsedTimer m_stackingStamp;
 };
 
 KittyGlowEffect::KittyGlowEffect() {
@@ -97,6 +96,20 @@ KittyGlowEffect::KittyGlowEffect() {
             [this](KWin::EffectWindow *w) {
         if (isKittyWindow(w)) repaintHalo(w->frameGeometry());
     });
+
+    // LL-019: the halo clip comes from the stacking at paint time, but
+    // nothing repainted the halo when stacking CHANGED (window raised above
+    // kitty) — the one unclipped transition frame then persisted forever,
+    // because an unfocused kitty never repaints by itself. Repaint every
+    // kitty halo on raise/lower; the next frame re-clips from fresh state.
+    connect(KWin::effects, &KWin::EffectsHandler::stackingOrderChanged, this,
+            [this]() { repaintAllKittyHalos(); });
+
+    // LL-019 (stale color): the halo color is picked at paint time from
+    // activeWindow(), so the halo stayed ACTIVE-gold after focus moved away
+    // until kitty's next repaint. Repaint on every activation change.
+    connect(KWin::effects, &KWin::EffectsHandler::windowActivated, this,
+            [this](KWin::EffectWindow *) { repaintAllKittyHalos(); });
 
     // Seamless toggle channel: DBus pull-service + kglowsync poller script
     // (see kittytoggle.h). The script applies noBorder live so the toggle
@@ -179,11 +192,10 @@ void KittyGlowEffect::paintWindow(KWin::EffectWindow *w, int mask, QRegion regio
     // without culling). Cut the occluded pieces out of the clip region: the
     // SDF is fragment-position-based, so scissored partial draws of the same
     // quad are pixel-identical to an unclipped draw.
+    // LL-019: occluders are rebuilt on EVERY halo paint — see
+    // occludedAboveKitty(); the old 120 ms cache lagged restacks.
     QRegion clip = region.intersected(halo.toRect());
-    const bool cacheFresh = m_stackingStamp.isValid() && !m_stackingStamp.hasExpired(120);
-    if (!cacheFresh) updateOccluders();
-    if (!m_occluders.isEmpty())
-        clip -= occludedAboveKitty(halo, s);
+    clip -= occludedAboveKitty(w, halo, s);
     if (clip.isEmpty()) return;
 
     QColor color = KWin::effects->activeWindow() == w ? m_cfg.colorActive
@@ -216,20 +228,34 @@ void KittyGlowEffect::paintWindow(KWin::EffectWindow *w, int mask, QRegion regio
     KWin::ShaderManager::instance()->popShader();
 }
 
-// Rebuild the occluder list: windows logically stacked ABOVE kitty that paint
-// fully opaque frames. stackingOrder() is the logical bottom→top order and is
-// NOT reordered while a window is dragged (elevation is paint-time only), so
-// it is exactly the relationship the halo clip needs. Cached briefly — the
-// list is only consulted while halo pixels are repainting (moves/drags).
-void KittyGlowEffect::updateOccluders() {
-    m_occluders.clear();
+// Repaint the full halo ring of every kitty window (stacking/activation
+// hooks); the next paint pass recomputes each halo's clip from fresh state.
+void KittyGlowEffect::repaintAllKittyHalos() {
+    const auto stack = KWin::effects->stackingOrder();
+    for (auto *w : stack) {
+        if (w && !w->isDeleted() && isKittyWindow(w))
+            repaintHalo(w->frameGeometry());
+    }
+}
+
+// Occluders for ONE halo paint: windows logically stacked ABOVE the PAINTED
+// kitty window that paint fully opaque frames, as a device-px region cut out
+// of the halo. Rebuilt on EVERY halo paint — the old 120 ms stacking snapshot
+// lagged raise/drag transitions (LL-019): one frame drew unclipped and an
+// unfocused kitty never repainted it away. Anchoring to the painted window
+// (not "the topmost kitty") also fixes the occluder set with 2+ kitty
+// windows. Cost: one stackingOrder() walk per halo paint — negligible.
+// NOTE: stackingOrder() is the logical bottom→top order and is NOT reordered
+// while a window is dragged (elevation is paint-time only).
+QRegion KittyGlowEffect::occludedAboveKitty(KWin::EffectWindow *kitty,
+                                            const QRectF &halo, qreal scale) const {
+    QRegion occl;
     const auto stack = KWin::effects->stackingOrder();
     int kittyIdx = -1;
-    for (int i = 0; i < stack.size(); ++i) {
-        KWin::EffectWindow *w = stack.at(i);
-        if (w && !w->isDeleted() && isKittyWindow(w)) kittyIdx = i;
+    for (int i = 0; i < stack.size() && kittyIdx < 0; ++i) {
+        if (stack.at(i) == kitty) kittyIdx = i;
     }
-    if (kittyIdx < 0) return;
+    if (kittyIdx < 0) return occl;  // not in stack (closing): draw unclipped
     for (int i = kittyIdx + 1; i < stack.size(); ++i) {
         KWin::EffectWindow *w = stack.at(i);
         if (!w || w->isDeleted() || w->isMinimized()) continue;
@@ -238,14 +264,6 @@ void KittyGlowEffect::updateOccluders() {
         // translucent windows still intentionally let the halo bloom through.
         if (!w->isDock() && w->opacity() < 0.99) continue;
         if (!w->isOnCurrentDesktop() || !w->isOnCurrentActivity()) continue;
-        m_occluders.append(w);
-    }
-    m_stackingStamp.start();
-}
-
-QRegion KittyGlowEffect::occludedAboveKitty(const QRectF &halo, qreal scale) const {
-    QRegion occl;
-    for (auto *w : m_occluders) {
         // expandedGeometry() spans the frame AND the window shadow: front
         // windows paint translucent shadow gradients well past frameGeometry(),
         // and clipping only the frame let the halo shine through those shadows
