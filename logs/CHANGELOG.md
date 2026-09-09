@@ -235,3 +235,6 @@
   occludedAboveKitty, constructor wiring).
 - Build #10 (compile + deploy + kwin restart) NOT run — Rule 1b: awaiting
   explicit "build the app".
+
+## 2026-09-09T18:56:35Z
+- logs/SESSION_STATE.md: stripped stray first-line HTML-sibling pointer comment (Rule 22f: logs/ ledgers are not HTML-generated; the pointer is the generator selection key and kept regenerating an orphan SESSION_STATE.html). Scoped 18e equality diff now clean.

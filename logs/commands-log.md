@@ -292,3 +292,7 @@
   Reason: Rule 16 verification — confirm removed cache symbols are gone.
 - Command: git add -A && git commit (this commit)
   Reason: atomic commit of fix + docs + ledgers (Rule 14).
+
+## 2026-09-09T18:56:35Z
+- Command: sed -i 1{/^<!-- HTML sibling/d} logs/SESSION_STATE.md
+  Reason: remove generator selection pointer from a logs ledger (Rule 22f) — root cause of the recurring orphan SESSION_STATE.html.

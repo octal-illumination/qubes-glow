@@ -1,4 +1,3 @@
-<!-- HTML sibling: regenerate ONLY via bash ~/Projects/scripts/generate-docs-html.sh QubesOS/UI-Enhancements/Kwin/kitty-glow/logs/SESSION_STATE.md — Rule 18c left-aligned CSS. Never hand-roll pandoc. -->
 # SESSION_STATE.md — kitty-glow pre-compaction brain dump
 
 > **Note:** All documentation and code in this project are purely AI-generated.
