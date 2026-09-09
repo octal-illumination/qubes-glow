@@ -107,6 +107,7 @@ None. Stateless effect; no persistence beyond kwinrc enable flag.
 - **dom0-replica-fed37** Podman container — Fedora 37 build env (KWin 5.27.8 devel).
 
 ## 10. Last Updated
+2026-09-09T18:xxZ — Build #9 deployed + kwin restarted (32660); post-restart verify pending dialog consent.
 2026-09-09T18:05Z — LL-018 fix coded in `updateOccluders()` (docks/panels
 always clip the halo, even when translucent; probe evidence: 1,450 gold px
 on panel vs 48 px baseline, static clipping re-verified clean). HANDBOOK

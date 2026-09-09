@@ -256,3 +256,9 @@
 2026-09-09T11:55:24Z | alpha-aware pale-gold mask + strip color profile on clip-g8/g9a | Check whether 60%-alpha halo on white desktop was missed by B<90 threshold
 2026-09-09T12:01:07Z | write logs/SESSION_STATE.md (Rule 17 brain-dump: probe results, root cause, pending fix consent) | Preserve session state before awaiting modification consent
 2026-09-09T16:08:54Z | edit src/kittyglow.cpp updateOccluders(): docks/panels always clip halo even when translucent (LL-018 fix) + Rule 16 verification | Implement approved 1-line consent-lifecycle fix
+2026-09-09T16:44:22Z | scripts/build.sh (Build #9, container dom0-replica-fed37) — LL-018 fix compiled zero-warning, dist sha256 e7ff8627… | Explicit 'build the app' consent
+2026-09-09T16:44:22Z | scripts/deploy.sh — deployed to dom0 (.so + metadata + kglowsync pkg), kwinrc enabled; 1st attempt Access denied (dialog), 2nd OK
+2026-09-09T16:44:22Z | dom0 sha256sum check — deployed .so matches dist build #9 exactly | Deploy integrity gate
+2026-09-09T16:44:22Z | dom0 kwin_x11 --replace via /tmp/kg_restart.sh — old=32381 new=32660, restart log clean | Approved restart chain (post-fix activation)
+2026-09-09T16:44:22Z | dom0 post-restart checks x2 — CANCELLED at password dialog (user action or dialog timeout); isLoaded/metadata-perms/shortcut checks still pending | Awaiting user re-run
+2026-09-09T16:44:22Z | sed PROJECT_CONTEXT.md Last Updated (build #9 state) | Rule 12c sync

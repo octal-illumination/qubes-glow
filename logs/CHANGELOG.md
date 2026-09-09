@@ -187,3 +187,8 @@
 
 ## 2026-09-09T16:08:54Z — fix(kittyglow): translucent dock/panel halo penetration (LL-018)
 - **src/kittyglow.cpp** \`updateOccluders()\`: occluder skip condition \`w->opacity() < 0.99\` now applies only to non-dock windows; docks/panels always clip (synthetic probe: 1,450 gold px on panel vs 48 px baseline). Pending: rebuild + redeploy + KWin restart (separate build consent).
+
+## 2026-09-09T16:44:22Z — build+deploy: Build #9 (LL-018 fix) live on dom0
+- Build zero-warning; artifact sha256 e7ff8627… verified on dom0 post-deploy.
+- kwin_x11 restarted 32381→32660, restart log clean, kglowsync bootstrap expected at start.
+- Post-restart verification (isLoaded, metadata 755/644 fix, shortcut registration) pending — dom0 password dialogs cancelled twice.

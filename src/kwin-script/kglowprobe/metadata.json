@@ -1,0 +1,14 @@
+{
+    "KPackageStructure": "KWin/Script",
+    "KPlugin": {
+        "Description": "kittyglow occlusion diagnostic (temporary)",
+        "Icon": "preferences-system-windows-effect",
+        "Id": "kglowprobe",
+        "License": "MIT",
+        "Name": "kglowprobe",
+        "Version": "1.0"
+    },
+    "X-KDE-PluginKeyword": "kglowprobe",
+    "X-Plasma-API": "javascript",
+    "X-Plasma-MainScript": "code/main.js"
+}

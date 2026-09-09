@@ -41,3 +41,6 @@
 
 ## 2026-09-09T16:08:54Z — audit: LL-018 fix (src/kittyglow.cpp)
 - Change: occluder eligibility — \`!w->isDock() &&\` guard added before opacity test. Security-relevant? No (visual-clip logic only). Verified: region re-read, brace/paren balance 0, single isDock call site.
+
+## 2026-09-09T16:44:22Z — audit: Build #9 deploy + kwin restart
+- dom0 metadata dir perms anomaly noted (chenpan cannot traverse /usr/share/kwin/effects/kittyglow; fix queued: chmod 755 dir, 644 file — required for KWin metadata read).
