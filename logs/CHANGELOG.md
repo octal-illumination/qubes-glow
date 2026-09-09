@@ -172,3 +172,15 @@
 
 ## 2026-09-09T08:39:56Z — SESSION_STATE.md refreshed (Rule 17)
 - Brain-dump: Step C rebuild committed (bb79411), artifacts hashed, deploy/E2E pending explicit user go.
+
+## 2026-09-09T09:02:42Z — Steps 1–3 executed on dom0: deploy, rule deletion, E2E verification PASSED
+- Deploy: kittyglow.so (25e019db…) + metadata + kglowsync package installed to dom0, kwinrc enabled; new effect auto-loaded on reconfigure ("Successfully loaded plugin effect: kittyglow").
+- Script: stale old-code instance unloaded; new script auto-ran — journal "bootstrap: persisted state=true -> desired=true" (getCurrentState DBus path verified live).
+- kwinrulesrc: kitty forcing rule group [1] DELETED (python in-place edit preserving owner/mode 600 chenpan), [General] count=0, rules= entry dropped; protonvpn/chromium UUID rules untouched; org.kde.KWin.reconfigure flushed.
+- E2E (kglobalaccel invokeShortcut x4 via busctl --user): kittyglowrc flipped false/true/false/true; each toggle exactly ONE sweep write, every write stuck ("now=" matches); 3 s steady-state silence — write-revert fight ELIMINATED. Final state borderless (user normal).
+- Note: first E2E attempt failed "name is not activatable" — agent error: busctl without --user targets system bus (kglobalaccel itself healthy, shortcut registered). Diagnosed and corrected in-session.
+
+## 2026-09-09T09:09:13Z — Docs + session state refreshed (deployment recorded)
+- PROJECT_CONTEXT.md §5/§10: build #8 deployed + E2E-verified on dom0 (14:31Z); busctl --user note.
+- HANDBOOK.md: E2E verification note on the Meta+Shift+B toggle entry.
+- SESSION_STATE.md: feature-complete snapshot; hardening idea (bootstrap retry) proposed, not approved.

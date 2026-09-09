@@ -311,8 +311,13 @@ zero-warning. Artifact: <code>dist/kittyglow.so</code>, sha256
 overrides scripting <code>noBorder</code> writes (write-revert fight,
 LL-016 family). Adds <code>getCurrentState()</code> DBus slot consumed
 by the kglowsync script bootstrap (kwin/script restart coverage).
-<code>kittyborderrule.cpp</code> retired. → toggles still flip parity,
-<code>rules=</code> preserved, canonical name restored after.</li>
+<code>kittyborderrule.cpp</code> retired. <strong>Deployed +
+E2E-verified on dom0 2026-09-09:</strong> effect auto-loaded on
+reconfigure, script bootstrap live (journal), kitty forcing rule DELETEd
+from kwinrulesrc (count=0), 4-press kglobalaccel E2E — rc flips in sync,
+single stuck sweep write per toggle, zero reverts, steady-state silence.
+→ toggles still flip parity, <code>rules=</code> preserved, canonical
+name restored after.</li>
 <li><strong>Shortcut recovery (dom0, this session):</strong> Sep 08 boot
 race (kwin 08:58:11 before kglobalaccel 08:58:13) killed B/T
 registration. kwin restarted AFTER daemon → both shortcuts live
@@ -397,10 +402,10 @@ deployment + activation target.</li>
 build env (KWin 5.27.8 devel).</li>
 </ul>
 <h2 id="last-updated">10. Last Updated</h2>
-<p>2026-09-09T~04:35Z — Step C complete (build #7, badf8df7…):
-rename-immune content-based rule toggle, reparse hardening, E2E +
-rename-immunity verified; Sep 08 shortcut-registration outage
-root-caused (LL-011 boot race) and healed (kwin restart after daemon);
-kwinrulesrc normalized; LL-011..015 recorded.</p>
+<p>2026-09-09T14:40Z — Build #8 (25e019db…) deployed + E2E-verified on
+dom0: kittyglowrc state store live, kwinrulesrc kitty rule deleted,
+write-revert fight eliminated (4-press test + steady-state silence).
+kglowsync new code running with getCurrentState bootstrap. busctl needs
+–user on dom0 (noted).</p>
 </body>
 </html>

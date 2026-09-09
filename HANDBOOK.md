@@ -86,6 +86,8 @@ Two independent toggles exist:
   overrides KWin scripting `noBorder` writes (scripting < rules), so the
   rule file must never carry `noborderrule` for kitty again. The old
   content-based rule toggle (`kittyborderrule.cpp`) was retired.
+  E2E-verified 2026-09-09: `kittyglowrc` flips per press, each toggle is one
+  stuck sweep write, zero reverts, steady-state silence after applying.
 - **Meta+Shift+T — Window No Border (native KWin).** Per-focused-window
   titlebar/frame toggle, rebound from Meta+Shift+B when the effect needed B
   (kglobalshortcutsrc, applied via `plasma-kglobalaccel` unit restart — the

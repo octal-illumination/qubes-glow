@@ -139,3 +139,9 @@ Built kittyglow.so with new seamless-B code. First pass failed (4 Qt API errors 
 "continue what you were doing" (standing approval for offline plan: state store, bootstrap, script rewrite, container build)
 #### Verbatim Output Response
 Fixed QStringLiteral(constexpr) compile error; build green zero-warning (kittyglow.so sha256 25e019db…). kittyborderrule.{h,cpp} git-rm'd; kittyglowstate.{h,cpp} added; kittytoggle.cpp nextSource+getCurrentState wired; kglowsync main.js rewritten (bootstrap/poll/sweep/clientAdded); CMake updated. HANDBOOK/PROJECT_CONTEXT/ROADMAP/SPECIFICATION synced + HTML regenerated. Committed bb79411; tree clean. NOT yet done (needs explicit go): deploy to dom0, delete kitty rule from kwinrulesrc, restart script, E2E toggle test.
+
+## 2026-09-09T09:02:42Z — Deploy + rule deletion + E2E verification completed
+#### User Request
+"do all 3" (deploy, delete kitty forcing rule, E2E verification); later "try again, i was away from keyboard" after two cancelled dialogs.
+#### Verbatim Output Response
+Deployed new effect+script to dom0 (auto-load confirmed); deleted kwinrulesrc kitty forcing rule [1] (count=0, reconfigure flushed); new script bootstrap verified via journal; E2E 4-press test PASSED — kittyglowrc flips in sync, single stuck sweep write per toggle, zero reverts, steady-state silence, final state borderless. One agent-side busctl --user mistake diagnosed and corrected. Docs/logs updated; commit follows.

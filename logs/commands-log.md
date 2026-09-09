@@ -233,3 +233,9 @@
   **Reason:** retire superseded module, commit approved Step C rebuild atomically.
 - **Command:** bash ~/Projects/scripts/generate-docs-html.sh HANDBOOK.md PROJECT_CONTEXT.md SPECIFICATION.md ROADMAP.md
   **Reason:** Rule 18 sibling regeneration after doc sync.
+- **Command:** bash scripts/deploy.sh (3 dom0 AuthExec calls); dom0 recon batch (kwinrulesrc/loadedEffects/isScriptLoaded)
+  **Reason:** Step 1 approved deploy + Step 2 reconnaissance.
+- **Command:** dom0 python edit kwinrulesrc (delete group [1], count=0, drop rules=1) + org.kde.KWin.reconfigure + unloadScript kglowsync
+  **Reason:** Step 2 approved forcing-rule deletion; flush in-memory rules; drop stale script instance.
+- **Command:** dom0 loadEffect/isEffectLoaded/loadScript; E2E busctl --user invokeShortcut x4 + kittyglowrc/journal reads
+  **Reason:** Step 3 approved load + E2E verification of the toggle pipeline.

@@ -41,6 +41,10 @@ None. Stateless effect; no persistence beyond kwinrc enable flag.
   `noBorder` writes (write-revert fight, LL-016 family). Adds
   `getCurrentState()` DBus slot consumed by the kglowsync script bootstrap
   (kwin/script restart coverage). `kittyborderrule.cpp` retired.
+  **Deployed + E2E-verified on dom0 2026-09-09:** effect auto-loaded on
+  reconfigure, script bootstrap live (journal), kitty forcing rule DELETEd
+  from kwinrulesrc (count=0), 4-press kglobalaccel E2E — rc flips in sync,
+  single stuck sweep write per toggle, zero reverts, steady-state silence.
   → toggles still flip parity, `rules=` preserved, canonical name restored
   after.
 - **Shortcut recovery (dom0, this session):** Sep 08 boot race (kwin 08:58:11
@@ -99,7 +103,7 @@ None. Stateless effect; no persistence beyond kwinrc enable flag.
 - **dom0-replica-fed37** Podman container — Fedora 37 build env (KWin 5.27.8 devel).
 
 ## 10. Last Updated
-2026-09-09T~04:35Z — Step C complete (build #7, badf8df7…): rename-immune
-content-based rule toggle, reparse hardening, E2E + rename-immunity verified;
-Sep 08 shortcut-registration outage root-caused (LL-011 boot race) and healed
-(kwin restart after daemon); kwinrulesrc normalized; LL-011..015 recorded.
+2026-09-09T14:40Z — Build #8 (25e019db…) deployed + E2E-verified on dom0:
+kittyglowrc state store live, kwinrulesrc kitty rule deleted, write-revert
+fight eliminated (4-press test + steady-state silence). kglowsync new code
+running with getCurrentState bootstrap. busctl needs --user on dom0 (noted).

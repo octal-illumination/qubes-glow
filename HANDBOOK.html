@@ -358,7 +358,10 @@ Since the 2026-09-09 write-revert diagnosis the state lives in
 loaded rule overrides KWin scripting <code>noBorder</code> writes
 (scripting &lt; rules), so the rule file must never carry
 <code>noborderrule</code> for kitty again. The old content-based rule
-toggle (<code>kittyborderrule.cpp</code>) was retired.</li>
+toggle (<code>kittyborderrule.cpp</code>) was retired. E2E-verified
+2026-09-09: <code>kittyglowrc</code> flips per press, each toggle is one
+stuck sweep write, zero reverts, steady-state silence after
+applying.</li>
 <li><strong>Meta+Shift+T — Window No Border (native KWin).</strong>
 Per-focused-window titlebar/frame toggle, rebound from Meta+Shift+B when
 the effect needed B (kglobalshortcutsrc, applied via
