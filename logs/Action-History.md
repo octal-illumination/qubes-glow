@@ -206,3 +206,14 @@ added LL-019; synced HANDBOOK + PROJECT_CONTEXT; rewrote stale ARCHITECTURE
 (v1/v2 → v3.4 SDF). Regenerated 4 HTML siblings, reverted orphan
 logs/SESSION_STATE.html, --check OK, Rule 16 verification clean. Build #10
 awaits explicit "build the app" per Rule 1b.
+
+## 2026-09-09T19:10:26Z
+#### User Request
+"build the app"
+#### Verbatim Output Response
+Build #10 executed: v3.4 (LL-019 fix) compiled zero-warning in
+dom0-replica-fed37 (sha 31254894), deployed to dom0 hash-verified, kwin
+restarted twice (activation; LL-011 heal) → PID 36048. Verified live:
+isEffectLoaded=true, .so mapped 5×, Meta+Shift+B/T shortcut structs
+registered. PROJECT_CONTEXT + ledgers updated + committed. User acceptance
+test (front window over unfocused kitty → no penetration) now requested.

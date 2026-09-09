@@ -300,3 +300,21 @@
 ## 2026-09-09T18:58:09Z
 - Command: cat > logs/SESSION_STATE.md (heredoc); append CHANGELOG.md; git commit
   Reason: Rule 17 pre-compaction state preservation after v3.4 implementation milestone.
+
+## 2026-09-09T19:10:26Z
+- Command: bash scripts/build.sh (tee logs/build/build-10-…log)
+  Reason: approved Build #10 compile of v3.4 in dom0-replica-fed37.
+- Command: podman exec … grep -i 'warning|error' /tmp/b_cmake.log /tmp/b_make.log
+  Reason: Rule 5 zero-warning verification (clean).
+- Command: bash scripts/deploy.sh (tee logs/build/deploy-10-…log); dom0 sha256sum check
+  Reason: deploy artifacts to dom0 and verify byte-identical hashes.
+- Command: dom0 'bash /tmp/kg_restart.sh' ×2
+  Reason: approved activation restart (34892→35345), then LL-011 heal
+  restart after confirming kglobalaccel active (35345→36048).
+- Command: dom0 dbus-send isEffectLoaded / Component.allShortcutInfos /
+  grep kittyglow /proc/PID/maps
+  Reason: verify effect load, B/T registration, and .so mapping post-restart.
+- Command: dom0 introspect /component/kwin
+  Reason: recover correct DBus interface name (org.kde.kglobalaccel.Component).
+- Command: git add -A && git commit
+  Reason: atomic commit of build-state docs + ledgers (Rule 14).

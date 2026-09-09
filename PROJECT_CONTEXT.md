@@ -91,7 +91,8 @@ None. Stateless effect; no persistence beyond kwinrc enable flag.
   independent; back windows irrelevant). **Fix implemented (v3.4): occluders
   rebuilt on every halo paint, anchored to painted kitty, plus
   stackingOrderChanged/windowActivated full-ring repaint hooks. Build #10
-  compile + deploy + kwin restart pending explicit build consent.**
+  (sha 31254894) deployed + live in kwin 36048, B/T re-registered after
+  LL-011 heal-restart. USER ACCEPTANCE TEST PENDING.**
 - Halo paints over translucent plasma panel (LL-018): panel (opacity < 0.99)
   was never an occluder, so halo repaints left gold on panel chrome (probe:
   1,450 px vs 48 px baseline). **Fix shipped in Build #9, live in kwin 32660;
@@ -117,6 +118,12 @@ None. Stateless effect; no persistence beyond kwinrc enable flag.
 - **dom0-replica-fed37** Podman container — Fedora 37 build env (KWin 5.27.8 devel).
 
 ## 10. Last Updated
+2026-09-10T00:4xZ — Build #10 executed on explicit "build the app": zero-
+warning compile (sha 31254894), deployed to dom0 (sha verified), kwin
+restarted (activation + LL-011 heal; old kwin 34892→35345→36048 — note kwin
+had restarted/rebooted to 34892 between sessions, prior ref 32660 stale),
+isEffectLoaded=true, B/T shortcuts re-registered. Awaiting user acceptance
+test per §7.
 2026-09-09T20:xxZ — LL-019 fix implemented (v3.4) in src/kittyglow.cpp:
 occluders rebuilt on every halo paint (120 ms cache deleted), anchored to
 the painted kitty window, stackingOrderChanged + windowActivated full-ring

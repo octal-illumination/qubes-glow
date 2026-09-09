@@ -241,3 +241,28 @@
 
 ## 2026-09-09T18:58:09Z
 - logs/SESSION_STATE.md: rewritten per Rule 17 (v3.4 milestone, >15 tool calls) — recovery record, decisions, pending Build #10 + acceptance test, handoff message.
+
+## 2026-09-09T19:10:26Z — Build #10 executed: v3.4 deployed live (awaiting user acceptance)
+- scripts/build.sh in dom0-replica-fed37: zero warnings (Rule 5 log review),
+  dist/kittyglow.so sha256 31254894d21b…, kittyglow.json 3a3f66bc…
+- scripts/deploy.sh: dom0 .so + metadata hash-verified identical to dist;
+  kwinrc kittyglowEnabled=true confirmed.
+- kwin_x11 --replace (approved activation chain): old 34892 → 35345. Note:
+  kwin PID had changed to 34892 between sessions (restart/reboot; prior
+  ref 32660 stale). LL-011 registration loss observed (new kwin before
+  kglobalaccel re-attach → zero kittyglow entries in allShortcutInfos);
+  healed by documented remedy (kwin restart AFTER kglobalaccel active):
+  35345 → 36048. Verified: isEffectLoaded=true, B/T shortcut structs present,
+  .so mapped 5× in /proc/36048/maps.
+- Verification-path notes: (a) scripts/build.sh lost its execute bit —
+  invoked via Built:
+31254894d21bed650e129410f9372c5fa891fc0b61a707d9b912755f04b5e335  /home/user/Projects/QubesOS/UI-Enhancements/Kwin/kitty-glow/dist/kittyglow.so
+3a3f66bc269ab88315b5be07e9ab7c554cf7a26db2de5d0df6e08d2e40b6a06f  /home/user/Projects/QubesOS/UI-Enhancements/Kwin/kitty-glow/dist/kittyglow.json; (b) correct allShortcutInfos call is
+  /component/kwin org.kde.kglobalaccel.Component.allShortcutInfos (NOT
+  org.kde.kglobalaccel.KGlobalShortcutInfo) — introspected live and recorded
+  to prevent repeat 4-call hunt; (c) DBus probes must run under
+  sudo -u chenpan with session env (HANDBOOK §5).
+- PROJECT_CONTEXT.md §8/§10 synced (build live, USER ACCEPTANCE PENDING);
+  HTML sibling regenerated (Rule 18a).
+- Build logs: logs/build/build-10-*.log, logs/build/deploy-10-*.log.
+- Rule 2 cleanup: no monitoring symlinks created (foreground tee capture).
