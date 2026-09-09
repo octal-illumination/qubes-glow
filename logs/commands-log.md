@@ -227,3 +227,9 @@
 ## 2026-09-09T07:57:34Z
 - **Command:** node --check main.js; bash scripts/build.sh (rebuild #8); edits to main.js + kittyglow.cpp
 - **Reason:** Fix JS "Could not convert argument 0" QTimer(parent) crash via parentless-builder cascade + proof-of-life print()s; add qDebug toggle-trace to C++ path. Build green, zero warnings.
+- **Command:** bash scripts/build.sh (x2 — after fixing kittyglowstate.cpp QStringLiteral error); podman exec grep warning counts
+  **Reason:** zero-warning container build of the state-store rebuild; Rule 5 sweep.
+- **Command:** git rm kittyborderrule.{h,cpp}; git add -A; git commit bb79411
+  **Reason:** retire superseded module, commit approved Step C rebuild atomically.
+- **Command:** bash ~/Projects/scripts/generate-docs-html.sh HANDBOOK.md PROJECT_CONTEXT.md SPECIFICATION.md ROADMAP.md
+  **Reason:** Rule 18 sibling regeneration after doc sync.

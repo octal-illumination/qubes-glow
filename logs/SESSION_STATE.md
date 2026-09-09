@@ -1,44 +1,57 @@
-# SESSION_STATE.md
+# Session State — kitty-glow (2026-09-09, Step C rebuild committed)
 
-> **Note:** All documentation and code in this project are purely AI-generated.
+**Objective:** rebuild the kitty borderless state layer offline (kittyglowrc state store + kglowsync bootstrap rewrite); deploy + E2E still pending user go.
 
-## 2026-09-09T~08:05Z — Seamless-B source round complete, awaiting build consent
+## Current Objective
+Ship the write-revert root-cause fix: persistent state in `~/.config/kittyglowrc` (`[General] noBorder`), applied live by the kglowsync KWin script; kwinrulesrc must never carry `noborderrule` for kitty again.
 
-### Current Objective
-Build + deploy + E2E the seamless Meta+Shift+B toggle (LL-016 flash) and expandedGeometry occluders (LL-017).
+## Discovered Facts
+- Root cause (live-proven 2026-09-09): a loaded forcing rule in kwinrulesrc overrides KWin scripting `noBorder` writes (scripting < rules). Removing the rule → script writes stick (parity went 3→5).
+- kglowsync script was verified LOADED in kwin (loadScript confirmed; heartbeat pauses after 2 s without effect replies).
+- `print()` is dropped by journald on this kwin build; script diagnostics go through the effect's `scriptLog` DBus slot (one-way).
+- Parentless `new QTimer()` works on this build; parented construction throws "Could not convert argument 0".
+- `QStringLiteral` needs a raw string literal (token-pasting) — not `constexpr` names.
+- Container dom0-replica-fed37 (Fedora 37 / KWin 5.27.8) mounts project src at /src; build logs land in container at /tmp/b_cmake.log, /tmp/b_make.log.
+- Build artifacts: dist/kittyglow.so sha256 25e019db…, kittyglow.json 3a3f66bc….
+- kglobalaccel restart did NOT help registrations (kglobalaccel stores ints, no string keys).
+- dom0 password dialog flow for DBus works (kglobalaccel + org.kde.kwin.Effects unloadScript verified live).
 
-### Discovered Facts
-- PoC-7 (decisive): KWin script PACKAGE (kpackagetool5, user path) with minimizeall-verbatim metadata auto-runs at kwin start; QTimer fires; client.noBorder flips live on chromium (0,0,23,0→0,0,0,0 @2.4s→back @8.5s). Minimal metadata WITHOUT X-Plasma-API/X-Plasma-MainScript/X-KDE-PluginKeyword keys never loads (PoC-4c/6 failures root-caused).
-- minimizeall metadata values: X-Plasma-API="javascript", X-Plasma-MainScript="code/main.js", X-KDE-PluginKeyword="<id>", KPackageStructure="KWin/Script".
-- B-flash = full-screen white (frames: uniform 247,248,248 incl. kitty interior), 0.3–0.6 s, from org.kde.KWin.reconfigure RuleBook reload — now eliminated at source (toggle stages value; no reconfigure call).
-- LL-017 artifact: front windows paint shadow gradients past frameGeometry; occluder rects now use expandedGeometry().
-- T on kitty stays rule-forced (suppressed) by design; T documented for non-kitty windows (option a; Option A offered, not chosen).
-- loadScript+start() dead on 5.27.8 dom0 (once-per-process); package install is the ONLY working script channel.
-- kglowtest package removed; kglowtestEnabled=false dead key remains (harmless). Parity noborder=true intact; shortcuts=2 (B+T) survived every restart.
+## File Changes
+- src/kittyglowstate.{h,cpp} — NEW state store (kittyglowrc [General] noBorder; load/save/toggle).
+- src/kittyborderrule.{h,cpp} — DELETED (git rm; superseded).
+- src/kittyglow.cpp — toggle body now persists via KittyGlowState, no rule edit, no reconfigure.
+- src/kittytoggle.{h,cpp} — nextSource + NEW getCurrentState DBus slot reading kittyglowrc (kglowsync bootstrap consumer).
+- src/kwin-script/kglowsync/contents/code/main.js — REWRITTEN: getCurrentState bootstrap, 60 ms nextSource poll, 400 ms sweep (pauses after 2 s without effect heartbeat), clientAdded coverage, scriptLog diagnostics.
+- src/CMakeLists.txt — sources updated.
+- HANDBOOK/PROJECT_CONTEXT/ROADMAP/SPECIFICATION + HTML siblings synced.
+- Committed bb79411 (tree clean).
 
-### File Changes (this round)
-- NEW src/kittytoggle.h (24) / src/kittytoggle.cpp (104): SyncService Q_OBJECT slot nextSource()→int (consumes s_pending 1/2/0), init() (package check, kwinrc enable, registerService "org.kde.kittyglow", registerObject "/sync" ExportSlots), requestApply(bool).
-- NEW src/kwin-script/kglowsync/metadata.json + contents/code/main.js (62): 60 ms poll, 400 ms watchdog, 2 s heartbeat gate, applies noBorder to resourceClass~kitty clients.
-- EDIT src/kittyglow.cpp (274→283): init() in ctor; toggle→requestApply (reconfigure deleted); occludedAboveKitty→expandedGeometry(); includes pruned; header comment.
-- EDIT src/CMakeLists.txt (+kittytoggle.cpp); EDIT scripts/deploy.sh (pkg install to ~/.local/share/kwin/scripts/kglowsync, kglowsyncEnabled, sycoca).
+## Decisions & Rationale
+- kittyglowrc over kwinrulesrc: rules override scripting — any rule-based state re-creates the write-revert fight (LL-016).
+- getCurrentState bootstrap: kwin restarts reload the script; bootstrap restores persisted state and applies to pre-existing windows (covers kwin restarts too).
+- 400 ms sweep pauses without effect heartbeat: plugin unloaded → script stops touching windows (no churn, kitty keeps last state).
+- Rejected: rule-toggle with self-heal (previous Step C) — it WAS the root cause of the fight.
 
-### Decisions & Rationale
-- Package auto-run instead of loadScript bootstrap (PoC-7 evidence; start() is once-per-process no-op).
-- Pull-model (script polls C++) — script has no service registration; heartbeat gate stops enforcement when effect absent.
-- Watchdog re-assert makes T-on-kitty deterministic (reverted ≤400 ms) — documented.
-- QStringLiteral(constexpr-var) invalid → fromLatin1 (caught pre-compile).
-- kittyglow.cpp left >200 lines (pre-existing 274); paint core untouched; further split = follow-up proposal.
+## Active Blockers
+- None for offline work. Deploy + E2E require explicit user go (dom0 touch).
 
-### Active Blockers
-- Build consent pending (Rule 1b; approved plan step 5: separate build/deploy consent).
+## Pending Work (ordered)
+1. Deploy (needs "deploy"): dist/ → Dev-General:~/.local/share/kwin/effects/kittyglow + script to ~/.local/share/kwin/scripts/kglowsync.
+2. Delete kitty forcing rule from dom0 kwinrulesrc (needs explicit go — desktop-affecting edit).
+3. Restart kglowsync script + effect; verify bootstrap log line via scriptLog→journalctl.
+4. E2E toggle test: Meta+Shift+B ×3, parity, journal scriptLog lines, kittyglowrc value flips.
+5. Update PROJECT_CONTEXT build state (#8) + Rule 19 checks if shell scripts touched.
 
-### Pending Work (ordered)
-1. Ask user: "build?" → scripts/build.sh (Dev-General), fix any compile errors (moc/kittyglow.moc pattern proven).
-2. Deploy: scripts/deploy.sh → dom0 (dialog); verify kglowsync installed + isScriptLoaded(kglowsync)=true after restart.
-3. kwin restart (explicit); E2E: B 10-press flash capture (expect ZERO white frames), B latency ≤ ~0.5 s, parity checks each press; overlap repro (kitty focused FIRST, front window last) for LL-017; T behavior doc.
-4. Docs: SPEC LL-016/LL-017, HANDBOOK (B semantics), PROJECT_CONTEXT build #8, ROADMAP, HTML regen (Rule 18e diff), commit.
+## Full Context Dump
+- Toggle contract: C++ stages 1/2 via nextSource(); script consumes; desired=null until bootstrap replies.
+- Sweep applies only when `desired !== null && now - lastReplyMs < 2000`.
+- isKitty: class contains 'kitty' (case-insens), not deleted/desktopWindow/dock.
+- kwinrulesrc kitty rule to delete: group with Description=kitty-borderless / wmclass kitty — exact group names seen: [3] (noborderrule Force=2, wmclassmatch RegExp=3, listed in [General] rules=).
+- DBus: service org.kde.kittyglow, path /sync, iface org.kde.kittyglow, slots nextSource, getCurrentState, scriptLog(String).
 
-### Next Agent Handoff Message
-Read PROJECT_CONTEXT.md + this file; wd ~/Projects/QubesOS/UI-Enhancements/Kwin/kitty-glow. All source changes are DONE and verified; on user's "build" run scripts/build.sh, then scripts/deploy.sh, restart kwin, run the E2E plan above. Do NOT re-run PoCs. Baseline evidence: logs/run/flash/*.png (white @frame3), logs/run/*.log.
-# 2026-09-09T08:21:05Z — BLOCKER: JS noBorder write reverts
-Objective: seamless Meta+Shift+B. Proven: rule flip+DBus+poll+callback. Blocker: write rejected, likely in-memory RuleBook re-assert. Next: offline KWin rules-engine research in podman container; propose unloadScript to stop 400 ms churn BEFORE anything else.
+## Next Agent Handoff Message
+Fresh agent: read logs/SESSION_STATE.md then PROJECT_CONTEXT.md in
+~/Projects/QubesOS/UI-Enhancements/Kwin/kitty-glow. Ask the user for
+explicit "deploy" consent — do NOT touch dom0 without it. After deploy,
+the kwinrulesrc kitty rule must be DELETED before the toggle can work;
+propose the exact deletion command and wait for "run it".

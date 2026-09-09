@@ -133,3 +133,9 @@ Implemented seamless B: NEW src/kittytoggle.h/.cpp (org.kde.kittyglow /sync next
 "build"
 #### Verbatim Output Response
 Built kittyglow.so with new seamless-B code. First pass failed (4 Qt API errors in kittytoggle.cpp: Q_SLOTS under QT_NO_KEYWORDS, GenericDataLocation, sessionBus value semantics, ExportSlots→scriptable|non-scriptable pair); fixed all, rebuilt green, 0 warnings, dist updated (a8f0cbfe…). Proceeding to deploy per the consented chain.
+
+## 2026-09-09T08:39:03Z — Step C rebuild completed (offline, no dom0 touch)
+#### User Request
+"continue what you were doing" (standing approval for offline plan: state store, bootstrap, script rewrite, container build)
+#### Verbatim Output Response
+Fixed QStringLiteral(constexpr) compile error; build green zero-warning (kittyglow.so sha256 25e019db…). kittyborderrule.{h,cpp} git-rm'd; kittyglowstate.{h,cpp} added; kittytoggle.cpp nextSource+getCurrentState wired; kglowsync main.js rewritten (bootstrap/poll/sweep/clientAdded); CMake updated. HANDBOOK/PROJECT_CONTEXT/ROADMAP/SPECIFICATION synced + HTML regenerated. Committed bb79411; tree clean. NOT yet done (needs explicit go): deploy to dom0, delete kitty rule from kwinrulesrc, restart script, E2E toggle test.

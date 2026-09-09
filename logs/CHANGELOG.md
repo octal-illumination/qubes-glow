@@ -169,3 +169,6 @@
 - Fixed `QStringLiteral(constexpr)` compile error in kittyglowstate.cpp.
 - Container build green (zero warnings); dist sha256 kittyglow.so 25e019db….
 - Docs synchronized: HANDBOOK.md, PROJECT_CONTEXT.md, ROADMAP.md, SPECIFICATION.md now reference kittyglowstate/kittyglowrc (kittyborderrule retired).
+
+## 2026-09-09T08:39:56Z — SESSION_STATE.md refreshed (Rule 17)
+- Brain-dump: Step C rebuild committed (bb79411), artifacts hashed, deploy/E2E pending explicit user go.
