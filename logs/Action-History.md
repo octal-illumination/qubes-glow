@@ -91,3 +91,9 @@ Executed kwin_x11 --replace (one false start with wrong HOME env, corrected → 
 "implement changes" — approval for Step C (extract + harden toggleKittyBorderless into kittyborderrule module).
 #### Verbatim Output Response
 Created src/kittyborderrule.h/.cpp (content-based ACTIVE-rule lookup by Description/wmclass, inert-rule self-heal via [General] rules=, nullopt no-op path); rewired src/kittyglow.cpp toggle body (gate + module call + reconfigure preserved); added source to src/CMakeLists.txt. Rule 16 re-read verification done. Committed. Build in container pending user "build" consent.
+
+## 2026-09-09T10:02:46+05:30
+#### User Request
+"go ahead" (build), then "proceed" (definitive verification batch after a cancelled password dialog).
+#### Verbatim Output Response
+Built (0 warnings), deployed (SHA badf8df7), live-reloaded; verified registration + E2E presses; ran group-rename immunity test (rename [kitty-borderless]→[3] → toggles still work → restored). Discovered + fixed KSharedConfig stale-cache hole (reparseConfiguration per toggle); discovered kwin crash+auto-recovery which re-validated boot-order fix under real conditions; restored borderless parity. Next: docs phase.

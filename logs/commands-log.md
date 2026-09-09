@@ -149,3 +149,17 @@
 ## 2026-09-09T04:07:28Z — Step C implementation
 - **Command:** grep KConfig usage + CMakeLists add_library + header availability probes; wc -l; git diff --stat; git add -A && git commit
   - **Reason:** Locate KConfig touchpoints before extracting the toggle; confirm build location (container); Rule 16 verification of the edit; atomic commit per Rule 14.
+
+## 2026-09-09T04:32:46Z — Build #7 (Step C), deploy, live-reload, E2E + immunity verification (container + dom0)
+- **Command:** scripts/build.sh ×2 (initial; reparse hardening) — container dom0-replica-fed37
+  - **Reason:** Approved build of Step C module. Zero warnings both times (make logs grepped).
+- **Command:** scripts/deploy.sh ×2 → dom0 /usr/lib64/qt5/plugins/kwin/effects/plugins/kittyglow.so (SHA cc2ac79b → badf8df7)
+  - **Reason:** Deploy new binary via approved pipeline (qvm-run base64 transfer).
+- **Command:** dom0 dbus-send unloadEffect/loadEffect/isEffectLoaded; allShortcutInfos; xdotool key super+shift+b ×N (multiple verification batches, one password dialog each)
+  - **Reason:** Verify live reload, registration, E2E toggle; then rename-immunity test ([kitty-borderless]→[3] rename + reconfigure + presses).
+- **Findings/Results:**
+  - New binary live (badf8df7, includes reparseConfiguration fix), B registration active (301989954), E2E presses toggle parity correctly, rules= stays canonical (no resurrection).
+  - First press after unload/load sometimes no-ops (daemon re-grab race) — benign; real usage loads effect at login.
+  - Immunity verified: presses flip parity with numeric/renamed active group; self-heal path compiled in.
+  - **Incident:** kwin crashed during the earlier stale-binary presses batch (old build without reparse was live; unload/load churn suspected); plasma auto-restarted kwin (PID 15974, --crashes 1). Post-crash, shortcuts auto-re-registered (kglobalaccel was up first) — T=301989972, B=301989954 confirmed. Recovery order theory re-validated by a real crash.
+  - kwinrulesrc final: canonical [kitty-borderless] active (count=1, rules=kitty-borderless, noborder=true); UUID groups are user's protonvpn:chromium rules (untouched).

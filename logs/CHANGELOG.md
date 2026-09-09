@@ -124,3 +124,10 @@
 - src/CMakeLists.txt: kittyborderrule.cpp added to the kittyglow MODULE sources.
 - Verification (Rule 16): re-read of modified function — gate intact, optional-bool semantics correct (nullopt → no reconfigure; false → reconfigure), QDBus call untouched. Compile validation happens in dom0-replica-fed37 container at build time (headers not present on this VM).
 - Pending: user build consent → container build → deploy → E2E verify → docs (HANDBOOK/PROJECT_CONTEXT/SPECIFICATION LL-011..014/ROADMAP) + HTML regen.
+
+## 2026-09-09T10:02:46+05:30 — Build #7 deployed & verified: group-rename immunity proven E2E
+- dist/kittyglow.so badf8df7 (Step C + KSharedConfig::reparseConfiguration hardening) live in dom0; effect loaded; Meta+Shift+B registration active.
+- E2E: xdotool super+shift+b toggles parity; canonical rules= preserved through toggles (no stale-name resurrection — the LL-007 failure vector is closed).
+- Immunity test: active group renamed [kitty-borderless]→[3] + reconfigure → presses still toggle the right group (content-based lookup + reparse working). Restored canonical name after.
+- Incident logged: kwin crash during stale-binary test presses (pre-reparse build was live); auto-restart healed registration (boot-order theory re-confirmed by real crash). No user-visible damage; parity restored to noborder=true.
+- Pending: docs phase (HANDBOOK/PROJECT_CONTEXT/SPECIFICATION LL-011..014/ROADMAP + HTML regen) then final commit.

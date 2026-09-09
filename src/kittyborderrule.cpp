@@ -35,6 +35,11 @@ namespace KittyBorderRule {
 
 std::optional<bool> toggleKittyNoBorder() {
     auto cfg = KSharedConfig::openConfig(QStringLiteral("kwinrulesrc"));
+    // KSharedConfig caches the parsed file PROCESS-WIDE; without a re-parse
+    // the toggle below would read a stale snapshot and could resurrect
+    // groups KWin renamed/removed on disk behind our backs (the exact
+    // LL-007 regression). Human-rate toggles make the re-read cost trivial.
+    cfg->reparseConfiguration();
     KConfigGroup general(cfg, QStringLiteral("General"));
     const QStringList active = general.readEntry("rules", QStringList());
 
