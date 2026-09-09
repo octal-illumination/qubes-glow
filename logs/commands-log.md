@@ -262,3 +262,7 @@
 2026-09-09T16:44:22Z | dom0 kwin_x11 --replace via /tmp/kg_restart.sh — old=32381 new=32660, restart log clean | Approved restart chain (post-fix activation)
 2026-09-09T16:44:22Z | dom0 post-restart checks x2 — CANCELLED at password dialog (user action or dialog timeout); isLoaded/metadata-perms/shortcut checks still pending | Awaiting user re-run
 2026-09-09T16:44:22Z | sed PROJECT_CONTEXT.md Last Updated (build #9 state) | Rule 12c sync
+2026-09-09T16:55:43Z | dom0 checks round 2 (env-sourced) — isLoaded method absent (KWin 5.27.8 lacks it), B shortcut confirmed, restart log 0 errors | User: 'retry the checks'
+2026-09-09T16:55:43Z | dom0 checks round 3 — BOTH shortcuts confirmed (Toggle Kitty Borderless + Window No Border) | Complete LL-011 healing evidence
+2026-09-09T16:55:43Z | dom0 checks round 4 — kittyglow.so mapped in kwin 32660 /proc/maps (5 mappings), kwinrc true; loadedEffects DBus API nonexistent on this build (both signatures) | Definitive load proof
+2026-09-09T16:55:43Z | rm logs/build.log logs/build9.log symlinks — Build #9 complete, Rule 2 cleanup | Mandatory post-task cleanup

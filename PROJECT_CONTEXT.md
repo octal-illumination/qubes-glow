@@ -85,8 +85,9 @@ None. Stateless effect; no persistence beyond kwinrc enable flag.
 ## 8. Known Issues
 - Halo paints over translucent plasma panel (LL-018): panel (opacity < 0.99)
   was never an occluder, so halo repaints left gold on panel chrome (probe:
-  1,450 px vs 48 px baseline). **Fix coded 2026-09-09 in updateOccluders()
-  (docks/panels always clip) — rebuild + KWin restart pending consent.**
+  1,450 px vs 48 px baseline). **Fix built (#9), deployed, and confirmed
+  loaded in kwin 32660 (/proc maps, 5 mappings); shortcuts B+T re-registered
+  after restart. Visual panel acceptance test pending.**
 - ~~Build container (`dom0-replica-fed37`) still mounts legacy `/home/user/kitty-glow`~~
   **RESOLVED 2026-09-06T23:50:19Z:** container re-created mounting this project's
   `src/` at `/src` (committed image `dom0-replica-fed37-img` preserves toolchain).
@@ -107,7 +108,10 @@ None. Stateless effect; no persistence beyond kwinrc enable flag.
 - **dom0-replica-fed37** Podman container — Fedora 37 build env (KWin 5.27.8 devel).
 
 ## 10. Last Updated
-2026-09-09T18:xxZ — Build #9 deployed + kwin restarted (32660); post-restart verify pending dialog consent.
+2026-09-09T19:xxZ — Build #9 (LL-018 fix) VERIFIED LIVE: .so mapped in kwin
+32660 (5 mappings), B+T shortcuts re-registered, restart log 0 errors,
+metadata dir perms fixed to 755/644. Remaining: visual panel test + re-run
+panel probe (expect gold ≡ 48 px baseline).
 2026-09-09T18:05Z — LL-018 fix coded in `updateOccluders()` (docks/panels
 always clip the halo, even when translucent; probe evidence: 1,450 gold px
 on panel vs 48 px baseline, static clipping re-verified clean). HANDBOOK

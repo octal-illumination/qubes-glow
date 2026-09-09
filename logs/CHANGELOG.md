@@ -192,3 +192,9 @@
 - Build zero-warning; artifact sha256 e7ff8627… verified on dom0 post-deploy.
 - kwin_x11 restarted 32381→32660, restart log clean, kglowsync bootstrap expected at start.
 - Post-restart verification (isLoaded, metadata 755/644 fix, shortcut registration) pending — dom0 password dialogs cancelled twice.
+
+## 2026-09-09T16:55:43Z — verify: Build #9 confirmed live on dom0 (LL-018)
+- kittyglow.so: 5 memory mappings in kwin PID 32660 (definitive load proof via /proc/maps; KWin 5.27.8 exposes no loadedEffects/isLoaded DBus methods).
+- Shortcuts: Toggle Kitty Borderless (B) + Window No Border (T) both registered post-restart (LL-011 self-heal verified).
+- dom0 metadata dir perms normalized 755/644 (was chenpan-unreadable; would have blocked effect metadata).
+- Remaining: visual panel acceptance test / probe re-run.

@@ -155,3 +155,11 @@ Deployed new effect+script to dom0 (auto-load confirmed); deleted kwinrulesrc ki
 - Logged: commands-log.md, CHANGELOG.md, Audit-CHANGELOG.md, Action-History.md; SESSION_STATE.md brain-dump written prior to approval.
 - Committed as HEAD: fix(occluders) LL-018 (probe artifacts remain untracked under logs/probe/).
 - NOT built: rebuild (#9) + KWin restart awaits explicit "build the app" consent.
+
+## 2026-09-09T16:55:43Z
+#### User Request
+"retry the dialog attempts"
+#### Verbatim Output Response
+- Rounds 2-4 completed after two cancelled/expired dialogs: BOTH shortcuts registered (B=Toggle Kitty Borderless, T=Window No Border), kittyglow.so mapped 5x in kwin 32660 memory, kwinrc flag true, restart log 0 errors, metadata perms fixed.
+- Discovered: KWin 5.27.8 org.kde.kwin.Effects exposes neither loadedEffects() nor isLoaded(s) — /proc/PID/maps grep is the reliable load proof (recorded for future sessions).
+- PROJECT_CONTEXT.md + HTML regenerated; Build #9 verification CLOSED. Pending: visual panel acceptance test.

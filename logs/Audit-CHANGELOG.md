@@ -44,3 +44,6 @@
 
 ## 2026-09-09T16:44:22Z — audit: Build #9 deploy + kwin restart
 - dom0 metadata dir perms anomaly noted (chenpan cannot traverse /usr/share/kwin/effects/kittyglow; fix queued: chmod 755 dir, 644 file — required for KWin metadata read).
+
+## 2026-09-09T16:55:43Z — audit: dom0 system changes during Build #9 verification
+- /usr/share/kwin/effects/kittyglow/ dir chmod 700→755 (file 644 unchanged) — root-created dir was not traversable by kwin user; normalized to standard. System change recorded per Rule 3 scope.
