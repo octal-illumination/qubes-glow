@@ -12,3 +12,29 @@
 - Activation (`kwin_x11 --replace`) remains unexecuted — requires explicit approval.
 - No new attack surface introduced: the effect only draws GL geometry; it does not
   handle input, network, or read cross-VM data.
+
+## 2026-09-07T22:02:39+05:30 — Audit: dom0 kglobalaccel rewrite + system effect deployment
+- Stopped plasma-kglobalaccel.service, edited kglobalshortcutsrc via kwriteconfig5, restarted unit (backup taken first)
+- System-wide file written: /usr/lib64/qt5/plugins/kwin/effects/plugins/kittyglow.so (sha256-verified) + /usr/share/kwin/effects/kittyglow/metadata.json
+- KWin X11 crashed once during hot-swap; recovered via auto-restart. No coredumps; no shader/GL errors post-restart
+
+## 2026-09-07T23:05:00+05:30 — process + deployment audit
+- Killed orphan kglobalaccel5 PID 167889 (boot-time daemon holding stale pre-rebind
+  X11 key grabs that shadowed shortcut routing — root cause of dead Meta+Shift+T).
+  Explicit user consent obtained (Rule 1c). SIGTERM; single-daemon state verified.
+- Restarted plasma-kglobalaccel.service user unit; verified exactly one daemon
+  (209480) owns the bus, both shortcuts registered on /component/kwin.
+- Deployed kittyglow.so build #4 (sha256 8fca358a4b5a…) to dom0; deployed hash
+  verified byte-identical to dist/. KWin restarted cleanly via --replace (209874).
+
+## 2026-09-08T00:02:28+05:30 — v3.3 quality incident + containment
+- Incident: build #5 (d445c704…) shipped with paintWindow()'s isKittyWindow()
+  filter accidentally deleted during the minimize-guard edit → halo drawn
+  around every painted window incl. the panel (user-reported artifacts of
+  varying shapes/sizes).
+- Root cause: guard line replaced by a comment-only edit; compound predicate
+  dropped; post-edit grep verification (Rule 16) not run before deploy.
+- Containment/fix: filter restored (build #6, 097b3e24…); sha-verified deploy;
+  clean kwin --replace (PID 211257); LL-010 recorded in SPECIFICATION.md.
+- Process integrity: two dom0 auth refusals during reload (user-cancelled,
+  then access-denied) were honored — no retry until explicit "RETRY".

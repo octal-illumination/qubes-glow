@@ -1,15 +1,19 @@
 {
+    "KPackageStructure": "KWin/Effect",
     "KPlugin": {
         "Name": "Kitty Glow",
         "Description": "Soft yellow halo around kitty terminal windows",
         "Id": "kittyglow",
         "Category": "Appearance",
-        "Version": "0.1",
+        "Version": "0.2",
         "License": "GPL",
         "Authors": [
             { "Name": "AI-generated" }
         ]
     },
     "ServiceTypes": ["KWin/Effect"],
+    "X-KDE-ServiceTypes": ["KWin/Effect"],
+    "X-KDE-Library": "kittyglow",
+    "X-KDE-PluginKeyword": "kittyglow",
     "X-KDE-Ordering": "10"
 }

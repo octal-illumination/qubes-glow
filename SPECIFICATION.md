@@ -89,7 +89,31 @@ Git boundary: the whole `kitty-glow/` directory. No cross-project dependencies.
 - **LL-004** — Plugin files installed as `600` by `sudo` redirect silently break
   KWin load; must `chmod 644`.
 - **LL-005** — Built-in KWin effects are statically linked into `libkwin.so`;
+- **LL-006** — Effect plugin metadata MUST carry `"KPackageStructure": "KWin/Effect"`
+  plus `X-KDE-Library`/`X-KDE-PluginKeyword`; without them `loadEffect` returns
+  false even though the `.so` dlopens fine. Gate every deploy on the
+  `src/test_create.cpp` harness (instance + factory cast + isSupported +
+  createEffect all non-null) inside the build container.
+- **LL-007** — Window rules live in `kwinrulesrc` (NOT `kwinrc`); a rule group is
+  a no-op unless its name is listed under `[General] rules=`. Enum semantics
+  (rules.h): rule type 0=Unused 1=DontAffect 2=Force 3=Apply 4=Remember
+  5=ApplyNow 6=ForceTemporarily; match 0=Unimportant 1=Exact 2=Substring
+  3=RegExp. Hot-reload via `org.kde.KWin.reconfigure` → `RuleBook::load()`.
+- **LL-008** — Under dom0 qrexec, `sudo bash -s` shares stdin with inner
+  `qvm-run` calls: the first `qvm-run` consumes the rest of the piped script.
+  Decode scripts to a file and run the file instead
+  (`base64 -d > /tmp/x.sh && sudo bash /tmp/x.sh`).
+- **LL-009** — KWin 5.27 DBus: main interface is `org.kde.KWin` at `/KWin`
+  (`reconfigure`, `supportInformation`); effects at `/Effects` with interface
+  `org.kde.kwin.Effects` (`loadEffect`, `isEffectLoaded`, `unloadEffect` —
+  there is NO `loadedEffects` method). `org.kde.kwin.KWin` does not exist.
   custom effects are separate `.so` files in `kwin/effects/`.
+- **LL-010** — Compound guard lines: when an edit replaces a guard line with
+  a comment, the surviving predicate MUST be restated — dropping
+  `isKittyWindow()` from `paintWindow()` (build #5) drew the halo around
+  every window incl. the panel. After any guard edit: re-read the function
+  and `grep -n "isKittyWindow\|isMinimized"` before building. Never replace
+  a compound guard line with prose-only text.
 
 ## 9. Official References
 

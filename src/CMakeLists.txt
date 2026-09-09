@@ -8,8 +8,8 @@ set(CMAKE_AUTOMOC ON)
 find_package(ECM REQUIRED NO_MODULE)
 set(CMAKE_MODULE_PATH ${ECM_MODULE_PATH} ${CMAKE_MODULE_PATH})
 
-find_package(Qt5 REQUIRED COMPONENTS Core Gui)
-find_package(KF5 REQUIRED COMPONENTS WindowSystem CoreAddons Config)
+find_package(Qt5 REQUIRED COMPONENTS Core Gui Widgets DBus)
+find_package(KF5 REQUIRED COMPONENTS WindowSystem CoreAddons Config GlobalAccel)
 find_package(epoxy REQUIRED)
 
 add_definitions(-DQT_NO_KEYWORDS)
@@ -20,7 +20,7 @@ add_definitions(-DQT_NO_KEYWORDS)
 find_library(KWINEFFECTS_LIB NAMES kwineffects REQUIRED)
 find_library(KWINGLUTILS_LIB NAMES kwinglutils)
 
-add_library(kittyglow MODULE kittyglow.cpp)
+add_library(kittyglow MODULE kittyglow.cpp glowshader.cpp)
 set_target_properties(kittyglow PROPERTIES PREFIX "" OUTPUT_NAME "kittyglow")
 
 target_link_libraries(kittyglow
@@ -28,7 +28,10 @@ target_link_libraries(kittyglow
     ${KWINGLUTILS_LIB}
     Qt5::Core
     Qt5::Gui
+    Qt5::Widgets
+    Qt5::DBus
     KF5::WindowSystem
     KF5::CoreAddons
     KF5::ConfigCore
+    KF5::GlobalAccel
     epoxy::epoxy)

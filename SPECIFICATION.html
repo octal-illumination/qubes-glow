@@ -375,8 +375,43 @@ was refused; transfer via <code>qvm-run</code> base64 pipe.</li>
 by <code>sudo</code> redirect silently break KWin load; must
 <code>chmod 644</code>.</li>
 <li><strong>LL-005</strong> — Built-in KWin effects are statically
-linked into <code>libkwin.so</code>; custom effects are separate
-<code>.so</code> files in <code>kwin/effects/</code>.</li>
+linked into <code>libkwin.so</code>;</li>
+<li><strong>LL-006</strong> — Effect plugin metadata MUST carry
+<code>"KPackageStructure": "KWin/Effect"</code> plus
+<code>X-KDE-Library</code>/<code>X-KDE-PluginKeyword</code>; without
+them <code>loadEffect</code> returns false even though the
+<code>.so</code> dlopens fine. Gate every deploy on the
+<code>src/test_create.cpp</code> harness (instance + factory cast +
+isSupported + createEffect all non-null) inside the build
+container.</li>
+<li><strong>LL-007</strong> — Window rules live in
+<code>kwinrulesrc</code> (NOT <code>kwinrc</code>); a rule group is a
+no-op unless its name is listed under <code>[General] rules=</code>.
+Enum semantics (rules.h): rule type 0=Unused 1=DontAffect 2=Force
+3=Apply 4=Remember 5=ApplyNow 6=ForceTemporarily; match 0=Unimportant
+1=Exact 2=Substring 3=RegExp. Hot-reload via
+<code>org.kde.KWin.reconfigure</code> →
+<code>RuleBook::load()</code>.</li>
+<li><strong>LL-008</strong> — Under dom0 qrexec,
+<code>sudo bash -s</code> shares stdin with inner <code>qvm-run</code>
+calls: the first <code>qvm-run</code> consumes the rest of the piped
+script. Decode scripts to a file and run the file instead
+(<code>base64 -d &gt; /tmp/x.sh &amp;&amp; sudo bash /tmp/x.sh</code>).</li>
+<li><strong>LL-009</strong> — KWin 5.27 DBus: main interface is
+<code>org.kde.KWin</code> at <code>/KWin</code>
+(<code>reconfigure</code>, <code>supportInformation</code>); effects at
+<code>/Effects</code> with interface <code>org.kde.kwin.Effects</code>
+(<code>loadEffect</code>, <code>isEffectLoaded</code>,
+<code>unloadEffect</code> — there is NO <code>loadedEffects</code>
+method). <code>org.kde.kwin.KWin</code> does not exist. custom effects
+are separate <code>.so</code> files in <code>kwin/effects/</code>.</li>
+<li><strong>LL-010</strong> — Compound guard lines: when an edit
+replaces a guard line with a comment, the surviving predicate MUST be
+restated — dropping <code>isKittyWindow()</code> from
+<code>paintWindow()</code> (build #5) drew the halo around every window
+incl. the panel. After any guard edit: re-read the function and
+<code>grep -n "isKittyWindow\|isMinimized"</code> before building. Never
+replace a compound guard line with prose-only text.</li>
 </ul>
 <h2 id="official-references">9. Official References</h2>
 <ul>

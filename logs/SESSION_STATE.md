@@ -1,42 +1,59 @@
-# Session State (pre-compaction brain dump)
+# Session State — kitty-glow v3.3 completion (build #6)
 
-## Timestamp
-2026-09-06T23:50:19Z
+**Timestamp:** 2026-09-08T00:04:24+05:30
 
 ## Current Objective
-Scaffold the kitty-glow KWin-effect project under
-`~/Projects/QubesOS/UI-Enhancements/Kwin/kitty-glow` and return to prompt
-(no KWin restart performed).
+Round complete: fix the build #5 regression (halo on every window), deploy
+build #6, verify live, and reconcile every document. No pending code work.
 
 ## Discovered Facts
-- KWin in dom0: 5.27.8 (Fedora 37). Built-in effects are statically linked into
-  `libkwin.so`; custom effects are separate `.so` files in `kwin/effects/`.
-- Build container: `dom0-replica-fed37` (Fedora 37, kwin-devel 5.27.8, KF5 5.108).
-  Now mounts this project's `src/` at `/src` (image `dom0-replica-fed37-img`,
-  re-pointed 2026-09-06T23:50:19Z). Legacy `/home/user/kitty-glow` no longer used.
-- Effect `.so` sha: `89e8513b9d282aacd9763fa3fd20cedf89b377f16f63ee18e7fade04bde228d4`.
-- KWin reads the plugin list only at startup → activation needs `kwin_x11 --replace`.
+- Build #6 `dist/kittyglow.so` sha256 prefix `097b3e24bffe`; metadata.json
+  `3a3f66bc…`; deployed dom0-side byte-identical (verified via sha256sum).
+- Live kwin PID 211257 (clean `kwin_x11 --replace`, no `--crashes` in journal);
+  `isEffectLoaded("kittyglow")` → true after full `reconfigure`.
+- Single kglobalaccel daemon (PID 210789); 'Window No Border' active field
+  `Meta+Shift+T,Meta+Shift+T,` restored; kwinrulesrc noborder parity = true.
+- Regression root cause: build #5 (d445c704…) edit replaced a compound guard
+  line with a comment, dropping `isKittyWindow()` from `paintWindow()`.
+- Build #6 fix: filter restored; isMinimized guard stays removed (correct —
+  fully-minimized windows never reach paintWindow()); occlusion scissor clip
+  intact (GLVertexBuffer::render(clip, GL_TRIANGLES, true)).
+- Two dom0 auth refusals were honored (user-cancelled, then access-denied);
+  reload executed only on explicit "RETRY".
 
-## File Changes (this session)
-- Created: project tree; `src/*` (imported); `container/setup-build-container.sh`;
-  `scripts/{build,deploy}.sh`; `README.md`; SPEC/ARCH/HANDBOOK/PROJECT_CONTEXT/ROADMAP
-  `.md`; `logs/*` ledger set.
-- Unchanged from prior session: `dist/` build artifacts, dom0 deployment, kwinrc enable.
+## File Changes
+- src/kittyglow.cpp — restored isKittyWindow() in paintWindow() (build #6).
+- SPECIFICATION.md — added lesson LL-010 (compound guard edits + post-edit
+  grep verification before build).
+- PROJECT_CONTEXT.md — §5 build state → build #6/097b3e24 + regression note;
+  §10 Last Updated rewritten.
+- logs/CHANGELOG.md, logs/Audit-CHANGELOG.md, logs/commands-log.md,
+  logs/output-history.md, logs/researched-ideas.md, logs/Action-History.md —
+  timestamped entries for this round appended (2026-09-08T00:02:28+05:30).
+- HANDBOOK.md — verified §11 already accurate for build #6 (no edit needed).
 
 ## Decisions & Rationale
-- Project path: `QubesOS/UI-Enhancements/Kwin/kitty-glow` (kitty-glow = effect name).
-- Transfer to dom0 via `qvm-run` base64 pipe (qvm-copy refused).
-- Deferred KWin restart (requires explicit user consent).
+- Stopped before docs when the taskbar artifact was reported; disclosed the
+  self-caused regression instead of documenting build #5 as success.
+- Kept the removed minimize guard (seamless goal) rather than reverting;
+  the regression was the dropped kitty filter, not the guard removal.
+- Skipped the orphan kglobalaccel5 kill — user never explicitly authorized
+  it (Rule 1c); only the kglobalaccel service restart was in scope.
 
 ## Active Blockers
-- None blocking scaffolding. Activation is blocked on user approval of KWin restart.
+None.
 
 ## Pending Work
-1. (User approval) Restart KWin to activate the effect.
-2. Visual verification of the halo; tune params (`margin`/`layers`/color/alpha) if needed.
-3. ~~Optional: re-point build container mount to project src~~ DONE 2026-09-06T23:50:19Z.
+- User visual confirmation of build #6 in the live session (artifacts gone).
+- Optional, needs explicit authorization: kill orphan kglobalaccel5 PID 167889.
+- Older open item (unchanged): 512-entry fold-group backlog is a pi-context
+  artifact, not a project task.
 
-## Next Agent Handoff
-- To activate: run the KWin restart command in HANDBOOK.md §5 (needs explicit user
-  go-ahead). Then open a kitty window and confirm the yellow halo. If absent, check
-  `journalctl _COMM=kwin_x11` for kittyglow errors and review `paintQuad` projection.
+## Next Agent Handoff Message
+Fresh agent: read PROJECT_CONTEXT.md (§5 has build/live PIDs) and
+SPECIFICATION.md §8 (LL-001…LL-010) first. Verify liveness with
+`qdbus org.kde.kwin.Effects /Effects isEffectLoaded kittyglow` and
+`sha256sum /usr/lib64/qt5/plugins/kwin/effects/plugins/kittyglow.so` vs
+`dist/`. Do not rebuild unless the user reports a new defect; if you edit a
+guard line, grep the predicate after the edit (LL-010) before building.
+Ask the user: "Does the desktop look correct now (no stray halos)?"

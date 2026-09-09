@@ -19,3 +19,6 @@ build/
 *.swo
 .DS_Store
 *~
+
+# Container probe binary (Rule 13: binaries never tracked)
+src/test_create
