@@ -113,3 +113,8 @@
 - Command: dom0 qdbus org.kde.KWin /KWin reconfigure; /Effects loadEffect
   kittyglow; kwin_x11 --replace (backgrounded, journal captured)
   Reason: load build #6; confirm clean restart and effect liveness.
+
+## 2026-09-09T08:30:11+05:30 — Git commit: v2→v3.3 arc committed (session 01a077e8 recovery)
+- Command: `git add -A` + `git commit -m "v2→v3.3: ..."` + `.gitignore` += `src/test_create`
+- Reason: previous 2M-token session (01a077e8) died before committing any v2→v3.3 work; user precondition for continuing was an up-to-date git state.
+- Result: commit d697c0f (24 files, +1533/−197), tree clean. Probe binary `src/test_create` ignored (kept `src/test_create.cpp`).

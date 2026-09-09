@@ -98,3 +98,10 @@
   restored; plasma-kglobalaccel restarted (single daemon PID 210789).
 - Verified: dom0 sha256 097b3e24… == dist/; kwin_x11 --replace PID 211257
   (0 errors); isEffectLoaded=true; B+T active in kglobalshortcutsrc.
+
+## 2026-09-09T08:30:11+05:30 — Git commit d697c0f: entire v2→v3.3 arc committed
+- New session recovered context of dead session 01a077e8 (kitty theming → borderless → kitty-glow v1→v3.3, build #6 deployed/live).
+- Committed: v3 SDF sources (glowshader.cpp/.h, glowconfig.h), kittyglow.cpp v3.3, kittyglow.json metadata fix, v2-rollout-round.sh, kittyglow-rollback.sh, test_create.cpp probe, docs (LL-006..LL-010) + HTML siblings, all ledger updates. 24 files, +1533/−197.
+- .gitignore: added `src/test_create` (compiled ELF probe, kept source tracked).
+- Git state before this round: last commit 2110315 (2026-09-06T23:53:14Z, scaffold era); everything after was uncommitted.
+- Next (pending user go): interrupted diagnostic — Meta+Shift+B / Meta+Shift+T reported "don't work / behave the same" (dom0 read-only checks first).
