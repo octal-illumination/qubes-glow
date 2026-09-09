@@ -111,3 +111,9 @@
 
 ## 2026-09-09T03:39:35Z — kglobalaccel restart done; re-registration absent; kwin restart required
 - Live keys B/T still unowned after daemon restart. Next: kwin_x11 --replace (pending consent) + one-time kwinrulesrc normalize.
+
+## 2026-09-09T09:27:58+05:30 — **RESOLVED in dom0: Meta+Shift+B and Meta+Shift+T work again (E2E verified)**
+- Root-cause chain confirmed: boot race (kwin 08:58:11 started BEFORE kglobalaccel 08:58:13) → kwin's shortcut registration lost → keys dead since Sep 08. Restarting kglobalaccel alone does NOT heal (kwin never re-registers); **kwin restart AFTER the daemon does**.
+- dom0 changes: kwin_x11 replaced (PID 14836, correct HOME, kittyglow + Effects DBus healthy); kwinrulesrc normalized to a single active group [kitty-borderless] (noborder=true, rules=kitty-borderless) — KWin's numeric-rename regression ([1]) deduplicated; accidental foreign Ctrl+Shift+B/T registrations (created during wrong-key probing) cleared.
+- Verification: kwin registry shows both shortcuts ACTIVE with correct key codes (Meta+Shift+B=301989954, Meta+Shift+T=301989972); simulated keypress (xdotool super+shift+b) toggled noborder true→false→true; final parity borderless (noborder=true).
+- Lessons pending promotion to SPECIFICATION.md (with Step C): Qt::META=0x10000000 (key-int encoding); xdotool 'meta'='Alt', 'super'=Mod4; KF5 setForeignShortcut silently no-ops for unregistered components.

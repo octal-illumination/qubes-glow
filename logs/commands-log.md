@@ -133,3 +133,15 @@
   - **Reason:** Approved recovery step: restart kglobalaccel to trigger re-registration; verify live key ownership.
 - **Result:** Daemon restarted cleanly (09:07:34, active). Keys B/T STILL unowned (as 0), kwin component 0 shortcuts → kwin does NOT re-register on daemon restart. Execution context discovered: dom0 helper runs as chenpan uid 1000; hardcoded XDG_RUNTIME_DIR=/run/user/1000 export required.
 - **Conclusion:** Registration loss (kwin 08:58:11 before kglobalaccel 08:58:13 at boot) can only be healed by restarting kwin_x11 itself.
+
+## 2026-09-09T03:57:58Z — kwin_x11 --replace + kwinrulesrc normalization + recovery (dom0)
+- **Command:** dom0 'kill -9 5679; setsid kwin_x11 --replace (first attempt: env inherited wrong HOME → relaunched with HOME=/home/chenpan XDG_DATA_DIRS std → PID 14836); cat+python-reorder kwinrulesrc (merge [1]+[kitty-borderless] → single active [kitty-borderless] noborder=true, rules=kitty-borderless); qdbus org.kde.KWin /KWin reconfigure'
+  - **Reason:** Approved Steps A+B: kwin restart after kglobalaccel to heal lost shortcut registration; one-time normalization of the duplicate-rule regression so the installed binary's hardcoded group name works again.
+- **Result:** kwin healthy (PID 14836, HOME=/home/chenpan, kittyglow loaded, Effects DBus interface back). kwinrulesrc now exactly one active group [kitty-borderless] noborder=true, stable across reconfigures.
+
+## 2026-09-09T03:57:58Z — live registry + E2E keypress verification (dom0)
+- **Command:** dom0 'dbus-send getGlobalShortcutsByKey int32 (wrong keys 100663362/80 → empty); xdotool key meta+shift+b (meta=Alt in xdotool → no-op); setForeignShortcut (wrong keys → registered accidental Ctrl+Shift+B/T)'
+  - **Reason:** First verification attempt — used WRONG Qt key encoding (assumed Qt::META=0x04000000, actually 0x10000000).
+- **Command:** dom0 'dbus-send /component/kwin allShortcutInfos (no-arg, definitive); getGlobalShortcutsByKey int32:301990978/96 (my miscalculated values → empty); setForeignShortcut array:int32: (clear accidental Ctrl+Shift regs); xdotool key super+shift+b ×2'
+  - **Reason:** Correct verification with proper key decoding + cleanup of accidental registrations + true end-to-end keypress test.
+- **Result:** **SUCCESS.** kwin registry: "Toggle Kitty Borderless" active key 301989954 (=0x12000042=Meta+Shift+B ✓), "Window No Border" active key 301989972 (=0x12000054=Meta+Shift+T ✓). xdotool super+shift+b flipped noborder true→false→true — full daemon→grab→dispatch→effect chain WORKS. Accidental Ctrl+Shift regs cleared. Parity restored: rules=kitty-borderless, noborder=true.

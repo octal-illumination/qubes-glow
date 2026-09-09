@@ -79,3 +79,9 @@ output-history, researched-ideas, SESSION_STATE; HTML regenerated.
 New session (previous 2M-token session 01a077e8 dead): copy relevant context from that session + working directory; git-init/commit if not done before continuing. Then: "implement changes".
 #### Verbatim Output Response
 Recovered full context from session jsonl + project ledgers (v1→v3.3 arc; build #6 097b3e24 live; user had confirmed visuals OK but B/T shortcuts still broken; session died on 2.27M-token context wall mid-diagnostic). Git was initialized but stale (last commit = scaffold era). Committed d697c0f: 24 files, +1533/−197 (v3 SDF sources, v3.3 kittyglow.cpp, scripts, docs LL-006..LL-010, ledgers; .gitignore += src/test_create binary). Log commit 0d9844b. Tree clean. Awaiting user go for Phase 2: interrupted B/T shortcut diagnostic in dom0 (read-only first; password dialog expected).
+
+## 2026-09-09T09:27:58+05:30
+#### User Request
+"proceed" — approval for Steps A+B (kwin restart + kwinrulesrc normalization), continuation of shortcut-recovery plan.
+#### Verbatim Output Response
+Executed kwin_x11 --replace (one false start with wrong HOME env, corrected → PID 14836 healthy), normalized kwinrulesrc to single active group [kitty-borderless] noborder=true, reconfigured kwin. Then verified live registry: both shortcuts active with correct keys (Meta+Shift+B=301989954, Meta+Shift+T=301989972); E2E xdotool super+shift+b toggled parity true→false→true; cleared accidental Ctrl+Shift foreign registrations; restored borderless parity. **User-reported problem resolved in dom0.** Next: Step C code hardening proposal (toggleKittyBorderless group-name resilience) pending approval.
