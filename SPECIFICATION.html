@@ -336,9 +336,10 @@ Specification</h2>
 </ul>
 <h2 id="code-standards">6. Code Standards</h2>
 <ul>
-<li>C++20; one effect per file; rule-management extracted to
-<code>kittyborderrule.cpp</code> (single responsibility: kwinrulesrc
-rule toggle).</li>
+<li>C++20; one effect per file; borderless-state persistence extracted
+to <code>kittyglowstate.cpp</code> (single responsibility: kittyglowrc
+state store). <code>kittyborderrule.cpp</code> (kwinrulesrc rule toggle)
+is RETIRED — see LL-016:</li>
 <li><code>kittyglow.cpp</code> is 274 lines — over the 150 budget. The
 overage is the cohesive GL render path (LL-recorded accepted tech debt,
 2026-09-09); do NOT add logic to it without extracting first.</li>
@@ -440,11 +441,18 @@ kwin during testing).</li>
 <li><strong>LL-015</strong> — Rule groups in <code>kwinrulesrc</code>
 may carry UUID or numeric names (KWin re-save). Identify rules by
 CONTENT (<code>Description</code>/<code>wmclass</code>), never by group
-name (see <code>kittyborderrule.cpp</code>). Robust ownership query on
-kglobalaccel is the NO-ARG <code>allShortcutInfos</code> on
-<code>/component/kwin</code>; keyed queries
-(<code>getGlobalShortcutsByKey</code>, <code>action()</code>) require
-exactly encoded key ints (LL-012).</li>
+name (once relevant to <code>kittyborderrule.cpp</code>, now retired).
+<strong>LL-016</strong> — KWin property precedence: a loaded window
+<em>rule</em> overrides KWin <em>scripting</em> property writes. A
+<code>noborderrule</code> Force value in kwinrulesrc makes every script
+<code>noBorder</code> write revert at next state evaluation (live-proven
+2026-09-09: rule removed → script wins). Consequence: the kitty
+borderless state is persisted in <code>kittyglowrc</code> and applied by
+script; kwinrulesrc must never again carry <code>noborderrule</code> for
+kitty. Robust ownership query on kglobalaccel is the NO-ARG
+<code>allShortcutInfos</code> on <code>/component/kwin</code>; keyed
+queries (<code>getGlobalShortcutsByKey</code>, <code>action()</code>)
+require exactly encoded key ints (LL-012).</li>
 </ul>
 <h2 id="official-references">9. Official References</h2>
 <ul>

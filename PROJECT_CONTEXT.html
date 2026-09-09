@@ -244,9 +244,10 @@ hooks</td>
 <td>274</td>
 </tr>
 <tr class="even">
-<td><code>src/kittyborderrule.cpp/.h</code></td>
-<td>Content-based kitty rule toggle in kwinrulesrc (rename-immune)</td>
-<td>70</td>
+<td><code>src/kittyglowstate.cpp/.h</code></td>
+<td>Persistent borderless state in <code>kittyglowrc</code> (kwinrulesrc
+retired)</td>
+<td>76</td>
 </tr>
 <tr class="odd">
 <td><code>src/glowshader.cpp/.h</code></td>
@@ -302,16 +303,16 @@ halo never smears. Full design: ARCHITECTURE.md.</p>
 <p>None. Stateless effect; no persistence beyond kwinrc enable flag.</p>
 <h2 id="build-state">5. Build State</h2>
 <ul>
-<li><strong>Build #7 (v3.4, Step C)</strong> built zero-warning,
-deployed + E2E-verified. Artifact: <code>dist/kittyglow.so</code>,
-sha256 prefix <code>badf8df70b6a</code> (metadata.json
-<code>3a3f66bc…</code>). Adds <code>kittyborderrule.cpp</code> —
-content-based (Description / wmclass) lookup of the ACTIVE kitty rule,
-inert-rule self-heal via <code>[General] rules=</code>, and
-<code>KSharedConfig::reparseConfiguration()</code> per toggle (LL-014).
-Group-rename immunity PROVEN E2E: active group renamed to
-<code>[3]</code> → toggles still flip parity, <code>rules=</code>
-preserved, canonical name restored after.</li>
+<li><strong>Build #8 (v4, Step C rebuild, 2026-09-09)</strong> built
+zero-warning. Artifact: <code>dist/kittyglow.so</code>, sha256
+<code>25e019db…</code>. Replaces the kwinrulesrc rule toggle with
+<code>kittyglowstate.cpp</code> (<code>~/.config/kittyglowrc</code>
+<code>[General]   noBorder</code>) — root cause: a loaded forcing rule
+overrides scripting <code>noBorder</code> writes (write-revert fight,
+LL-016 family). Adds <code>getCurrentState()</code> DBus slot consumed
+by the kglowsync script bootstrap (kwin/script restart coverage).
+<code>kittyborderrule.cpp</code> retired. → toggles still flip parity,
+<code>rules=</code> preserved, canonical name restored after.</li>
 <li><strong>Shortcut recovery (dom0, this session):</strong> Sep 08 boot
 race (kwin 08:58:11 before kglobalaccel 08:58:13) killed B/T
 registration. kwin restarted AFTER daemon → both shortcuts live
@@ -347,9 +348,10 @@ compositor restart.</li>
 (<code>[kitty-borderless]</code>, noborder Force=2, wmclassmatch
 RegExp=3, listed under <code>[General] rules=</code>).</li>
 <li><strong>Meta+Shift+B</strong> → effect-registered
-<code>Toggle Kitty Borderless</code>: flips the persistent kitty window
-rule (content-matched via <code>kittyborderrule.cpp</code>, survives
-KWin group renames) and loopback-reconfigures KWin.</li>
+<code>Toggle Kitty Borderless</code>: persists the state to
+<code>kittyglowrc</code> via <code>kittyglowstate.cpp</code>; the
+kglowsync script (bootstrap + poll + sweep) applies
+<code>noBorder</code> live to all kitty windows.</li>
 <li><strong>Meta+Shift+T</strong> → native <code>Window No Border</code>
 (per-focused-window toggle); rebound from Meta+Shift+B, dead
 <code>kitty-toggle-border</code> entry deleted.</li>

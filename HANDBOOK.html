@@ -347,18 +347,18 @@ wmclass <code>kitty</code>.</p>
 <ul>
 <li><strong>Meta+Shift+B — Toggle Kitty Borderless
 (effect-registered).</strong> Registered by the effect itself via
-<code>KGlobalAccel::setShortcut</code>. Flips the <em>persistent</em>
-kitty window rule <code>[kitty-borderless]</code> in
-<code>kwinrulesrc</code> (noborder Force), then loopback-reconfigures
-KWin so the Force rule re-applies to all mapped kitty windows
-immediately. State survives reboots. Since build #7 the lookup is
-content-based (<code>kittyborderrule.cpp</code>): the ACTIVE rule is
-found by Description/wmclass — NOT by group name, because KWin renames
-groups on re-save (recurred as <code>[1]</code>, proven again as
-<code>[3]</code>) — an inert kitty rule is self-healed by re-listing it
-under <code>[General] rules=</code>, and the file is re-parsed per
-toggle so a stale in-process snapshot can never resurrect renamed
-groups.</li>
+<code>KGlobalAccel::setShortcut</code>. Flips the persistent borderless
+state in <code>~/.config/kittyglowrc</code>
+(<code>[General] noBorder</code>), which both the effect’s
+<code>getCurrentState()</code> DBus slot and the kglowsync KWin script’s
+bootstrap consume; the script applies <code>noBorder</code> live to
+every kitty window — no reconfigure, no restart. State survives reboots.
+Since the 2026-09-09 write-revert diagnosis the state lives in
+<code>kittyglowstate.cpp</code> — NOT in a kwinrulesrc forcing rule: a
+loaded rule overrides KWin scripting <code>noBorder</code> writes
+(scripting &lt; rules), so the rule file must never carry
+<code>noborderrule</code> for kitty again. The old content-based rule
+toggle (<code>kittyborderrule.cpp</code>) was retired.</li>
 <li><strong>Meta+Shift+T — Window No Border (native KWin).</strong>
 Per-focused-window titlebar/frame toggle, rebound from Meta+Shift+B when
 the effect needed B (kglobalshortcutsrc, applied via

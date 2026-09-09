@@ -20,7 +20,7 @@ add_definitions(-DQT_NO_KEYWORDS)
 find_library(KWINEFFECTS_LIB NAMES kwineffects REQUIRED)
 find_library(KWINGLUTILS_LIB NAMES kwinglutils)
 
-add_library(kittyglow MODULE kittyglow.cpp kittyborderrule.cpp glowshader.cpp)
+add_library(kittyglow MODULE kittyglow.cpp kittytoggle.cpp kittyglowstate.cpp glowshader.cpp)
 set_target_properties(kittyglow PROPERTIES PREFIX "" OUTPUT_NAME "kittyglow")
 
 target_link_libraries(kittyglow

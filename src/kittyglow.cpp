@@ -10,8 +10,10 @@
 // snapping to the destination geometry, and fades with data.opacity().
 //
 // Shortcuts: Meta+Shift+B (here) flips the persistent kitty window rule
-// [kitty-borderless] (kwinrulesrc, Force rule → applies to live windows);
-// the native per-focused-window toggle "Window No Border" is rebound to
+// [kitty-borderless] (kwinrulesrc, Force rule) and stages the new value for
+// the kglowsync KWin script (60 ms DBus poll, kittytoggle.cpp) which applies
+// noBorder live — no reconfigure, no kwin restart, no flash (LL-016); the
+// native per-focused-window toggle "Window No Border" is rebound to
 // Meta+Shift+T by v2-rollout-round.sh.
 #include "glowconfig.h"
 #include "glowshader.h"
@@ -21,15 +23,14 @@
 #include <epoxy/gl.h>
 #include <KGlobalAccel>
 #include <QElapsedTimer>
+#include <QDebug>
 #include <KConfigGroup>
 #include <KSharedConfig>
 #include <QAction>
-#include <QDBusConnection>
-#include <QDBusMessage>
-#include <QDBusPendingCall>
 #include <QKeySequence>
 
-#include "kittyborderrule.h"
+#include "kittyglowstate.h"
+#include "kittytoggle.h"
 #include <QRectF>
 #include <QRegion>
 #include <chrono>
@@ -96,6 +97,11 @@ KittyGlowEffect::KittyGlowEffect() {
             [this](KWin::EffectWindow *w) {
         if (isKittyWindow(w)) repaintHalo(w->frameGeometry());
     });
+
+    // Seamless toggle channel: DBus pull-service + kglowsync poller script
+    // (see kittytoggle.h). The script applies noBorder live so the toggle
+    // never needs org.kde.KWin.reconfigure() — the LL-016 white flash.
+    KittyToggle::init();
 
     m_toggleGate.start();
     reconfigure(ReconfigureAll);
@@ -237,7 +243,11 @@ void KittyGlowEffect::updateOccluders() {
 QRegion KittyGlowEffect::occludedAboveKitty(const QRectF &halo, qreal scale) const {
     QRegion occl;
     for (auto *w : m_occluders) {
-        const QRectF gf = w->frameGeometry();
+        // expandedGeometry() spans the frame AND the window shadow: front
+        // windows paint translucent shadow gradients well past frameGeometry(),
+        // and clipping only the frame let the halo shine through those shadows
+        // (LL-017 penetration artifact).
+        const QRectF gf = w->expandedGeometry();
         // Device-px rect (+1 px fatten so no halo seam shows at occluder
         // edges), same top-left-origin space as the paint region —
         // GLVertexBuffer::draw() flips scissor rects for GL itself.
@@ -258,16 +268,17 @@ void KittyGlowEffect::toggleKittyBorderless() {
     if (m_toggleGate.isValid() && !m_toggleGate.hasExpired(220)) return;
     m_toggleGate.start();
 
-    // Content-based toggle (kittyborderrule.cpp): survives KWin's rule-group
-    // renames and reactivates inert duplicates; no-op when no kitty rule
-    // exists. Loopback reconfigure: Workspace::slotReconfigure reloads the
-    // RuleBook and re-applies the Force rule to mapped kitty windows.
-    const auto flipped = KittyBorderRule::toggleKittyNoBorder();
-    if (!flipped) return;
-    QDBusMessage msg = QDBusMessage::createMethodCall(
-        QStringLiteral("org.kde.KWin"), QStringLiteral("/KWin"),
-        QStringLiteral("org.kde.KWin"), QStringLiteral("reconfigure"));
-    QDBusConnection::sessionBus().asyncCall(msg);
+    // State-based toggle (kittyglowstate.cpp): the value lives in our own
+    // kittyglowrc, so no in-memory forcing rule can fight the kglowsync
+    // script's noBorder writes (the 2026-09-09 write-revert fight). The
+    // kwinrulesrc kitty rule is retired; see HANDBOOK.md migration note.
+    const bool flipped = KittyGlowState::toggleNoBorder();
+    // No reconfigure here — that call is the LL-016 white flash. Stage the
+    // new value; the kglowsync script applies it to kitty windows within
+    // 60 ms and the halo follows via windowFrameGeometryChanged.
+    KittyToggle::requestApply(flipped);
+    qWarning() << "toggle: flipped noborder ->" << flipped
+               << "and staged for kglowsync";
 }
 
 KWIN_EFFECT_FACTORY(KittyGlowEffect, "kittyglow.json")

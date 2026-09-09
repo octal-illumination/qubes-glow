@@ -163,3 +163,67 @@
   - Immunity verified: presses flip parity with numeric/renamed active group; self-heal path compiled in.
   - **Incident:** kwin crashed during the earlier stale-binary presses batch (old build without reparse was live; unload/load churn suspected); plasma auto-restarted kwin (PID 15974, --crashes 1). Post-crash, shortcuts auto-re-registered (kglobalaccel was up first) — T=301989972, B=301989954 confirmed. Recovery order theory re-validated by a real crash.
   - kwinrulesrc final: canonical [kitty-borderless] active (count=1, rules=kitty-borderless, noborder=true); UUID groups are user's protonvpn:chromium rules (untouched).
+
+## 2026-08-31T00:00Z — dom0 diagnostic probe (DENIED)
+- **Command:** `dom0 'bash -lc "... base64 -d <<< $PAYLOAD | python3 -"'` (kitty extents before/after T-key, T on non-kitty, 7-frame white-flash capture via ImageMagick `import`, parity check, journal scan)
+- **Reason:** Read-only runtime diagnosis of the three reported issues (flash on B, dead T shortcut, glow artifact over neighbor window). Result: `Access denied.` — password dialog not completed; probe NOT executed.
+
+## 2026-09-09T~05:05Z — dom0 probe batch 2 (T on chromium/kitty, stacking, flash frames)
+- **Command:** dom0 python probe: T-key extents tests (kitty+chromium), _NET_CLIENT_LIST_STACKING sweep, 7-frame flash capture via `import`, scripting loadScript.
+- **Reason:** Diagnose issue 2 (T) + issue 1 (flash) + issue 3 (stacking context). Key findings: T intermittent on chromium (T1 lost, T2 worked, T3 lost); no collateral damage; kitty on desktop 2; flash/scripting sections skipped (no visible kitty); kglobalshortcutrc filename wrong.
+
+## 2026-09-09T~05:20Z — dom0 probe batch 3 (shortcut registry, T 6-press, scripting introspect)
+- **Command:** dom0 python probe: full kwin-component shortcut list, kglobalshortcutsrc dump, T 6-press extents sequence on chromium, /Scripting introspection, scene reshoot.
+- **Reason:** Characterize T flakiness + recover scripting API surface. Findings: both shortcuts in [kwin]; T sequence 0000->0000->2300->0000->2300->0000->2300 (5/6 delivered, first-after-focus eaten); Scripting exposes loadScript/unloadScript/start/isScriptLoaded; import/convert ABSENT on dom0.
+
+## 2026-09-09T~05:35Z — dom0 probe batch 4 (tools, T-sweep, scripting run attempt, spectacle capture)
+- **Command:** dom0 python probe: capture-tool discovery, fine T sweep on kitty (5 timepoints), loadScript + per-script run attempt, spectacle 7-frame flash capture + overlap-artifact shot, base64 image pull.
+- **Reason:** Discriminate eaten-press vs rule-reassert for T on kitty; test scripting noBorder write; capture flash + artifact. Findings: T on kitty ZERO effect (rule Force reassert suspected); loadScript returns id but /Scripting/Script<N> UnknownObject until start(); spectacle WORKS; frame 3 = uniform near-white full screen (flash confirmed, ~0.3-0.6s); xwininfo absent; /tmp volatile between dom0 calls (frames lost in batch 2/3).
+
+## 2026-09-09T~05:50Z — local PIL frame analysis (flash + overlap artifact)
+- **Command:** python3 PIL: region mean/stddev + yellow-halo pixel counts on frames 0/2/3/4/overlap.
+- **Reason:** Model cannot view images; quantify flash + artifact. Findings: frame 3 = whole screen (247,248,248) incl. normally-black kitty interior -> full-screen X11 exposure fill; overlap.png flawed (kitty raised last, nothing occluded) -> artifact NOT reproduced yet; occludedAboveKitty uses frameGeometry() — shadow-zone penetration suspect; expandedGeometry() to be verified in kwin headers.
+
+## 2026-09-09T~06:20Z — PoC-1: scripting semantics + bare-write (STALE WINDOW)
+- **Command:** dom0 python probe: kitty 0x4c008e3 extents watch, loadScript+start+introspect, bare kwinrulesrc write test.
+- **Reason:** Validate design unknowns before implementing. Result: INVALID — 0x4c008e3 was closed by user (BadWindow on every read); kwinrulesrc untouched (writes round-tripped to identical content); parity intact.
+
+## 2026-09-09T~06:35Z — PoC-2: spawn kitty + scripting auto-run test
+- **Command:** dom0 python probe: qvm-run Dev-General kitty, extents watch, loadScript+start, introspect Script1.
+- **Reason:** Re-test with live window. Findings: spawned kitty 79694242 never gained _NET_FRAME_EXTENTS (anomaly); /Scripting/Script1 UnknownObject even after start(); no auto-run evidence.
+
+## 2026-09-09T~06:50Z — PoC-3: rulebook integrity + chromium scripting + inotify test
+- **Command:** dom0 python probe: cat kwinrulesrc, spawn kitty + reconfigure health, scripting noBorder on chromium, temp chromium rule via bare write, screenshot pull.
+- **Reason:** Discriminate rulebook corruption vs X11 phantom. Findings: kwinrulesrc PRISTINE (single active kitty-borderless); spawned kitty still extents-none (placeholder window; screenshots pulled for PIL check); scripting auto-run did NOT fire (chromium unchanged); bare-write rule NOT live-applied (no inotify — good for design); chromium restored bordered; parity intact.
+
+## 2026-09-09T~07:00Z — local PIL analysis of PoC-3 screenshots
+- **Command:** python3 PIL: kitty_before/kitty_after_recfg/kitty_final region stats.
+- **Reason:** Verify spawned kitty visuals. (See next Action-History entry for outcome.)
+
+## 2026-09-09T~07:10Z — PoC-4/4b/4c: script package install attempts
+- **Command:** dom0 python probes: hand-written + kpackagetool5 install of kglowtest script pkg (KPackageStructure schema), kwinrc enable, 3 kwin restarts, chromium extents watch, cleanup.
+- **Reason:** Test installed-script-package auto-execution. Findings: kpackagetool5 install OK but isScriptLoaded=false after restart (no sycoca rebuild before restart — suspected cause); kwin restarts clean, shortcuts survive (2), parity intact throughout.
+
+## 2026-09-09T~07:20Z — PoC-5: control script + marker test + KWin DBus introspect
+- **Command:** dom0 python probe: enable system minimizeall + kbuildsycoca5 + restart + isScriptLoaded; loadScript marker.js + start() + journal grep; /KWin full introspection dump.
+- **Reason:** Discriminate package-discovery vs script-execution failure. Findings: minimizeall LOADS (control PASSED — mechanism works with sycoca); marker body did NOT execute via loadScript+start (start() likely once-per-process no-op); no direct per-window noBorder setter on org.kde.KWin DBus.
+
+## 2026-09-09T~07:35Z — PoC-6: sycoca rebuild before restart
+- **Command:** dom0 python probe: kpackagetool5 install kglowtest + kbuildsycoca5 + restart + watch.
+- **Reason:** Test sycoca-rebuild hypothesis. Result: STILL not loaded (isScriptLoaded=false) — sycoca not the fix; narrows failure to metadata schema.
+
+## 2026-09-09T~07:45Z — PoC-7: verbatim minimizeall metadata clone — SUCCESS
+- **Command:** dom0 python probe: cp minimizeall pkg, rewire Id/Name/main.js, kpackagetool5 user-path install, sycoca, restart, chromium extents watch 16s, cleanup + restart.
+- **Reason:** Discriminate metadata-schema failure. **RESULT: PASS** — isScriptLoaded=true; trajectory 0,0,23,0 → 2.4s:0,0,0,0 (script flipped border) → 8.5s:0,0,23,0 (script restored). Installed-script-package auto-execution + live noBorder PROVEN. Root cause of prior failures: minimal metadata lacked X-Plasma-API/X-Plasma-MainScript entry-point keys. Cleanup verified (chromium bordered, parity noborder=true, shortcuts 2, kglowtestEnabled=false, pkg removed).
+
+## 2026-09-09T~08:05Z — source round writes + syntax verification
+- **Command:** write src/kittytoggle.{h,cpp}, src/kwin-script/kglowsync/{metadata.json,contents/code/main.js}; edit kittyglow.cpp (5 blocks), src/CMakeLists.txt, scripts/deploy.sh; sed fix QStringLiteral→fromLatin1; bash -n deploy.sh; python3 -m json.tool metadata.json; node --check main.js; wc -l.
+- **Reason:** Implement the approved seamless-B plan + Rule 16 post-modification verification (syntax validators before build consent).
+
+## 2026-09-09T~12:45+0530 — build + fix round
+- **Command:** bash scripts/build.sh (2x); podman exec … cat /tmp/b_cmake.log /tmp/b_make.log; edit src/kittytoggle.cpp (4 blocks).
+- **Reason:** Execute user's "build" consent; Rule 5 zero-warning verification; fix compile errors found in first pass.
+
+## 2026-09-09T07:57:34Z
+- **Command:** node --check main.js; bash scripts/build.sh (rebuild #8); edits to main.js + kittyglow.cpp
+- **Reason:** Fix JS "Could not convert argument 0" QTimer(parent) crash via parentless-builder cascade + proof-of-life print()s; add qDebug toggle-trace to C++ path. Build green, zero warnings.

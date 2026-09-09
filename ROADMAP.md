@@ -31,9 +31,10 @@
       (kwin restart AFTER the daemon — SPEC LL-011).
 - [x] Normalize kwinrulesrc to a single ACTIVE canonical rule group
       ([1] vs [kitty-borderless] duplication — LL-007 family).
-- [x] Step C: extract content-based rule toggle (`kittyborderrule.cpp/.h`)
-      with inert-rule self-heal + per-toggle `reparseConfiguration()`
-      (SPEC LL-014/LL-015); `kittyglow.cpp` modularized.
+- [x] Step C (rebuild, 2026-09-09): persistent state moved OUT of kwinrulesrc
+      (loaded forcing rule overrides scripting writes — LL-016). State store
+      `kittyglowstate.cpp/.h` in `kittyglowrc`; `kittyborderrule.cpp/.h`
+      retired; kglowsync gains getCurrentState bootstrap + clientAdded.
 - [x] Build #7 zero-warning, deployed (badf8df7…), live-reloaded; E2E
       keypress verified; group-rename immunity proven (rename → toggles
       still work → restore). Recovery re-validated by a real kwin crash

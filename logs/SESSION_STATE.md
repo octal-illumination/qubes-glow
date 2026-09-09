@@ -2,48 +2,43 @@
 
 > **Note:** All documentation and code in this project are purely AI-generated.
 
-**Timestamp:** 2026-09-09T~04:15Z (09:45 local +05:30)
-**Agent/session:** pi (new session), continuing from dead session 01a077e8 (2M tokens).
+## 2026-09-09T~08:05Z — Seamless-B source round complete, awaiting build consent
 
-## Current Objective
-Shortcut recovery is DONE (dom0 level). Next: **Step C** — harden `toggleKittyBorderless()` against KWin's group-renaming regression, rebuild, deploy, docs.
+### Current Objective
+Build + deploy + E2E the seamless Meta+Shift+B toggle (LL-016 flash) and expandedGeometry occluders (LL-017).
 
-## Discovered Facts (all verified via dom0 probes this session)
-- **ROOT CAUSE (final):** boot race — kwin_x11 started 08:58:11 BEFORE kglobalaccel 08:58:13 → kwin's global-shortcut registration silently lost → Meta+Shift+B/T dead since Sep 08 reboot. Restarting kglobalaccel alone does NOT heal (kwin never re-registers). **kwin restart AFTER the daemon heals it.**
-- **FIX APPLIED & E2E VERIFIED:** kwin_x11 --replace (PID 14836, HOME=/home/chenpan, kittyglow + org.kde.kwin.Effects DBus healthy). kwin registry now shows both shortcuts ACTIVE: "Toggle Kitty Borderless" key 301989954 (=0x12000042=Meta+Shift+B), "Window No Border" key 301989972 (=0x12000054=Meta+Shift+T). xdotool super+shift+b flipped noborder true→false→true — full daemon→grab→dispatch→effect chain works.
-- **kwinrulesrc normalized** to exactly one active group `[kitty-borderless]` (noborder=true, rules=kitty-borderless) — the KWin numeric-rename regression ([1] active vs [kitty-borderless] inert) deduplicated manually. Stable across reconfigures so far.
-- **Key-encoding facts (hard-won):** Qt::SHIFT=0x02000000, Qt::CTRL=0x04000000, Qt::ALT=0x08000000, **Qt::META=0x10000000**. Meta+Shift+B=0x12000042=301989954; Meta+Shift+T=0x12000054=301989972. My earlier probes used 0x060000xx (=Ctrl+Shift) — wrong by modifier bit.
-- **xdotool gotchas:** `meta` modifier = Alt (Mod1); Super/Win = `super`. E2E test must use `xdotool key super+shift+b`.
-- **KF5 fact:** `setForeignShortcut` silently no-ops for a component with no live registration... (actually: registers against key only — my "empty" reads were wrong-key artifacts; ownership checks must use correct ints or no-arg `allShortcutInfos`).
-- Accidental foreign Ctrl+Shift+B/T registrations (created by wrong-key setForeignShortcut) were **cleared** (setForeignShortcut with empty int array) — net zero.
-- dom0 helper (`/home/user/.local/bin/dom0`) runs qrexec to dom0 as user chenpan (uid 1000); needs hardcoded `XDG_RUNTIME_DIR=/run/user/1000 DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1000/bus DISPLAY=:0` exports; one password dialog per invocation.
-- Current toggle code (src/kittyglow.cpp:249): hardcodes KConfig group "kitty-borderless"; `if (!g.exists()) return;` → dead toggle whenever KWin renames the group (recurring LL-007 family). 220 ms repeat-gate already present.
-- **Repo state:** kittyglow.cpp = 273 lines (src/kittyglow.h does NOT exist — class declared in glowshader.h? no: class is in kittyglow.cpp? verify: only kittyglow.cpp + glowshader.h/.cpp in src/; the effect class header is NOT separate — kittyglow.cpp contains its own class declaration). Git HEAD bc9ecc8, tree clean.
+### Discovered Facts
+- PoC-7 (decisive): KWin script PACKAGE (kpackagetool5, user path) with minimizeall-verbatim metadata auto-runs at kwin start; QTimer fires; client.noBorder flips live on chromium (0,0,23,0→0,0,0,0 @2.4s→back @8.5s). Minimal metadata WITHOUT X-Plasma-API/X-Plasma-MainScript/X-KDE-PluginKeyword keys never loads (PoC-4c/6 failures root-caused).
+- minimizeall metadata values: X-Plasma-API="javascript", X-Plasma-MainScript="code/main.js", X-KDE-PluginKeyword="<id>", KPackageStructure="KWin/Script".
+- B-flash = full-screen white (frames: uniform 247,248,248 incl. kitty interior), 0.3–0.6 s, from org.kde.KWin.reconfigure RuleBook reload — now eliminated at source (toggle stages value; no reconfigure call).
+- LL-017 artifact: front windows paint shadow gradients past frameGeometry; occluder rects now use expandedGeometry().
+- T on kitty stays rule-forced (suppressed) by design; T documented for non-kitty windows (option a; Option A offered, not chosen).
+- loadScript+start() dead on 5.27.8 dom0 (once-per-process); package install is the ONLY working script channel.
+- kglowtest package removed; kglowtestEnabled=false dead key remains (harmless). Parity noborder=true intact; shortcuts=2 (B+T) survived every restart.
 
-## File Changes
-- No repo source changes this phase. dom0 config changes: kwinrulesrc normalized; kglobalshortcutsrc daemon-rewritten (net zero); kwin replaced.
-- Ledger commits this session: d697c0f (v2→v3.3 arc), 0d9844b/716b711 (earlier logs), de8afbe/704c63b/e4abea9 (diagnostics), bc9ecc8 (recovery success logs).
+### File Changes (this round)
+- NEW src/kittytoggle.h (24) / src/kittytoggle.cpp (104): SyncService Q_OBJECT slot nextSource()→int (consumes s_pending 1/2/0), init() (package check, kwinrc enable, registerService "org.kde.kittyglow", registerObject "/sync" ExportSlots), requestApply(bool).
+- NEW src/kwin-script/kglowsync/metadata.json + contents/code/main.js (62): 60 ms poll, 400 ms watchdog, 2 s heartbeat gate, applies noBorder to resourceClass~kitty clients.
+- EDIT src/kittyglow.cpp (274→283): init() in ctor; toggle→requestApply (reconfigure deleted); occludedAboveKitty→expandedGeometry(); includes pruned; header comment.
+- EDIT src/CMakeLists.txt (+kittytoggle.cpp); EDIT scripts/deploy.sh (pkg install to ~/.local/share/kwin/scripts/kglowsync, kglowsyncEnabled, sycoca).
 
-## Decisions & Rationale
-- Kept canonical group name `kitty-borderless` during normalization (matches installed binary's hardcoded group) so the OLD binary works immediately.
-- Correct key ints established empirically from kwin's own registry ("Window to Desktop 9" = 0x14000079 = Meta|Ctrl|9 proved Qt::META=0x10000000).
-- Step C direction: find-by-content (Description=="kitty borderless" OR wmclass==kitty), not find-by-name; toggle whatever ACTIVE group matches; fallback activates an inert kitty group by rewriting [General] rules=. Kills the regression class instead of patching instances.
-- Rule 13 flag: kittyglow.cpp 273 lines > 200 → propose extracting rule-toggle into `kittyborderrule.cpp/.h` (single responsibility: kwinrulesrc rule management) + CMakeLists update.
+### Decisions & Rationale
+- Package auto-run instead of loadScript bootstrap (PoC-7 evidence; start() is once-per-process no-op).
+- Pull-model (script polls C++) — script has no service registration; heartbeat gate stops enforcement when effect absent.
+- Watchdog re-assert makes T-on-kitty deterministic (reverted ≤400 ms) — documented.
+- QStringLiteral(constexpr-var) invalid → fromLatin1 (caught pre-compile).
+- kittyglow.cpp left >200 lines (pre-existing 274); paint core untouched; further split = follow-up proposal.
 
-## Active Blockers
-- None.
+### Active Blockers
+- Build consent pending (Rule 1b; approved plan step 5: separate build/deploy consent).
 
-## Pending Work (ordered)
-1. **Step C** (needs user "implement changes"): extract + harden toggle logic into src/kittyborderrule.cpp/.h; update CMakeLists.txt; build (needs "build" consent); deploy to dom0 + restart kwin; E2E re-verify.
-2. Docs: HANDBOOK.md (behavior unchanged, note recovery), PROJECT_CONTEXT.md (build state), SPECIFICATION.md (LL-011: Qt::META encoding; LL-012: kwin-before-kglobalaccel boot race; LL-013: xdotool meta≠super; LL-014: setForeignShortcut semantics), ROADMAP.md phase status; HTML regen via generate-docs-html.sh (Rule 18).
-3. Git commit docs; final verification per Rule 16/19.
+### Pending Work (ordered)
+1. Ask user: "build?" → scripts/build.sh (Dev-General), fix any compile errors (moc/kittyglow.moc pattern proven).
+2. Deploy: scripts/deploy.sh → dom0 (dialog); verify kglowsync installed + isScriptLoaded(kglowsync)=true after restart.
+3. kwin restart (explicit); E2E: B 10-press flash capture (expect ZERO white frames), B latency ≤ ~0.5 s, parity checks each press; overlap repro (kitty focused FIRST, front window last) for LL-017; T behavior doc.
+4. Docs: SPEC LL-016/LL-017, HANDBOOK (B semantics), PROJECT_CONTEXT build #8, ROADMAP, HTML regen (Rule 18e diff), commit.
 
-## Full Context Dump
-- kwin PID 14836 (restarted ~09:14 local Sep 09). kglobalaccel PID 14616 (restarted 09:07:34). Both healthy.
-- kwinrulesrc final: `[General] count=1 rules=kitty-borderless`; `[kitty-borderless] Description="kitty borderless" wmclass=kitty wmclassmatch=3 noborder=true`.
-- kwin registry entries (allShortcutInfos): Toggle Kitty Borderless {active:[301989954], default:[301989954]}; Window No Border {active:[301989972], default:[0]}.
-- Parity at rest: rules=kitty-borderless, noborder=true (kitty borderless).
-- T-key E2E not simulated (native kwin shortcut, same healed chain; user should press physically).
-
-## Next Agent Handoff Message
-Read PROJECT_CONTEXT.md + this file. Working dir ~/Projects/QubesOS/UI-Enhancements/Kwin/kitty-glow. Shortcuts are FIXED in dom0 (verified). Next action: present Step C proposal (extract harden toggle into kittyborderrule.cpp/.h per SESSION_STATE "Pending Work" #1) and wait for explicit "implement changes". For any dom0 probe use the `dom0` helper with the env exports listed above; E2E keypress = `xdotool key super+shift+b`.
+### Next Agent Handoff Message
+Read PROJECT_CONTEXT.md + this file; wd ~/Projects/QubesOS/UI-Enhancements/Kwin/kitty-glow. All source changes are DONE and verified; on user's "build" run scripts/build.sh, then scripts/deploy.sh, restart kwin, run the E2E plan above. Do NOT re-run PoCs. Baseline evidence: logs/run/flash/*.png (white @frame3), logs/run/*.log.
+# 2026-09-09T08:21:05Z — BLOCKER: JS noBorder write reverts
+Objective: seamless Meta+Shift+B. Proven: rule flip+DBus+poll+callback. Blocker: write rejected, likely in-memory RuleBook re-assert. Next: offline KWin rules-engine research in podman container; propose unloadScript to stop 400 ms churn BEFORE anything else.

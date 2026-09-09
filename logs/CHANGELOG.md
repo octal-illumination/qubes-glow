@@ -138,3 +138,34 @@
 - PROJECT_CONTEXT.md: build #7 state (badf8df7…), shortcut-recovery summary, file map +274/70 ln, live PID 15974, parity at rest.
 - ROADMAP.md: Phases 2–3 marked DONE (long complete); Phase 6 (Shortcut Reliability v3.4) added, all items checked.
 - HTML siblings regenerated via sanctioned generator; 18e doc-zone equality diff clean.
+
+## 2026-09-09T06:45:59Z — Seamless B implementation (LL-016/LL-017 fix, source round)
+- **src/kittytoggle.h/.cpp (NEW, 24+104 lines):** DBus pull-service org.kde.kittyglow /sync nextSource() (staged toggle value, consumed by 60 ms script poll) + kglowsync package presence check + kwinrc enable. PoC-7-validated architecture (script package auto-run; minimal-metadata failure root-caused to missing X-Plasma-API/MainScript).
+- **src/kwin-script/kglowsync/ (NEW):** KWin script package (metadata.json with verbatim-minimizeall schema keys; main.js poller: 60 ms nextSource poll + 400 ms watchdog re-assert with 2 s service heartbeat; applies Client.noBorder live to kitty windows).
+- **kittyglow.cpp:** toggle drops org.kde.KWin.reconfigure() (the LL-016 full-screen white flash) → KittyToggle::requestApply(); ctor calls KittyToggle::init(); occludedAboveKitty() now clips by expandedGeometry() (LL-017 shadow-penetration artifact); removed unused QDBus includes; header comment updated. Net 274→283 lines (pre-existing >200; paint core intentionally untouched this round).
+- **src/CMakeLists.txt:** added kittytoggle.cpp to module.
+- **scripts/deploy.sh:** installs kglowsync package to chenpan's KPackage path via dom0 bridge, enables kglowsyncEnabled, kbuildsycoca5 rebuild. Note: qvm-run|base64 pipe failure inside dom0 shell not pipefail-protected (same as existing .so pattern).
+- **Verification (Rule 16):** bash -n deploy.sh OK; metadata.json json.tool OK; node --check main.js OK; QStringLiteral-on-identifier bug caught and fixed pre-compile; C++ compile pending build consent.
+
+## 2026-09-09T07:16:01Z — Build round: 4 Qt API fixes + green build
+- **src/kittytoggle.cpp compile fixes (first build failed exit 2, silent by design of build.sh):** `public slots:`→`public Q_SLOTS:` (QT_NO_KEYWORDS); QStandardPaths::LocalDataLocation→GenericDataLocation (Qt5 has no LocalDataLocation; GenericDataLocation = ~/.local/share, matches deploy path); `auto *bus = QDBusConnection::sessionBus()`→value type (returns by value, not pointer); ExportSlots→ExportScriptableSlots|ExportNonScriptableSlots (ExportSlots is Qt 6.5+).
+- **Build:** exit 0, 0 warnings (Rule 5), dist/kittyglow.so sha256 a8f0cbfe…, 87240 bytes.
+- **Note:** build.sh is silent on failure (all container output pre-redirected to /tmp/b_*.log) — candidate UX fix, deferred.
+
+## 2026-09-09T07:57:34Z — build #8 (JS timer fix + toggle trace)
+- main.js: QTimer built parentless via fallback cascade (fixes journal-confirmed "Could not convert argument 0" at :40/:52); defensive Number(src) coercion; print() proof-of-life lines.
+- kittyglow.cpp: qDebug trace on toggle success/no-rule paths.
+- Rebuilt (sha256 21fce193…), zero warnings. Not yet deployed.
+
+## 2026-09-09T08:21:05Z — E2E verdict + user-reported desktop disruption
+- PROVEN: full toggle chain through JS reply callback. BROKEN: Client.noBorder write instantly reverts (suspect: in-memory forcing rule loaded at kwin start).
+- USER IMPACT: 13:28 pkill left desktop unmanaged ~3 min (respawn failed); 2 further restarts; kglowsync loop currently churns noBorder every 400 ms. All live dom0 experimentation halted pending user decision.
+
+## 2026-09-09T08:36:59Z — Step C rebuild: state-store persistence (kittyglowrc) replaces kwinrulesrc rule toggle
+- Root cause of live write-revert fight: a loaded forcing rule in kwinrulesrc overrides KWin scripting `noBorder` writes (scripting < rules). Any in-rule `noborderrule` value must be unset (rule still lists window properties only) for script writes to stick.
+- Created `src/kittyglowstate.{h,cpp}` (`~/.config/kittyglowrc` [General] noBorder; load/save/toggle; rule file untouched).
+- Removed `src/kittyborderrule.{h,cpp}` (git rm); rewired `kittyglow.cpp` toggle body + `kittytoggle.cpp` (`nextSource` + new `getCurrentState` DBus slot + bootstrap contract doc); CMake sources updated.
+- Rewrote `src/kwin-script/kglowsync/contents/code/main.js`: getCurrentState bootstrap, 60 ms nextSource poll, 400 ms sweep (2 s heartbeat pause), clientAdded coverage; scriptLog diagnostics via effect.
+- Fixed `QStringLiteral(constexpr)` compile error in kittyglowstate.cpp.
+- Container build green (zero warnings); dist sha256 kittyglow.so 25e019db….
+- Docs synchronized: HANDBOOK.md, PROJECT_CONTEXT.md, ROADMAP.md, SPECIFICATION.md now reference kittyglowstate/kittyglowrc (kittyborderrule retired).

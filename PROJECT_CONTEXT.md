@@ -12,7 +12,7 @@ Language: C++20 / Qt plugin. Purpose: make kitty windows visually distinct.
 | Path | Responsibility | ~Lines |
 |------|----------------|--------|
 | `src/kittyglow.cpp` | `KWin::Effect` subclass; quad + shortcut + repaint hooks | 274 |
-| `src/kittyborderrule.cpp/.h` | Content-based kitty rule toggle in kwinrulesrc (rename-immune) | 70 |
+| `src/kittyglowstate.cpp/.h` | Persistent borderless state in `kittyglowrc` (kwinrulesrc retired) | 76 |
 | `src/glowshader.cpp/.h` | GLSL SDF glow shader (per-side soft falloff) | 130 |
 | `src/glowconfig.h` | kwinrc `[Effect-kittyglow]` config reader (live-reload) | 80 |
 | `src/CMakeLists.txt` | Plugin build (C++20, KWin links) | 40 |
@@ -34,12 +34,13 @@ halo never smears. Full design: ARCHITECTURE.md.
 None. Stateless effect; no persistence beyond kwinrc enable flag.
 
 ## 5. Build State
-- **Build #7 (v3.4, Step C)** built zero-warning, deployed + E2E-verified.
-  Artifact: `dist/kittyglow.so`, sha256 prefix `badf8df70b6a` (metadata.json
-  `3a3f66bc…`). Adds `kittyborderrule.cpp` — content-based (Description /
-  wmclass) lookup of the ACTIVE kitty rule, inert-rule self-heal via
-  `[General] rules=`, and `KSharedConfig::reparseConfiguration()` per toggle
-  (LL-014). Group-rename immunity PROVEN E2E: active group renamed to `[3]`
+- **Build #8 (v4, Step C rebuild, 2026-09-09)** built zero-warning. Artifact:
+  `dist/kittyglow.so`, sha256 `25e019db…`. Replaces the kwinrulesrc rule
+  toggle with `kittyglowstate.cpp` (`~/.config/kittyglowrc` `[General]
+  noBorder`) — root cause: a loaded forcing rule overrides scripting
+  `noBorder` writes (write-revert fight, LL-016 family). Adds
+  `getCurrentState()` DBus slot consumed by the kglowsync script bootstrap
+  (kwin/script restart coverage). `kittyborderrule.cpp` retired.
   → toggles still flip parity, `rules=` preserved, canonical name restored
   after.
 - **Shortcut recovery (dom0, this session):** Sep 08 boot race (kwin 08:58:11
@@ -64,9 +65,9 @@ None. Stateless effect; no persistence beyond kwinrc enable flag.
 - Live activation over DBus (`/Effects` loadEffect) — no compositor restart.
 - kitty borderless window rule in `kwinrulesrc` (`[kitty-borderless]`,
   noborder Force=2, wmclassmatch RegExp=3, listed under `[General] rules=`).
-- **Meta+Shift+B** → effect-registered `Toggle Kitty Borderless`: flips the
-  persistent kitty window rule (content-matched via `kittyborderrule.cpp`,
-  survives KWin group renames) and loopback-reconfigures KWin.
+- **Meta+Shift+B** → effect-registered `Toggle Kitty Borderless`: persists
+  the state to `kittyglowrc` via `kittyglowstate.cpp`; the kglowsync script
+  (bootstrap + poll + sweep) applies `noBorder` live to all kitty windows.
 - **Meta+Shift+T** → native `Window No Border` (per-focused-window toggle);
   rebound from Meta+Shift+B, dead `kitty-toggle-border` entry deleted.
 - Shortcut registration self-heals whenever kwin starts after kglobalaccel

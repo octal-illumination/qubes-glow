@@ -103,3 +103,33 @@ Built (0 warnings), deployed (SHA badf8df7), live-reloaded; verified registratio
 "go ahead" (build consent, covering the approved pipeline: build → deploy → verify → docs).
 #### Verbatim Output Response
 Docs phase executed: SPECIFICATION.md LL-011..015 + tech-debt note; HANDBOOK §6b build-#7 behavior; PROJECT_CONTEXT build #7 snapshot; ROADMAP Phase 6 completed; HTML siblings regenerated (18e diff clean). Round closed; all work committed.
+
+## 2026-08-31T00:00Z
+#### User Request
+Three issues: (1) Meta+Shift+B works but whole kitty window (and window behind) flashes white ~1s before toggle; (2) Meta+Shift+T does not work; (3) glow penetrates a non-minimized neighbor window forming an artifact.
+#### Verbatim Output Response
+Read paint/occlusion path in kittyglow.cpp; attempted dom0 read-only probe (extents, white-flash frame capture, scripting-DBus introspection) — blocked by Access denied on password dialog; awaiting user re-approval of dom0 dialog; proceeding with local source analysis.
+
+## 2026-09-09T~06:00Z
+#### User Request
+"approved" (implementation plan for seamless B via KWin Scripting, expandedGeometry occluders, T documentation).
+#### Verbatim Output Response
+Ran prerequisite PoC probes 1-3 (scripting load/run semantics, bare-write inotify, rulebook integrity). Established: kwinrulesrc pristine; no inotify on rule file (bare writes inert = safe); DBus Script.run dead on this build even after start(); pivot to installed-script-package architecture (~/.local/share/kwin/scripts, kwinrc [Plugins] enable, auto-start at kwin launch). Final PoC-4 (QTimer+callDBus in installed script, timed chromium flip/restore, 2 kwin restarts) queued before C++ implementation.
+
+## 2026-09-09T~07:50Z
+#### User Request
+(none — continuation of approved implementation round: prerequisite PoC validation)
+#### Verbatim Output Response
+PoC-6 (sycoca) failed; PoC-7 (verbatim minimizeall metadata clone, user-path kpackagetool5 install) PASSED: script package auto-executes at kwin start, QTimer fires, noBorder flips live on chromium (2.4s/8.5s transitions). Architecture for seamless B fully validated. Proceeding to source implementation: src/kittytoggle.cpp/.h (DBus service org.kde.kittyglow + poll-reply), src/kwin-script/kglowsync/ package (poll script), kittyglow.cpp rewiring (drop reconfigure), expandedGeometry occluders, CMakeLists, deploy.sh updates.
+
+## 2026-09-09T~08:05Z
+#### User Request
+(approved round, no new message)
+#### Verbatim Output Response
+Implemented seamless B: NEW src/kittytoggle.h/.cpp (org.kde.kittyglow /sync nextSource DBus pull-service + kglowsync verification/enable), NEW src/kwin-script/kglowsync package (60 ms poll + 400 ms watchdog, heartbeat-gated), kittyglow.cpp toggle now stages via requestApply() (reconfigure dropped — LL-016 flash eliminated at source), occludedAboveKitty uses expandedGeometry() (LL-017), CMakeLists + deploy.sh wired. All syntax checks pass. STOPPED for build consent per approved plan step 5.
+
+## 2026-09-09T~12:45+0530
+#### User Request
+"build"
+#### Verbatim Output Response
+Built kittyglow.so with new seamless-B code. First pass failed (4 Qt API errors in kittytoggle.cpp: Q_SLOTS under QT_NO_KEYWORDS, GenericDataLocation, sessionBus value semantics, ExportSlots→scriptable|non-scriptable pair); fixed all, rebuilt green, 0 warnings, dist updated (a8f0cbfe…). Proceeding to deploy per the consented chain.

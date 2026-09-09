@@ -22,7 +22,20 @@ dom0 "sudo bash -lc 'mkdir -p $SO_DIR $META_DIR; qvm-run -p Dev-General base64 -
 
 dom0 "kwriteconfig5 --file kwinrc --group Plugins --key kittyglowEnabled true"
 
-echo "Deployed to dom0 and enabled in kwinrc."
+# kglowsync KWin script package — live-apply channel for the seamless
+# Meta+Shift+B toggle (PoC-7: installed schema with X-Plasma-API/MainScript
+# auto-runs at kwin start). Installed into the desktop user's KPackage path
+# as chenpan (kwin scans the user scripts dir, not root's).
+PKG_SRC="$ROOT/src/kwin-script/kglowsync"
+PKG_DST=/home/chenpan/.local/share/kwin/scripts/kglowsync
+dom0 "mkdir -p $PKG_DST/contents/code && \
+qvm-run -p Dev-General base64 -w0 $PKG_SRC/metadata.json | base64 -d > $PKG_DST/metadata.json && \
+qvm-run -p Dev-General base64 -w0 $PKG_SRC/contents/code/main.js | base64 -d > $PKG_DST/contents/code/main.js && \
+chmod 644 $PKG_DST/metadata.json $PKG_DST/contents/code/main.js && \
+kwriteconfig5 --file kwinrc --group Plugins --key kglowsyncEnabled true && \
+kbuildsycoca5 --noincremental >/dev/null 2>&1 || true"
+
+echo "Deployed to dom0 and enabled in kwinrc (incl. kglowsync script package; auto-runs at next kwin start)."
 echo "Activate live (no restart), from dom0 as the desktop user:"
 echo "  sudo -u chenpan env DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1000/bus \\"
 echo "    XDG_RUNTIME_DIR=/run/user/1000 \\"

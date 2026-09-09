@@ -76,16 +76,16 @@ in AppVMs, which appear in dom0 (Qubes window integration) with wmclass
 Two independent toggles exist:
 
 - **Meta+Shift+B — Toggle Kitty Borderless (effect-registered).** Registered
-  by the effect itself via `KGlobalAccel::setShortcut`. Flips the *persistent*
-  kitty window rule `[kitty-borderless]` in `kwinrulesrc` (noborder Force),
-  then loopback-reconfigures KWin so the Force rule re-applies to all mapped
-  kitty windows immediately. State survives reboots.
-  Since build #7 the lookup is content-based (`kittyborderrule.cpp`): the
-  ACTIVE rule is found by Description/wmclass — NOT by group name, because
-  KWin renames groups on re-save (recurred as `[1]`, proven again as `[3]`) —
-  an inert kitty rule is self-healed by re-listing it under
-  `[General] rules=`, and the file is re-parsed per toggle so a stale
-  in-process snapshot can never resurrect renamed groups.
+  by the effect itself via `KGlobalAccel::setShortcut`. Flips the persistent
+  borderless state in `~/.config/kittyglowrc` (`[General] noBorder`), which
+  both the effect's `getCurrentState()` DBus slot and the kglowsync KWin
+  script's bootstrap consume; the script applies `noBorder` live to every
+  kitty window — no reconfigure, no restart. State survives reboots.
+  Since the 2026-09-09 write-revert diagnosis the state lives in
+  `kittyglowstate.cpp` — NOT in a kwinrulesrc forcing rule: a loaded rule
+  overrides KWin scripting `noBorder` writes (scripting < rules), so the
+  rule file must never carry `noborderrule` for kitty again. The old
+  content-based rule toggle (`kittyborderrule.cpp`) was retired.
 - **Meta+Shift+T — Window No Border (native KWin).** Per-focused-window
   titlebar/frame toggle, rebound from Meta+Shift+B when the effect needed B
   (kglobalshortcutsrc, applied via `plasma-kglobalaccel` unit restart — the

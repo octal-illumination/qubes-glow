@@ -67,8 +67,9 @@ Git boundary: the whole `kitty-glow/` directory. No cross-project dependencies.
 
 ## 6. Code Standards
 
-- C++20; one effect per file; rule-management extracted to
-  `kittyborderrule.cpp` (single responsibility: kwinrulesrc rule toggle).
+- C++20; one effect per file; borderless-state persistence extracted to
+  `kittyglowstate.cpp` (single responsibility: kittyglowrc state store).
+  `kittyborderrule.cpp` (kwinrulesrc rule toggle) is RETIRED — see LL-016:
 - `kittyglow.cpp` is 274 lines — over the 150 budget. The overage is the
   cohesive GL render path (LL-recorded accepted tech debt, 2026-09-09);
   do NOT add logic to it without extracting first.
@@ -138,7 +139,14 @@ Git boundary: the whole `kitty-glow/` directory. No cross-project dependencies.
   (and once crashed kwin during testing).
 - **LL-015** — Rule groups in `kwinrulesrc` may carry UUID or numeric names
   (KWin re-save). Identify rules by CONTENT (`Description`/`wmclass`), never
-  by group name (see `kittyborderrule.cpp`). Robust ownership query on
+  by group name (once relevant to `kittyborderrule.cpp`, now retired).
+  **LL-016** — KWin property precedence: a loaded window *rule* overrides
+  KWin *scripting* property writes. A `noborderrule` Force value in
+  kwinrulesrc makes every script `noBorder` write revert at next state
+  evaluation (live-proven 2026-09-09: rule removed → script wins).
+  Consequence: the kitty borderless state is persisted in `kittyglowrc` and
+  applied by script; kwinrulesrc must never again carry `noborderrule` for
+  kitty. Robust ownership query on
   kglobalaccel is the NO-ARG `allShortcutInfos` on `/component/kwin`;
   keyed queries (`getGlobalShortcutsByKey`, `action()`) require exactly
   encoded key ints (LL-012).
