@@ -73,3 +73,9 @@ loaded, artifacts confirmed gone; config repairs (T shortcut active field +
 noborder parity) verified; docs updated: SPECIFICATION LL-010,
 PROJECT_CONTEXT §5/§10, CHANGELOG, Audit-CHANGELOG, commands-log,
 output-history, researched-ideas, SESSION_STATE; HTML regenerated.
+
+## 2026-09-09T08:30:48+05:30
+#### User Request
+New session (previous 2M-token session 01a077e8 dead): copy relevant context from that session + working directory; git-init/commit if not done before continuing. Then: "implement changes".
+#### Verbatim Output Response
+Recovered full context from session jsonl + project ledgers (v1→v3.3 arc; build #6 097b3e24 live; user had confirmed visuals OK but B/T shortcuts still broken; session died on 2.27M-token context wall mid-diagnostic). Git was initialized but stale (last commit = scaffold era). Committed d697c0f: 24 files, +1533/−197 (v3 SDF sources, v3.3 kittyglow.cpp, scripts, docs LL-006..LL-010, ledgers; .gitignore += src/test_create binary). Log commit 0d9844b. Tree clean. Awaiting user go for Phase 2: interrupted B/T shortcut diagnostic in dom0 (read-only first; password dialog expected).
