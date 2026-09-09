@@ -296,3 +296,7 @@
 ## 2026-09-09T18:56:35Z
 - Command: sed -i 1{/^<!-- HTML sibling/d} logs/SESSION_STATE.md
   Reason: remove generator selection pointer from a logs ledger (Rule 22f) — root cause of the recurring orphan SESSION_STATE.html.
+
+## 2026-09-09T18:58:09Z
+- Command: cat > logs/SESSION_STATE.md (heredoc); append CHANGELOG.md; git commit
+  Reason: Rule 17 pre-compaction state preservation after v3.4 implementation milestone.

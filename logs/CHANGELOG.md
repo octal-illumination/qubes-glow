@@ -238,3 +238,6 @@
 
 ## 2026-09-09T18:56:35Z
 - logs/SESSION_STATE.md: stripped stray first-line HTML-sibling pointer comment (Rule 22f: logs/ ledgers are not HTML-generated; the pointer is the generator selection key and kept regenerating an orphan SESSION_STATE.html). Scoped 18e equality diff now clean.
+
+## 2026-09-09T18:58:09Z
+- logs/SESSION_STATE.md: rewritten per Rule 17 (v3.4 milestone, >15 tool calls) — recovery record, decisions, pending Build #10 + acceptance test, handoff message.
