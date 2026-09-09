@@ -85,3 +85,9 @@ Recovered full context from session jsonl + project ledgers (v1→v3.3 arc; buil
 "proceed" — approval for Steps A+B (kwin restart + kwinrulesrc normalization), continuation of shortcut-recovery plan.
 #### Verbatim Output Response
 Executed kwin_x11 --replace (one false start with wrong HOME env, corrected → PID 14836 healthy), normalized kwinrulesrc to single active group [kitty-borderless] noborder=true, reconfigured kwin. Then verified live registry: both shortcuts active with correct keys (Meta+Shift+B=301989954, Meta+Shift+T=301989972); E2E xdotool super+shift+b toggled parity true→false→true; cleared accidental Ctrl+Shift foreign registrations; restored borderless parity. **User-reported problem resolved in dom0.** Next: Step C code hardening proposal (toggleKittyBorderless group-name resilience) pending approval.
+
+## 2026-09-09T09:37:28+05:30
+#### User Request
+"implement changes" — approval for Step C (extract + harden toggleKittyBorderless into kittyborderrule module).
+#### Verbatim Output Response
+Created src/kittyborderrule.h/.cpp (content-based ACTIVE-rule lookup by Description/wmclass, inert-rule self-heal via [General] rules=, nullopt no-op path); rewired src/kittyglow.cpp toggle body (gate + module call + reconfigure preserved); added source to src/CMakeLists.txt. Rule 16 re-read verification done. Committed. Build in container pending user "build" consent.

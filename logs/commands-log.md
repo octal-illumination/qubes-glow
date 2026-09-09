@@ -145,3 +145,7 @@
 - **Command:** dom0 'dbus-send /component/kwin allShortcutInfos (no-arg, definitive); getGlobalShortcutsByKey int32:301990978/96 (my miscalculated values → empty); setForeignShortcut array:int32: (clear accidental Ctrl+Shift regs); xdotool key super+shift+b ×2'
   - **Reason:** Correct verification with proper key decoding + cleanup of accidental registrations + true end-to-end keypress test.
 - **Result:** **SUCCESS.** kwin registry: "Toggle Kitty Borderless" active key 301989954 (=0x12000042=Meta+Shift+B ✓), "Window No Border" active key 301989972 (=0x12000054=Meta+Shift+T ✓). xdotool super+shift+b flipped noborder true→false→true — full daemon→grab→dispatch→effect chain WORKS. Accidental Ctrl+Shift regs cleared. Parity restored: rules=kitty-borderless, noborder=true.
+
+## 2026-09-09T04:07:28Z — Step C implementation
+- **Command:** grep KConfig usage + CMakeLists add_library + header availability probes; wc -l; git diff --stat; git add -A && git commit
+  - **Reason:** Locate KConfig touchpoints before extracting the toggle; confirm build location (container); Rule 16 verification of the edit; atomic commit per Rule 14.

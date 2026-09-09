@@ -117,3 +117,10 @@
 - dom0 changes: kwin_x11 replaced (PID 14836, correct HOME, kittyglow + Effects DBus healthy); kwinrulesrc normalized to a single active group [kitty-borderless] (noborder=true, rules=kitty-borderless) — KWin's numeric-rename regression ([1]) deduplicated; accidental foreign Ctrl+Shift+B/T registrations (created during wrong-key probing) cleared.
 - Verification: kwin registry shows both shortcuts ACTIVE with correct key codes (Meta+Shift+B=301989954, Meta+Shift+T=301989972); simulated keypress (xdotool super+shift+b) toggled noborder true→false→true; final parity borderless (noborder=true).
 - Lessons pending promotion to SPECIFICATION.md (with Step C): Qt::META=0x10000000 (key-int encoding); xdotool 'meta'='Alt', 'super'=Mod4; KF5 setForeignShortcut silently no-ops for unregistered components.
+
+## 2026-09-09T09:37:28+05:30 — Step C implemented: content-based kitty rule toggle (regression-immune)
+- NEW src/kittyborderrule.h (27 ln) + src/kittyborderrule.cpp (70 ln): `KittyBorderRule::toggleKittyNoBorder()` — finds the ACTIVE kitty rule in kwinrulesrc by CONTENT (Description=="kitty borderless" || wmclass=="kitty"), toggles noborder; self-heals inert rules by appending the group to [General] rules=; returns nullopt when no kitty rule exists (caller no-ops). Kills the LL-007 group-rename regression class.
+- src/kittyglow.cpp: toggleKittyBorderless() body now calls the module (keeps 220 ms repeat-gate + loopback reconfigure; reconfigure fires for every real toggle incl. flips to false). File at 274 ln — over-200 residual accepted as tech debt (cohesive GL render path); to be noted in SPECIFICATION.md during docs phase.
+- src/CMakeLists.txt: kittyborderrule.cpp added to the kittyglow MODULE sources.
+- Verification (Rule 16): re-read of modified function — gate intact, optional-bool semantics correct (nullopt → no reconfigure; false → reconfigure), QDBus call untouched. Compile validation happens in dom0-replica-fed37 container at build time (headers not present on this VM).
+- Pending: user build consent → container build → deploy → E2E verify → docs (HANDBOOK/PROJECT_CONTEXT/SPECIFICATION LL-011..014/ROADMAP) + HTML regen.

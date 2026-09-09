@@ -28,6 +28,8 @@
 #include <QDBusMessage>
 #include <QDBusPendingCall>
 #include <QKeySequence>
+
+#include "kittyborderrule.h"
 #include <QRectF>
 #include <QRegion>
 #include <chrono>
@@ -256,13 +258,12 @@ void KittyGlowEffect::toggleKittyBorderless() {
     if (m_toggleGate.isValid() && !m_toggleGate.hasExpired(220)) return;
     m_toggleGate.start();
 
-    auto rules = KSharedConfig::openConfig(QStringLiteral("kwinrulesrc"));
-    KConfigGroup g(rules, QStringLiteral("kitty-borderless"));
-    if (!g.exists()) return;
-    g.writeEntry("noborder", !g.readEntry("noborder", true));
-    rules->sync();
-    // Loopback reconfigure: Workspace::slotReconfigure reloads the RuleBook
-    // and re-applies the Force rule to mapped kitty windows immediately.
+    // Content-based toggle (kittyborderrule.cpp): survives KWin's rule-group
+    // renames and reactivates inert duplicates; no-op when no kitty rule
+    // exists. Loopback reconfigure: Workspace::slotReconfigure reloads the
+    // RuleBook and re-applies the Force rule to mapped kitty windows.
+    const auto flipped = KittyBorderRule::toggleKittyNoBorder();
+    if (!flipped) return;
     QDBusMessage msg = QDBusMessage::createMethodCall(
         QStringLiteral("org.kde.KWin"), QStringLiteral("/KWin"),
         QStringLiteral("org.kde.KWin"), QStringLiteral("reconfigure"));
