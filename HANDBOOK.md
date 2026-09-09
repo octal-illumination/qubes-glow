@@ -165,11 +165,12 @@ dom0 "kwriteconfig5 --file kwinrc --group Plugins --key kittyglowEnabled false"
   mid-flight and fades with `data.opacity()`; non-uniform animation scale
   slightly distorts corner radius for the animation's duration (<300 ms).
 - Occlusion clipping (v3.3): windows logically stacked above kitty (per
-  `stackingOrder()`, opacity ≥ 0.99, same desktop/activity, not minimized)
-  subtract their frames from the halo's scissor region, so the halo never
-  paints over other applications during drags or over panels when maximized.
-  Genuinely translucent occluders are skipped, letting the halo show through
-  them by design.
+  `stackingOrder()`, same desktop/activity, not minimized) subtract their
+  frames from the halo's scissor region, so the halo never paints over other
+  applications during drags or over panels when maximized. Opaque windows and
+  docks/panels (even translucent ones, e.g. an adaptive plasma panel) always
+  clip; other genuinely translucent windows are skipped, letting the halo
+  show through them by design (LL-018).
 - Meta+Shift+B is autorepeat-gated (220 ms): one rule flip per physical key
   press; a held key cannot churn the rule (v3.3).
 - Meta+Shift+T and B are also affected by kglobalaccel state: if the daemon

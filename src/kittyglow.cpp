@@ -233,7 +233,10 @@ void KittyGlowEffect::updateOccluders() {
     for (int i = kittyIdx + 1; i < stack.size(); ++i) {
         KWin::EffectWindow *w = stack.at(i);
         if (!w || w->isDeleted() || w->isMinimized()) continue;
-        if (w->opacity() < 0.99) continue;  // translucent windows let the halo show
+        // Docks/panels are screen chrome and may be translucent (adaptive
+        // plasma panel) — they ALWAYS clip the halo (LL-018). Other
+        // translucent windows still intentionally let the halo bloom through.
+        if (!w->isDock() && w->opacity() < 0.99) continue;
         if (!w->isOnCurrentDesktop() || !w->isOnCurrentActivity()) continue;
         m_occluders.append(w);
     }

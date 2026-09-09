@@ -38,3 +38,6 @@
   clean kwin --replace (PID 211257); LL-010 recorded in SPECIFICATION.md.
 - Process integrity: two dom0 auth refusals during reload (user-cancelled,
   then access-denied) were honored — no retry until explicit "RETRY".
+
+## 2026-09-09T16:08:54Z — audit: LL-018 fix (src/kittyglow.cpp)
+- Change: occluder eligibility — \`!w->isDock() &&\` guard added before opacity test. Security-relevant? No (visual-clip logic only). Verified: region re-read, brace/paren balance 0, single isDock call site.

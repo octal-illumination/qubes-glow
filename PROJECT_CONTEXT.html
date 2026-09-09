@@ -241,7 +241,7 @@ plugin. Purpose: make kitty windows visually distinct.</p>
 <td><code>src/kittyglow.cpp</code></td>
 <td><code>KWin::Effect</code> subclass; quad + shortcut + repaint
 hooks</td>
-<td>274</td>
+<td>288</td>
 </tr>
 <tr class="even">
 <td><code>src/kittyglowstate.cpp/.h</code></td>
@@ -372,6 +372,11 @@ during drags, single-fire B per press, live T.</li>
 </ul>
 <h2 id="known-issues">8. Known Issues</h2>
 <ul>
+<li>Halo paints over translucent plasma panel (LL-018): panel (opacity
+&lt; 0.99) was never an occluder, so halo repaints left gold on panel
+chrome (probe: 1,450 px vs 48 px baseline). <strong>Fix coded 2026-09-09
+in updateOccluders() (docks/panels always clip) — rebuild + KWin restart
+pending consent.</strong></li>
 <li><del>Build container (<code>dom0-replica-fed37</code>) still mounts
 legacy <code>/home/user/kitty-glow</code></del> <strong>RESOLVED
 2026-09-06T23:50:19Z:</strong> container re-created mounting this
@@ -402,10 +407,10 @@ deployment + activation target.</li>
 build env (KWin 5.27.8 devel).</li>
 </ul>
 <h2 id="last-updated">10. Last Updated</h2>
-<p>2026-09-09T14:40Z — Build #8 (25e019db…) deployed + E2E-verified on
-dom0: kittyglowrc state store live, kwinrulesrc kitty rule deleted,
-write-revert fight eliminated (4-press test + steady-state silence).
-kglowsync new code running with getCurrentState bootstrap. busctl needs
-–user on dom0 (noted).</p>
+<p>2026-09-09T18:05Z — LL-018 fix coded in
+<code>updateOccluders()</code> (docks/panels always clip the halo, even
+when translucent; probe evidence: 1,450 gold px on panel vs 48 px
+baseline, static clipping re-verified clean). HANDBOOK occlusion section
+synced. Build #9 + KWin restart pending user consent.</p>
 </body>
 </html>

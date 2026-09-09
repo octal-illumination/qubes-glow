@@ -11,7 +11,7 @@ Language: C++20 / Qt plugin. Purpose: make kitty windows visually distinct.
 ## 2. Key File Map
 | Path | Responsibility | ~Lines |
 |------|----------------|--------|
-| `src/kittyglow.cpp` | `KWin::Effect` subclass; quad + shortcut + repaint hooks | 274 |
+| `src/kittyglow.cpp` | `KWin::Effect` subclass; quad + shortcut + repaint hooks | 288 |
 | `src/kittyglowstate.cpp/.h` | Persistent borderless state in `kittyglowrc` (kwinrulesrc retired) | 76 |
 | `src/glowshader.cpp/.h` | GLSL SDF glow shader (per-side soft falloff) | 130 |
 | `src/glowconfig.h` | kwinrc `[Effect-kittyglow]` config reader (live-reload) | 80 |
@@ -83,6 +83,10 @@ None. Stateless effect; no persistence beyond kwinrc enable flag.
   single-fire B per press, live T.
 
 ## 8. Known Issues
+- Halo paints over translucent plasma panel (LL-018): panel (opacity < 0.99)
+  was never an occluder, so halo repaints left gold on panel chrome (probe:
+  1,450 px vs 48 px baseline). **Fix coded 2026-09-09 in updateOccluders()
+  (docks/panels always clip) — rebuild + KWin restart pending consent.**
 - ~~Build container (`dom0-replica-fed37`) still mounts legacy `/home/user/kitty-glow`~~
   **RESOLVED 2026-09-06T23:50:19Z:** container re-created mounting this project's
   `src/` at `/src` (committed image `dom0-replica-fed37-img` preserves toolchain).
@@ -103,7 +107,7 @@ None. Stateless effect; no persistence beyond kwinrc enable flag.
 - **dom0-replica-fed37** Podman container — Fedora 37 build env (KWin 5.27.8 devel).
 
 ## 10. Last Updated
-2026-09-09T14:40Z — Build #8 (25e019db…) deployed + E2E-verified on dom0:
-kittyglowrc state store live, kwinrulesrc kitty rule deleted, write-revert
-fight eliminated (4-press test + steady-state silence). kglowsync new code
-running with getCurrentState bootstrap. busctl needs --user on dom0 (noted).
+2026-09-09T18:05Z — LL-018 fix coded in `updateOccluders()` (docks/panels
+always clip the halo, even when translucent; probe evidence: 1,450 gold px
+on panel vs 48 px baseline, static clipping re-verified clean). HANDBOOK
+occlusion section synced. Build #9 + KWin restart pending user consent.

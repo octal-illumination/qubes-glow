@@ -145,3 +145,13 @@ Fixed QStringLiteral(constexpr) compile error; build green zero-warning (kittygl
 "do all 3" (deploy, delete kitty forcing rule, E2E verification); later "try again, i was away from keyboard" after two cancelled dialogs.
 #### Verbatim Output Response
 Deployed new effect+script to dom0 (auto-load confirmed); deleted kwinrulesrc kitty forcing rule [1] (count=0, reconfigure flushed); new script bootstrap verified via journal; E2E 4-press test PASSED — kittyglowrc flips in sync, single stuck sweep write per toggle, zero reverts, steady-state silence, final state borderless. One agent-side busctl --user mistake diagnosed and corrected. Docs/logs updated; commit follows.
+
+## 2026-09-09T16:12:57Z
+#### User Request
+"implement changes" — approval of the LL-018 fix proposal (translucent panel halo penetration).
+#### Verbatim Output Response
+- Edited `src/kittyglow.cpp` `updateOccluders()`: docks/panels always clip the halo (LL-018). Rule 16 verified: brace/paren balance 0, header disclaimer intact, `isDock()` API already used in this file.
+- Synced `HANDBOOK.md` occlusion paragraph + `PROJECT_CONTEXT.md` (Known Issues LL-018 entry, file map 288 lines, Last Updated); regenerated both HTML siblings (Rule 18, 18e equality diff empty, Rule 19b banner verified).
+- Logged: commands-log.md, CHANGELOG.md, Audit-CHANGELOG.md, Action-History.md; SESSION_STATE.md brain-dump written prior to approval.
+- Committed as HEAD: fix(occluders) LL-018 (probe artifacts remain untracked under logs/probe/).
+- NOT built: rebuild (#9) + KWin restart awaits explicit "build the app" consent.

@@ -184,3 +184,6 @@
 - PROJECT_CONTEXT.md §5/§10: build #8 deployed + E2E-verified on dom0 (14:31Z); busctl --user note.
 - HANDBOOK.md: E2E verification note on the Meta+Shift+B toggle entry.
 - SESSION_STATE.md: feature-complete snapshot; hardening idea (bootstrap retry) proposed, not approved.
+
+## 2026-09-09T16:08:54Z — fix(kittyglow): translucent dock/panel halo penetration (LL-018)
+- **src/kittyglow.cpp** \`updateOccluders()\`: occluder skip condition \`w->opacity() < 0.99\` now applies only to non-dock windows; docks/panels always clip (synthetic probe: 1,450 gold px on panel vs 48 px baseline). Pending: rebuild + redeploy + KWin restart (separate build consent).

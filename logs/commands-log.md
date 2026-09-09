@@ -239,3 +239,20 @@
   **Reason:** Step 2 approved forcing-rule deletion; flush in-memory rules; drop stale script instance.
 - **Command:** dom0 loadEffect/isEffectLoaded/loadScript; E2E busctl --user invokeShortcut x4 + kittyglowrc/journal reads
   **Reason:** Step 3 approved load + E2E verification of the toggle pipeline.
+2026-09-09T10:51:24Z | sed -n '11p' /tmp/pi-bash-c492b06ff2ae262a.log | base64 -d > logs/probe/glow-overlap-*.png; file ... | Decode probe screenshot from dom0 log for local visual analysis (glow artifact)
+2026-09-09T10:52:12Z | python3 -c PIL check; which xwininfo xprop | Check local image tooling and remote X query tools for glow artifact analysis
+2026-09-09T10:54:37Z | grep occlusion-related code in src/*.cpp | Locate occluder-collection and clip logic before designing repro probe
+2026-09-09T10:57:32Z | grep isKittyWindow/glowconfig/HANDBOOK launch info | Identify kitty matching rule + halo color signature for repro targeting
+2026-09-09T11:01:07Z | base64 -d repro shots + PIL gold-pixel scan | Quantify halo artifact: gold pixels in g1 (reference) vs g2 (konsole covering kitty)
+2026-09-09T11:02:36Z | awk NR==17/18 base64 -d + PIL gold scan repro-g1/g2 | Determine if halo captured and kitty visible in probe shots
+2026-09-09T11:03:10Z | numpy diff + gold row-band profile g1/g2 | Verify whether kitty launched (identical shots = no) and whether gold is wallpaper not halo
+2026-09-09T11:10:39Z | cat src/kwin-script/kglowsync/metadata.json | Clone metadata schema for kglowprobe diagnostic package
+2026-09-09T11:19:38Z | decode diag-g3/g4 + numpy gold stats vs known frame rect | Test halo render (g3 ring) and clip-vs-front-window (g4 gold must be ~0 if covered)
+2026-09-09T11:20:11Z | decode diag-g3/g4 (correct log) + numpy gold stats vs frame rect | Determine halo presence and penetration vs front window
+2026-09-09T11:32:18Z | sed -n 18/19p decode diag-g3/g4 + numpy gold stats | Determine halo ring presence (g3) and penetration under front window (g4)
+2026-09-09T11:46:08Z | numpy gold analysis burst-g6/g7a-d | Verdict: halo clip under front window incl. blink repaints and simulated drag
+2026-09-09T11:51:36Z | decode clip-g8/g9a-d + cover-rect gold analysis | FINAL verdict on halo clipping under front window (blink + drag triggers)
+2026-09-09T11:52:19Z | decode clip-g8/g9a-d (marker-strip) + cover-rect gold analysis | FINAL verdict on halo clipping under front window
+2026-09-09T11:55:24Z | alpha-aware pale-gold mask + strip color profile on clip-g8/g9a | Check whether 60%-alpha halo on white desktop was missed by B<90 threshold
+2026-09-09T12:01:07Z | write logs/SESSION_STATE.md (Rule 17 brain-dump: probe results, root cause, pending fix consent) | Preserve session state before awaiting modification consent
+2026-09-09T16:08:54Z | edit src/kittyglow.cpp updateOccluders(): docks/panels always clip halo even when translucent (LL-018 fix) + Rule 16 verification | Implement approved 1-line consent-lifecycle fix
