@@ -36,7 +36,8 @@ the plugin in `~/.config/kwinrc` (`[Plugins] kittyglowEnabled=true`).
 
 ## 5. Activate (live, no compositor restart)
 
-KWin 5.27 can load effect plugins at runtime over DBus — no restart needed:
+KWin 5.27 can load effect plugins at runtime over DBus — no restart needed
+**for a first activation or for reconfigure tuning**:
 
 ```bash
 # in dom0, as the desktop user
@@ -45,6 +46,22 @@ sudo -u chenpan env DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1000/bus \
   dbus-send --session --print-reply --dest=org.kde.KWin /Effects \
   org.kde.kwin.Effects.loadEffect string:kittyglow   # expect: boolean true
 ```
+
+> **LL-021 (2026-09-10):** a live unload/load does NOT pick up a REBUILT
+> `.so` — KWin keeps the library mapped and re-instantiates the old code
+> while the new file sits on disk. After every `build.sh` + `deploy.sh`, a
+> full `kwin_x11 --replace` is required. Verify behavior (journal/screen),
+> never the DBus boolean alone.
+>
+> **LL-022 (2026-09-10):** `deploy.sh` runs three dom0 bridge calls, each
+> gated by the password dialog; a cancelled dialog is swallowed and the
+> script still exits 0 with the PREVIOUS build left on dom0. Always
+> sha-verify after deploy:
+>
+> ```bash
+> sha256sum dist/kittyglow.so | cut -c1-16
+> dom0 'sha256sum /usr/lib64/qt5/plugins/kwin/effects/plugins/kittyglow.so | cut -c1-16'
+> ```
 
 Verify with `isEffectLoaded string:kittyglow` on the same path. A full
 `org.kde.KWin.reconfigure` (object `/KWin`) also picks the plugin up from

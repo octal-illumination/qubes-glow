@@ -268,3 +268,13 @@
 - Rule 2 cleanup: no monitoring symlinks created (foreground tee capture).
 ## 2026-09-10T01:50:00Z — LL-019 v3.4 live repro campaign (no code change)
 - Empirical probe campaign on live dom0 (kwin 36048): PIL ImageGrab + numpy strict-gold forensics; static states A/B/C verified LL-017/019-correct; two transient unclipped frames (d02/d16) captured at interaction boundaries; progressive-accumulation hypothesis formed from user's "intensity/thickness increases" report. See logs/SESSION_STATE.md for full state and next step. No source modified.
+
+## 2026-09-10T18:51:08+05:30 — LL-020 fix replaced: CPU quad subdivision (build #11 code)
+- src/kittyglow.cpp: scissor-based hw clipping ABANDONED — KWin 5.27.8 per-rect scissor boxes proved degenerate in our paint context (positive control 2026-09-10: 74/91 px noise floor with kitty unoccluded; halo drew nothing since build #10 deploy). Replaced with one quad per clip rect drawn unclipped via 1-arg render(GL_TRIANGLES); SDF is fragment-position-based so sub-rects are pixel-identical to the full quad.
+- occludedAboveKitty(): isDesktop() exclusion added — plasma desktop window must never occlude (stackingOrder() can hold it high after restacks; would empty the clip).
+- Header bumped v3.5→v3.6. STATUS: code written, NOT yet built/deployed. Pending: build #11, deploy, kwin restart, positive control + occlusion + leak burst, then SPECIFICATION LL-020 lesson rewrite + HANDBOOK/PROJECT_CONTEXT/ARCHITECTURE refresh + regression assertion + commit.
+
+## 2026-09-10T20:23:41+05:30 — LL-020 closed: builds #11–#13, subdivision mechanism verified
+- src/kittyglow.cpp: LL-020 final mechanism (clip = haloRect − occluders; CPU sub-quad draws via 1-arg render; isDesktop() occluder skip; instrumentation stripped in #13 cb63bd4b). E2E: positive control 5,214/25,896 px, occlusion 0 px, 24-cycle burst flat 320/394.
+- SPECIFICATION.md: LL-020/021/022 entries added (three-part render lesson; live-reload cannot swap .so; deploy sha-verify).
+- ARCHITECTURE.md §2.3/§3/§4 + HANDBOOK.md §5 + PROJECT_CONTEXT.md §5/§8/§10 synced; HTML siblings regenerated via sanctioned script.

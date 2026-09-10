@@ -227,3 +227,15 @@ test (front window over unfocused kitty → no penetration) now requested.
 - BURST CAPTURE (16 frames @350ms + interactive drag): two transient frames (d02 post-activation, d16 post-move-end) show UNCLIPPED ring segments over firefox (+2100 strict gold px: right ring x1160 y96-512, bottom y544-576) that re-clip within 350ms.
 - Synthesis: transient unclipped paints at interaction boundaries + static front window (no self-repaint) => progressive alpha accumulation on the front window's presented region => user-visible growing thickness/intensity ("increases as the distortion is left visible"). Matches original "blink" reports (kitty-blink cadence repaints).
 - NEXT: blink-cadence burst in state C (kitty unfocused, static firefox on top) with repeated re-activation to force halo repaints; count accumulation frames; inspect kwin journal for the occluder-empty trigger window; then root-cause in occludedAboveKitty()/paint-path.
+
+## 2026-09-10T18:51:08+05:30
+#### User Request
+"implement changes"
+#### Verbatim Output Response
+Implemented the approved LL-020 replacement in src/kittyglow.cpp: (1) paintWindow scissor block → CPU subdivision loop (one quad per clip rect, unclipped render(GL_TRIANGLES)); (2) occludedAboveKitty isDesktop() skip; (3) v3.6 header. Verified: no scissor refs outside comments, winding matches original, blend bracketed, no unused vars. Awaiting build consent per Rule 1b.
+
+## 2026-09-10T20:23:41+05:30
+#### User Request
+"restart kwin" (×2) / "continue" — final verification + docs + commit
+#### Verbatim Output Response
+Build #13 (cb63bd4b) deployed+sha-verified, kwin restarted (PID 51070), positive control 5,214/25,896 px PASS; SPECIFICATION LL-020/021/022, ARCHITECTURE, HANDBOOK, PROJECT_CONTEXT updated; HTML regenerated; ledgers updated; session committed.

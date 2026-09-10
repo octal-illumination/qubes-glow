@@ -40,16 +40,21 @@ radius, active/inactive color. The quad is mapped through the scene's
 animation transform (scale about frame top-left + translation) so the halo
 tracks minimize/restore mid-flight, and fades with `data.opacity()`.
 
-### 2.3 Occlusion clip (`occludedAboveKitty`, per paint)
+### 2.3 Occlusion clip + CPU subdivision (`occludedAboveKitty`, per paint)
 ```
-clip = paintRegion ∩ haloRect
+clip = haloRect                                  // scene region NOT a clip source
 clip -= union of expandedGeometry(wi) for every opaque wi logically ABOVE
         the painted kitty in stackingOrder() (same desktop/activity, not
-        minimized; docks/panels always count — LL-018; other translucent
-        windows are skipped → intentional bloom-through)
-GLVertexBuffer::render(clip, GL_TRIANGLES, true)   // per-rect scissor;
-                                                   // GL flips y itself
+        minimized; desktop windows skipped; docks/panels always count —
+        LL-018; other translucent windows are skipped → bloom-through)
+for each clip rect: upload 2-triangle sub-quad of the halo quad and draw
+                    it unclipped (1-arg GLVertexBuffer::render(GL_TRIANGLES))
 ```
+The scene `region` passed to paintWindow covers only the window's frame
+area in KWin 5.27.8 (the prePaintWindow ring widening does not propagate),
+and the rasterizer does not enforce the region anyway — that unenforcement
+WAS the LL-020 leak. The SDF is fragment-position-based, so sub-rects are
+pixel-identical to the full quad (LL-020 for the full three-part lesson).
 Rebuilt on EVERY halo paint — no cache: the old 120 ms stacking snapshot
 lagged raise/drag transitions and one unclipped frame then persisted forever
 (an unfocused kitty never repaints; LL-019). Anchored to the PAINTED kitty
@@ -70,12 +75,11 @@ addRepaint(halo ring) ──▶ KWin repaints the damaged region
         │
 [kitty's paintWindow]
         ├─ effects->paintWindow(w, …)           // real window first
-        └─ clip = region ∩ halo − occluders     // occluders built THIS frame
-                 └─ GLVertexBuffer::render(clip) // halo quad over content
+        └─ clip = halo − occluders              // occluders built THIS frame
+                 └─ per clip rect: unclipped sub-quad draw (1-arg render)
 ```
-The halo draws after the window's own paint (blending, no depth test) but is
-scissored away wherever an opaque window sits above kitty, so it never lands
-on front applications.
+The halo draws after the window's own paint (blending, no depth test); the
+occluder subtraction keeps it off front applications and the desktop.
 
 ## 4. Key Abstractions
 
@@ -83,7 +87,9 @@ on front applications.
 - `KWin::GLShader` + `ShaderManager::pushShader/popShader` — the SDF program
   (effect-owned, rebuilt in `reconfigure`).
 - `KWin::GLVertexBuffer::streamingBuffer()` — per-frame quad upload;
-  `render(region, GL_TRIANGLES, true)` scissors the draw to `region`.
+  `render(GLenum)` = single unclipped glDrawArrays. The 3-arg hw-clipping
+  overload is BANNED in this effect (LL-020: caller-must-enable scissor +
+  degenerate KWin boxes).
 - `stackingOrder()` — logical bottom→top order; NOT reordered during a drag
   (elevation is paint-time only) — see the note in `occludedAboveKitty`.
 

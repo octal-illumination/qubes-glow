@@ -164,6 +164,40 @@ Git boundary: the whole `kitty-glow/` directory. No cross-project dependencies.
   because an unfocused kitty otherwise never repaints and one bad frame
   persists indefinitely (user repro 2026-09-09: any konsole/firefox window
   placed in front of kitty penetrated, position-independent).
+- **LL-020** — The halo ring must NEVER be clipped against the scene paint
+  `region` given to `paintWindow`, and the 3-arg hw-clipping `render()` is
+  banned. Three-part lesson (full arc 2026-09-10, E2E-verified on build
+  #13): (a) `GLVertexBuffer::render(region, mode, hwClipping=true)` sets
+  per-rect scissor boxes but the CALLER must enable `GL_SCISSOR_TEST` —
+  with the test off (usual pipeline state) the full quad painted everywhere
+  (the original glow-penetration leak); (b) forcing the test on made it
+  WORSE: KWin 5.27.8's boxes proved degenerate in our paint context
+  (Y-flip via GLFramebuffer::currentFramebuffer() height) and clipped the
+  halo to NOTHING — a silent total-render failure that mimicked "leak
+  fixed" (positive control: 74 px noise floor with kitty fully unoccluded);
+  (c) KWin 5.27.8 passes only the window's own frame area as the paint
+  region — the ring widening in `prePaintWindow` does NOT propagate into
+  it (gate-logging proof: region∩halo == frame exactly). Final mechanism:
+  clip = `haloRect − occludedAboveKitty(...)` only (scene region advisory),
+  then CPU-subdivide the halo into ONE QUAD PER CLIP RECT drawn unclipped
+  via the 1-arg `render(GL_TRIANGLES)`; the SDF is fragment-position-based
+  so sub-rects are pixel-identical to the full quad. Also: desktop windows
+  (`isDesktop()`) are excluded from occluders — KWin can leave plasma's
+  fullscreen desktop window high in `stackingOrder()` after restacks,
+  which would empty the clip and silence the halo entirely.
+- **LL-021** — `unloadEffect` + `loadEffect` over DBus does NOT pick up a
+  rebuilt `.so`: KWin keeps the library mapped, so a live reload
+  re-instantiates the OLD code while the new file sits unnoticed on disk
+  (2026-09-10: instrumented build reported loaded=true yet produced zero
+  journal lines). Every new build requires a full `kwin_x11 --replace`;
+  verify BEHAVIOR, never the DBus boolean alone.
+- **LL-022** — `scripts/deploy.sh` transfers via three separate dom0 bridge
+  calls, each gated by the dom0 password dialog; a cancelled/failed dialog
+  is swallowed and the script still exits 0 with the PREVIOUS build left
+  on dom0 (2026-09-10: #12b "deployed" while dom0 actually held the older
+  #12-debug — cost a full restart cycle on a phantom build). ALWAYS
+  sha-verify the deployed artifact (`sha256sum` dom0 vs `dist/`) after
+  every deploy, before any restart or verification.
 - Robust ownership query on
   kglobalaccel is the NO-ARG `allShortcutInfos` on `/component/kwin`;
   keyed queries (`getGlobalShortcutsByKey`, `action()`) require exactly

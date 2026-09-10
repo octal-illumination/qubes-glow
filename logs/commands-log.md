@@ -349,3 +349,283 @@
   Reason: Mid-drag transient capture; caught unclipped frames d02/d16 (+2100 gold over firefox).
 - Command: `python3 extra-gold diff d02/d16 vs d08 + maps`
   Reason: Localized transient unclipped ring segments over firefox (right ring x1160, bottom y544-576).
+
+## 2026-09-10T02:41:05+05:30
+- Command: dom0 bridge grep of kwinglutils.h (render docs, rectCount/infinite handling) + kwin version
+- Reason: Verify whether GLVertexBuffer::render() skips region scissoring above a rect-count threshold — prime suspect for the oscillating full-ring halo leak.
+
+## 2026-09-10T02:41:57+05:30
+- Command: dom0 bridge locate kwinglutils.h + kwin version + project build config
+- Reason: Header not at /usr/include/kwin; need real include path and kwin version to inspect GLVertexBuffer::render scissoring behavior.
+
+## 2026-09-10T02:42:43+05:30
+- Command: local project listing + build script discovery (Dev-General side)
+- Reason: Previous dom0 queries missed headers; the build script defines the actual include paths and build flow.
+
+## 2026-09-10T02:42:54+05:30
+- Command: read container setup + build.sh heads, list build containers
+- Reason: Headers live in the build container; need container name/state and the kwin version it builds against.
+
+## 2026-09-10T02:43:27+05:30
+- Command: podman exec grep GLVertexBuffer render docs in fed37 container + kwin rpm versions
+- Reason: Verify the exact signature/semantics of GLVertexBuffer::render(region, mode, hardwareClipping) for KWin 5.27.8.
+
+## 2026-09-10T02:46:04+05:30
+- Command: podman exec — locate kwin-devel headers, read GLVertexBuffer::render docs, list render overloads in libkwineffects
+- Reason: Determine exact semantics of render(region, mode, hardwareClipping) in KWin 5.27.8 — whether scissoring can be skipped conditionally.
+
+## 2026-09-10T02:47:59+05:30
+- Command: podman exec — objdump disassembly of GLVertexBuffer::render(QRegion,...) in libkwinglutils 5.27.8
+- Reason: Confirm whether render() with hardwareClipping=true enables GL_SCISSOR_TEST itself or leaves it to the caller — explains the oscillating unclipped halo.
+
+## 2026-09-10T02:48:14+05:30
+- Command: podman exec — disassemble render(QRegion, GLenum, bool) body from libkwinglutils
+- Reason: Determine if the 5.27.8 implementation enables GL_SCISSOR_TEST itself or assumes caller enabled it.
+
+## 2026-09-10T02:48:49+05:30
+- Command: podman exec — verify /tmp/kwg.asm exists and locate GLVertexBuffer6render symbols
+- Reason: Previous symbol-anchored extraction failed; debugging the disassembly dump.
+
+## 2026-09-10T02:49:03+05:30
+- Command: podman exec — print render(QRegion,j,b) body (lines 16357-16490 of disassembly)
+- Reason: Read the actual 5.27.8 scissoring logic to confirm the caller-responsibility hypothesis.
+
+## 2026-09-10T02:51:11+05:30
+- Command: podman exec — disassemble GLVertexBuffer::draw(QRegion,int,int,bool) body
+- Reason: Extract the exact scissor enable/disable and Y-flip math for hardwareClipping in 5.27.8.
+
+## 2026-09-10T07:49:03+05:30
+- Command: bash scripts/build.sh + grep build logs for warnings
+- Reason: Rebuild kittyglow.so v3.5 with the LL-020 fix; Rule 5 requires zero-warning verification of all build output.
+
+## 2026-09-10T07:50:46+05:30
+- Command: bash scripts/deploy.sh
+- Reason: Install rebuilt kittyglow.so v3.5 (LL-020 fix) into dom0 and re-enable in kwinrc.
+
+## 2026-09-10T07:52:50+05:30
+- Command: ls scripts/ + dom0 sha256 of deployed .so vs dist + grep restart helpers
+- Reason: Deploy integrity gate (sha match) and locate the established kwin restart / leak-probe tooling before the approved restart step.
+
+## 2026-09-10T07:54:11+05:30
+- Command: dom0 setsid kwin_x11 --replace as chenpan (HOME/DBUS/DISPLAY env) + health capture
+- Reason: Approved restart step — activate LL-020 build #10; established clean restart path (HANDBOOK §11, prior-session procedure).
+
+## 2026-09-10T07:55:02+05:30
+- Command: dom0 activeEffects dbus + journal kittyglow error scan + grep probe tooling
+- Reason: Post-restart verification (Rule 6) — confirm LL-020 build auto-loaded cleanly and find the established leak-probe method.
+
+## 2026-09-10T07:56:22+05:30
+- Command: find probe scripts + dom0 loadEffect kittyglow (idempotent load-confirmation)
+- Reason: Rule 6 verification — confirm LL-020 build #10 is the loaded effect; locate prior leak-probe tooling.
+
+## 2026-09-10T07:57:02+05:30
+- Command: dom0 Effects introspect + journal scan after loadEffect=false
+- Reason: Diagnose why build #10 failed to load (Rule 5/16 — do not proceed with visual verification until resolved).
+
+## 2026-09-10T08:01:17+05:30
+- Command: cat dist/kittyglow.json + dom0 installed metadata + journal history count (corrected quoting)
+- Reason: Determine whether the scripted-effect init failure is the native metadata misread as a KWin script (and whether it predates this session).
+
+## 2026-09-10T08:03:42+05:30
+- Command: dom0 X-window tree with XAUTHORITY/XDISPLAY env exported
+- Reason: Window tree snapshot needed for LL-020 burst design; first attempt lacked X env.
+
+## 2026-09-10T08:04:17+05:30
+- Command: dom0 raw xwininfo head + python3 PIL/numpy availability
+- Reason: Diagnose empty window-tree output; verify probe dependencies for the LL-020 burst.
+
+## 2026-09-10T08:08:49+05:30
+- Command: dom0 stuck-process check + timed xdotool sanity probes
+- Reason: Burst hung with no output; identify the blocking call before retrying (Rule 5 discipline).
+
+## 2026-09-10T08:10:19+05:30
+- Command: rerun ll020_v35_burst.py backgrounded with stdout to /tmp/ll020_results.txt, poll+cat after 40s
+- Reason: Recover the burst results (first run completed but bridge lost stdout to timeout).
+
+## 2026-09-10T08:11:34+05:30
+- Command: check /tmp/ll020_results.txt, rerun burst with python3 -u (unbuffered) timeout 300, snapshot at 25s
+- Reason: Bridge kills process groups at call end — unflushed block-buffered stdout was lost; -u flushes per print.
+
+## 2026-09-10T08:12:54+05:30
+- Command: poll both burst result files after 45s
+- Reason: Collect final strict/loose gold counts for LL-020 verification.
+
+## 2026-09-10T08:17:00+05:30
+- Command: dom0 crop ring region from frames f6/f12 + pull crops to logs/probe/ll020/
+- Reason: Visual disambiguation of burst states C (f6) vs A (f12): kitty content vs konsole content under the gold ring.
+
+## 2026-09-10T08:23:20+05:30
+- Command: verify both burst runs finished, peek run2 final lines
+- Reason: No concurrent probes may run during the clean final verification.
+
+## 2026-09-10T08:24:43+05:30
+- Command: xdotool kitty window lookups (class/visible/name) + active window
+- Reason: --onlyvisible returned nothing; diagnose before re-running the final probe.
+
+## 2026-09-10T08:25:13+05:30
+- Command: qvm-run pgrep kitty in Dev-General
+- Reason: Determine whether kitty was closed or its window moved to another activity.
+
+## 2026-09-10T08:25:32+05:30
+- Command: pgrep -a kitty (local Dev-General)
+- Reason: Determine whether the kitty process still exists.
+
+## 2026-09-10T08:26:18+05:30
+- Command: ps kitty start time + enumerate X windows matching kitty
+- Reason: kitty process alive with no X window - check start time and hidden window state.
+
+## 2026-09-10T08:27:12+05:30
+- Command: qdbus KWin supportInformation grep kitty
+- Reason: KWin authoritative window list to locate the missing kitty window (activity/desktop/withdrawn state).
+
+## 2026-09-10T08:27:34+05:30
+- Command: dom0 KWin supportInformation -> /tmp/kg_support.txt, grep kitty
+- Reason: KWin authoritative window list for the missing kitty window.
+
+## 2026-09-10T08:27:54+05:30
+- Command: inspect /tmp/kg_support.txt size and head
+- Reason: Empty-looking grep results - verify the dump itself has content and correct section names.
+
+## 2026-09-10T08:28:48+05:30
+- Command: xprop _NET_CLIENT_LIST enumeration + WM_CLASS histogram
+- Reason: X-authoritative check for any kitty-class client window.
+
+## 2026-09-10T08:29:10+05:30
+- Command: dump all client windows (id|WM_CLASS|name) to /tmp/kg_clients.txt
+- Reason: Authoritative kitty window search across all 46 managed clients.
+
+## 2026-09-10T08:29:34+05:30
+- Command: corrected hex-ID client enumeration -> /tmp/kg_clients.txt
+- Reason: Authoritative kitty window search across all managed clients.
+
+## 2026-09-10T08:30:57+05:30
+- Command: launch kitty (VM env) + dom0-side window check
+- Reason: Confirm fresh kitty window is mapped and visible for the final probe.
+
+## 2026-09-10T08:31:47+05:30
+- Command: debug xdotool getwindowgeometry shell/plain output for 79698807
+- Reason: Probe geo() KeyError - inspect actual output format.
+
+## 2026-09-10T08:33:04+05:30
+- Command: py_compile + run hardened ll020_final.py
+- Reason: Decisive LL-020 verification (correct syntax validator this time).
+
+## 2026-09-10T08:37:34+05:30
+- Command: check kwin_x11 process alive + recent journal
+- Reason: org.kde.KWin DBus gone + zero halo paint suggests kwin died during/after burst.
+
+## 2026-09-10T08:38:35+05:30
+- Command: qdbus compositor state + effect load state (explicit DBUS_SESSION_BUS_ADDRESS)
+- Reason: Zero halo + silent qdbus -> bridge shells lost session bus env; check compositor fallback and effect load.
+
+## 2026-09-10T08:40:00+05:30
+- Command: qdbus loadEffect kittyglow + immediate journal capture
+- Reason: Capture the exact loader error for the native effect load failure.
+
+## 2026-09-10T08:40:35+05:30
+- Command: qdbus /Effects isEffectLoaded + loadedEffects (correct DBus path)
+- Reason: Authoritative effect load state.
+
+## 2026-09-10T08:42:15+05:30
+- Command: activate fresh kitty, check _NET_ACTIVE_WINDOW + inside-frame pixels + ring gold
+- Reason: Disambiguate raise-failure (kitty stays below fullscreen konsole) from real halo absence.
+
+## 2026-09-10T08:46:21+05:30
+- Command: re-run cancelled diagnostic - stacking order + ring band pixel means
+- Reason: Determine whether fullscreen konsole sits above activated kitty (occluder suppression) - the last discriminator before PASS/FAIL verdict.
+
+## 2026-09-10T08:48:18+05:30
+- Command: positive control - raise kitty above konsoles, count ring gold + per-band
+- Reason: Confirm halo renders on the live fresh window when genuinely topmost (completes both-way verification).
+
+## 2026-09-10T08:53:05+05:30
+- Command: unloadEffect+loadEffect kittyglow, raise kitty, ring gold count
+- Reason: Force fresh effect instance (fresh shader compile) to test sick-instance hypothesis.
+
+## 2026-09-10T08:55:45+05:30
+- Command: journal grep compositing/OpenGL/XRender lines since restart
+- Reason: Test XRender-fallback hypothesis - would explain zero halo with loaded effect + gold defaults.
+
+## 2026-09-10T08:59:51+05:30
+- Command: xprop _NET_WM_STATE on konsoles + kitty (keep-above check)
+- Reason: Focused-but-below pattern implies keep-above occluders; would fully explain zero halo as correct clipping.
+
+## 2026-09-10T09:03:10+05:30
+- Command: clean single re-run of v35 burst (24 cycles, no concurrency)
+- Reason: Settle whether run1 C-states (23,434px) reproduce post-fix; no C-state = leak fixed, those were stacking transients.
+
+## 2026-09-10T09:07:43+05:30
+- Command: v35 burst re-run with timeout 300 (complete budget)
+- Reason: Previous run killed at 100s mid-burst; need full 24-cycle JSON for the verdict.
+
+## 2026-09-10T18:26:16+05:30
+- Command: xdotool windowraise kitty + immediate ring gold count + stacking
+- Reason: Positive control - halo must appear when kitty is genuinely topmost (grab happens before dialogs steal focus).
+
+## 2026-09-10T18:28:16+05:30
+- Command: run ll020_positive.py (minimize-cover -> grab -> raise kitty -> grab -> restore)
+- Reason: Definitive positive control: halo must appear when kitty is visible/unoccluded, else the scissor change broke rendering.
+
+## 2026-09-10T18:51:08+05:30
+- Command: grep scissor refs + sed -n 149,245p src/kittyglow.cpp (post-edit review)
+- Reason: Rule 16 logic/typo verification of the subdivision rewrite before build.
+
+## 2026-09-10T18:52:26+05:30
+- Command: bash scripts/build.sh (build #11 — LL-020 subdivision rewrite)
+- Reason: User-approved build of the CPU-subdivision fix in the dom0-replica-fed37 container.
+
+## 2026-09-10T18:55:04+05:30
+- Command: bash scripts/deploy.sh (build #11 f6d6cfb5 to dom0)
+- Reason: Deploy approved artifact; part of the user-approved build+deploy step.
+
+## 2026-09-10T18:56:10+05:30
+- Command: sha256sum dom0 deployed .so vs dist/kittyglow.so
+- Reason: Deploy integrity gate — dom0 artifact must equal build #11 (f6d6cfb5).
+
+## 2026-09-10T18:58:43+05:30
+- Command: kwin_x11 --replace as desktop user (load build #11 f6d6cfb5)
+- Reason: User-approved restart to load the new effect binary on the clean baseline.
+
+## 2026-09-10T18:59:26+05:30
+- Command: ll020_positive.py on build #11 (post-restart)
+- Reason: THE decisive probe — halo must now appear with kitty unoccluded (baseline noise floor was 74/91 px).
+
+## 2026-09-10T19:04:07+05:30
+- Command: build #12-debug + deploy + live unload/load kittyglow
+- Reason: Ship capped gate instrumentation; live reload avoids restart for debug iteration.
+
+## 2026-09-10T19:04:32+05:30
+- Command: activate kitty + journalctl grep kg-dbg
+- Reason: Read which halo gate fails (region-empty / occluder-empty / draw).
+
+## 2026-09-10T19:10:39+05:30
+- Command: live reload build #12b + journal gates + positive control (corrected sudo -u chenpan qdbus)
+- Reason: Previous chain failed running qdbus as root; rerun with the proven command form.
+
+## 2026-09-10T19:59:38+05:30
+- Command: focus-change + journal kg-dbg + positive dance + gold spatial bbox (retry after cancelled dialog)
+- Reason: Determine whether build #12b is live and where the ring gold sits spatially.
+
+## 2026-09-10T20:03:34+05:30
+- Command: kwin restart to load build #12b + gate journal + positive control + spatial bbox
+- Reason: Live reload cannot swap code; restart required to run 12b. Full verification chain.
+
+## 2026-09-10T20:06:06+05:30
+- Command: bash scripts/deploy.sh (verbose) + dom0 sha check
+- Reason: #12b transfer failed silently; redeploy and verify artifact identity (expect 83db2311 on dom0).
+
+## 2026-09-10T20:07:25+05:30
+- Command: kwin restart loading verified 83db2311 (#12b) + gates + positive control + bbox
+- Reason: Run the region-clip-fixed build and complete the verification chain.
+
+## 2026-09-10T20:13:00+05:30
+- Command: v35 leak burst on build #12b (24 cycles + 5 idle)
+- Reason: Final probe - confirm no glow penetration/accumulation with the occluder-clipped subdivision build.
+
+## 2026-09-10T20:15:01+05:30
+- Command: strip kg-dbg instrumentation + build #13 + deploy + sha verify
+- Reason: Clean release build of the verified mechanism; sha-verify the deploy this time (12b silent-failure lesson).
+
+## 2026-09-10T20:17:09+05:30
+- Command: kwin restart loading build #13 (cb63bd4b) + final positive control
+- Reason: Load the clean verified build and confirm the halo renders on it.

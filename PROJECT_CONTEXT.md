@@ -92,12 +92,21 @@ None. Stateless effect; no persistence beyond kwinrc enable flag.
   rebuilt on every halo paint, anchored to painted kitty, plus
   stackingOrderChanged/windowActivated full-ring repaint hooks. Build #10
   (sha 31254894) deployed + live in kwin 36048, B/T re-registered after
-  LL-011 heal-restart. USER ACCEPTANCE TEST PENDING.**
+  LL-011 heal-restart. ~~USER ACCEPTANCE TEST PENDING~~ **RESOLVED +
+  E2E-verified on build #13 (2026-09-10): zero penetration in 24-cycle
+  burst; occlusion 0 px under konsoles.**
 - Halo paints over translucent plasma panel (LL-018): panel (opacity < 0.99)
   was never an occluder, so halo repaints left gold on panel chrome (probe:
   1,450 px vs 48 px baseline). **Fix shipped in Build #9, live in kwin 32660;
   v3.4 keeps the docks-always-clip rule in the per-paint occluder walk.
   Visual panel acceptance test still pending.**
+- ~~LL-020 halo-invisible regression (scissor-enable build #10)~~
+  **RESOLVED 2026-09-10 on build #13**: scene paint region is frame-only
+  (prePaint widening does not propagate) and KWin's hw-clipping scissor
+  boxes are degenerate in our context — final mechanism clips against
+  occluders only and CPU-subdivides the ring into unclipped sub-quads
+  (SPECIFICATION.md LL-020; positive control 5,214/25,896 px with kitty
+  unoccluded, leak burst flat at text-noise).
 - ~~Build container (`dom0-replica-fed37`) still mounts legacy `/home/user/kitty-glow`~~
   **RESOLVED 2026-09-06T23:50:19Z:** container re-created mounting this project's
   `src/` at `/src` (committed image `dom0-replica-fed37-img` preserves toolchain).
@@ -118,6 +127,11 @@ None. Stateless effect; no persistence beyond kwinrc enable flag.
 - **dom0-replica-fed37** Podman container — Fedora 37 build env (KWin 5.27.8 devel).
 
 ## 10. Last Updated
+2026-09-10T20:4xZ — LL-020 saga closed: builds #11–#13. Final mechanism
+(clip = halo − occluders, CPU subdivision, unclipped 1-arg render,
+isDesktop() occluder skip) E2E-verified: positive control 5,214/25,896 px,
+occlusion 0 px, 24-cycle burst flat. Docs refreshed (SPECIFICATION
+LL-020/021/022; ARCHITECTURE §2.3/§3/§4; HANDBOOK §5 LL-021/022 caveats).
 2026-09-10T00:4xZ — Build #10 executed on explicit "build the app": zero-
 warning compile (sha 31254894), deployed to dom0 (sha verified), kwin
 restarted (activation + LL-011 heal; old kwin 34892→35345→36048 — note kwin

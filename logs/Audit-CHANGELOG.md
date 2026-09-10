@@ -58,3 +58,6 @@
 - Rule 21 (isolation): all edits confined to
   QubesOS/UI-Enhancements/Kwin/kitty-glow/; no cross-project references
   introduced.
+
+## 2026-09-10T20:23:41+05:30
+- Audit: deploy pipeline failure mode (LL-022) — deploy.sh exits 0 on swallowed password-dialog failure leaving stale artifact on dom0; mitigated by mandatory post-deploy sha verification (documented in HANDBOOK §5); deploy.sh hardening proposed (pending approval).

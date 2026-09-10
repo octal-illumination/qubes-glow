@@ -1,5 +1,6 @@
-// kittyglow — v3.4: occlusion-clipped SDF glow (per-paint occluder rebuild),
-// animation-mapped halo, repeat-gated shortcut.
+// kittyglow — v3.6: occlusion-clipped SDF glow (per-paint occluder rebuild,
+// CPU-subdivided halo quads — LL-020), animation-mapped halo, repeat-gated
+// shortcut.
 // Note: This code is purely AI-generated.
 //
 // Render path: one hardware-blended triangle fan quad around the frame rect;
@@ -190,11 +191,20 @@ void KittyGlowEffect::paintWindow(KWin::EffectWindow *w, int mask, QRegion regio
     // depth test, so it also lands on windows stacked ABOVE kitty whenever
     // those windows' frames overlap the halo ring (drag/resize paths paint
     // without culling). Cut the occluded pieces out of the clip region: the
-    // SDF is fragment-position-based, so scissored partial draws of the same
+    // SDF is fragment-position-based, so subdivided partial draws of the same
     // quad are pixel-identical to an unclipped draw.
     // LL-019: occluders are rebuilt on EVERY halo paint — see
     // occludedAboveKitty(); the old 120 ms cache lagged restacks.
-    QRegion clip = region.intersected(halo.toRect());
+    // The scene's paint region for kitty covers only its frame: the ring
+    // widening done in prePaintWindow does NOT propagate into paintWindow's
+    // region parameter in KWin 5.27.8 (gate logging, 2026-09-10: region∩halo
+    // == frame exactly). The rasterizer does not enforce the region — that
+    // unenforcement WAS the original LL-020 leak — so the scene region is
+    // advisory only. Clip against the OCCLUDERS alone and draw every sub-quad
+    // of the full ring; pixels outside the region land correctly, and ring
+    // damage tracking is handled by the prePaintWindow widening + the LL-019
+    // stacking/activation repaint hooks.
+    QRegion clip = halo.toRect();
     clip -= occludedAboveKitty(w, halo, s);
     if (clip.isEmpty()) return;
 
@@ -217,13 +227,30 @@ void KittyGlowEffect::paintWindow(KWin::EffectWindow *w, int mask, QRegion regio
     vb->setUseColor(false);  // color comes from u_color; useColor would touch a stock uniform
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    const float x0 = static_cast<float>(halo.x() * s);
-    const float y0 = static_cast<float>(halo.y() * s);
-    const float x1 = static_cast<float>((halo.x() + halo.width()) * s);
-    const float y1 = static_cast<float>((halo.y() + halo.height()) * s);
-    const float v[12] = {x0, y0, x1, y0, x1, y1, x0, y0, x1, y1, x0, y1};
-    vb->setData(6, 2, v, nullptr);
-    vb->render(clip, GL_TRIANGLES, true);
+    // LL-020 (two-part lesson). (a) render(region, mode, hwClipping=true)
+    // documents that the CALLER must enable GL_SCISSOR_TEST; relying on
+    // whatever state the stock pipeline left made frames where the test was
+    // off paint the FULL quad over the front windows (the glow-penetration
+    // artifact). (b) Enabling the test proved worse: KWin 5.27.8's per-rect
+    // scissor boxes (Y-flip via GLFramebuffer::currentFramebuffer() height)
+    // clip the draw to NOTHING in this paint context (2026-09-10 positive
+    // control: 74 px wallpaper noise floor with kitty fully unoccluded).
+    // The scissor path is abandoned: CPU-subdivide the halo into ONE QUAD
+    // PER CLIP RECT and draw each unclipped via the 1-arg render() overload
+    // (single glDrawArrays, no region iteration, no GL state touched).
+    // Clip rects share the space the full-quad intersection used; the *s
+    // matches the device-px vertex space above (renderTargetScale is 1 on
+    // this system, so logical and device px coincide).
+    for (const QRect &cr : clip) {
+        const float rx0 = static_cast<float>(cr.x() * s);
+        const float ry0 = static_cast<float>(cr.y() * s);
+        const float rx1 = static_cast<float>((cr.x() + cr.width()) * s);
+        const float ry1 = static_cast<float>((cr.y() + cr.height()) * s);
+        const float v[12] = {rx0, ry0, rx1, ry0, rx1, ry1,
+                             rx0, ry0, rx1, ry1, rx0, ry1};
+        vb->setData(6, 2, v, nullptr);
+        vb->render(GL_TRIANGLES);
+    }
     glDisable(GL_BLEND);
     KWin::ShaderManager::instance()->popShader();
 }
@@ -259,6 +286,12 @@ QRegion KittyGlowEffect::occludedAboveKitty(KWin::EffectWindow *kitty,
     for (int i = kittyIdx + 1; i < stack.size(); ++i) {
         KWin::EffectWindow *w = stack.at(i);
         if (!w || w->isDeleted() || w->isMinimized()) continue;
+        // Desktop windows (plasma's fullscreen desktop containment) are by
+        // definition beneath all windows, but KWin 5.27 can leave them high
+        // in stackingOrder() after restacks — without this skip such a
+        // window would empty the clip and silence the halo entirely
+        // (observed during LL-020 verification, 2026-09-10).
+        if (w->isDesktop()) continue;
         // Docks/panels are screen chrome and may be translucent (adaptive
         // plasma panel) — they ALWAYS clip the halo (LL-018). Other
         // translucent windows still intentionally let the halo bloom through.

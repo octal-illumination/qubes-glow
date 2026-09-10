@@ -314,13 +314,29 @@ KWin 5.27 actually scans), the metadata to
 <h2 id="activate-live-no-compositor-restart">5. Activate (live, no
 compositor restart)</h2>
 <p>KWin 5.27 can load effect plugins at runtime over DBus — no restart
-needed:</p>
+needed <strong>for a first activation or for reconfigure
+tuning</strong>:</p>
 <div class="sourceCode" id="cb3"><pre
 class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># in dom0, as the desktop user</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> <span class="at">-u</span> chenpan env DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1000/bus <span class="dt">\</span></span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  XDG_RUNTIME_DIR=/run/user/1000 <span class="dt">\</span></span>
 <span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  dbus-send <span class="at">--session</span> <span class="at">--print-reply</span> <span class="at">--dest</span><span class="op">=</span>org.kde.KWin /Effects <span class="dt">\</span></span>
 <span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>  org.kde.kwin.Effects.loadEffect string:kittyglow   <span class="co"># expect: boolean true</span></span></code></pre></div>
+<blockquote>
+<p><strong>LL-021 (2026-09-10):</strong> a live unload/load does NOT
+pick up a REBUILT <code>.so</code> — KWin keeps the library mapped and
+re-instantiates the old code while the new file sits on disk. After
+every <code>build.sh</code> + <code>deploy.sh</code>, a full
+<code>kwin_x11 --replace</code> is required. Verify behavior
+(journal/screen), never the DBus boolean alone.</p>
+<p><strong>LL-022 (2026-09-10):</strong> <code>deploy.sh</code> runs
+three dom0 bridge calls, each gated by the password dialog; a cancelled
+dialog is swallowed and the script still exits 0 with the PREVIOUS build
+left on dom0. Always sha-verify after deploy:</p>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sha256sum</span> dist/kittyglow.so <span class="kw">|</span> <span class="fu">cut</span> <span class="at">-c1-16</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="ex">dom0</span> <span class="st">&#39;sha256sum /usr/lib64/qt5/plugins/kwin/effects/plugins/kittyglow.so | cut -c1-16&#39;</span></span></code></pre></div>
+</blockquote>
 <p>Verify with <code>isEffectLoaded string:kittyglow</code> on the same
 path. A full <code>org.kde.KWin.reconfigure</code> (object
 <code>/KWin</code>) also picks the plugin up from <code>kwinrc</code> —
@@ -329,13 +345,13 @@ and additionally hot-reloads window rules from <code>kwinrulesrc</code>
 <code>RuleBook::load()</code>).</p>
 <h2 id="kitty-borderless-rule">6. kitty borderless rule</h2>
 <p>Registered in dom0 <code>~/.config/kwinrulesrc</code>:</p>
-<div class="sourceCode" id="cb4"><pre
-class="sourceCode ini"><code class="sourceCode ini"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[kitty-borderless]</span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="dt">Description</span><span class="ot">=</span><span class="st">kitty borderless</span></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="dt">noborder</span><span class="ot">=</span><span class="kw">true</span></span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="dt">noborderrule</span><span class="ot">=</span><span class="st">2          # 2 = Force (rules.h SetRule enum)</span></span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="dt">wmclass</span><span class="ot">=</span><span class="st">kitty</span></span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="dt">wmclassmatch</span><span class="ot">=</span><span class="st">3          # 3 = RegExpMatch</span></span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode ini"><code class="sourceCode ini"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[kitty-borderless]</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="dt">Description</span><span class="ot">=</span><span class="st">kitty borderless</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="dt">noborder</span><span class="ot">=</span><span class="kw">true</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="dt">noborderrule</span><span class="ot">=</span><span class="st">2          # 2 = Force (rules.h SetRule enum)</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="dt">wmclass</span><span class="ot">=</span><span class="st">kitty</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="dt">wmclassmatch</span><span class="ot">=</span><span class="st">3          # 3 = RegExpMatch</span></span></code></pre></div>
 <p>plus <code>rules=kitty-borderless</code> under <code>[General]</code>
 (a rule group is ignored unless listed there). Applied to kitty windows
 at (re)mapping after a reconfigure.</p>
@@ -375,25 +391,25 @@ config (v3)</h3>
 under <code>[Effect-kittyglow]</code> and reload on
 <code>reconfigureEffect string:kittyglow</code> (or a KWin reconfigure)
 — no rebuild needed:</p>
-<div class="sourceCode" id="cb5"><pre
-class="sourceCode ini"><code class="sourceCode ini"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[Effect-kittyglow]</span></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="dt">Enabled</span><span class="ot">=</span><span class="kw">true</span></span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="dt">GlowRadius</span><span class="ot">=</span><span class="st">32        # default thickness for all sides (px)</span></span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="dt">GlowLeft</span><span class="ot">=</span><span class="st">32          # per-side overrides</span></span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="dt">GlowTop</span><span class="ot">=</span><span class="dv">32</span></span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="dt">GlowRight</span><span class="ot">=</span><span class="dv">32</span></span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="dt">GlowBottom</span><span class="ot">=</span><span class="dv">32</span></span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="dt">GlowCornerRadius</span><span class="ot">=</span><span class="st">8   # 0..64</span></span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="dt">GlowColor</span><span class="ot">=</span><span class="st">255,215,0     # active window halo color (RGB)</span></span>
-<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="dt">GlowColorInactive</span><span class="ot">=</span><span class="st">255,215,0</span></span>
-<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="dt">GlowOpacity</span><span class="ot">=</span><span class="st">60       # 0..100, active</span></span>
-<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a><span class="dt">GlowOpacityInactive</span><span class="ot">=</span><span class="dv">30</span></span></code></pre></div>
 <div class="sourceCode" id="cb6"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># apply after editing (no rebuild, no restart):</span></span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="ex">dom0</span> <span class="st">&quot;sudo -u chenpan env DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1000/bus </span><span class="dt">\</span></span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="st">  XDG_RUNTIME_DIR=/run/user/1000 dbus-send --session --print-reply </span><span class="dt">\</span></span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="st">  --dest=org.kde.KWin /Effects org.kde.kwin.Effects.reconfigureEffect </span><span class="dt">\</span></span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="st">  string:kittyglow&quot;</span></span></code></pre></div>
+class="sourceCode ini"><code class="sourceCode ini"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[Effect-kittyglow]</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="dt">Enabled</span><span class="ot">=</span><span class="kw">true</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="dt">GlowRadius</span><span class="ot">=</span><span class="st">32        # default thickness for all sides (px)</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="dt">GlowLeft</span><span class="ot">=</span><span class="st">32          # per-side overrides</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="dt">GlowTop</span><span class="ot">=</span><span class="dv">32</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="dt">GlowRight</span><span class="ot">=</span><span class="dv">32</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="dt">GlowBottom</span><span class="ot">=</span><span class="dv">32</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="dt">GlowCornerRadius</span><span class="ot">=</span><span class="st">8   # 0..64</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="dt">GlowColor</span><span class="ot">=</span><span class="st">255,215,0     # active window halo color (RGB)</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a><span class="dt">GlowColorInactive</span><span class="ot">=</span><span class="st">255,215,0</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a><span class="dt">GlowOpacity</span><span class="ot">=</span><span class="st">60       # 0..100, active</span></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a><span class="dt">GlowOpacityInactive</span><span class="ot">=</span><span class="dv">30</span></span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># apply after editing (no rebuild, no restart):</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="ex">dom0</span> <span class="st">&quot;sudo -u chenpan env DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1000/bus </span><span class="dt">\</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="st">  XDG_RUNTIME_DIR=/run/user/1000 dbus-send --session --print-reply </span><span class="dt">\</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="st">  --dest=org.kde.KWin /Effects org.kde.kwin.Effects.reconfigureEffect </span><span class="dt">\</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="st">  string:kittyglow&quot;</span></span></code></pre></div>
 <h2 id="rollback">7. Rollback</h2>
 <p><code>kittyglow-rollback</code> is installed in dom0 at
 <code>/usr/local/bin</code> (hard copy per workspace Rule 21). Modes:
@@ -460,9 +476,9 @@ rebuild — kwinrc <code>[Effect-kittyglow]</code>, see §6c)</h2>
 <code>reconfigureEffect</code> command in §6c — the SDF shader rebuilds
 from config, no recompile.</p>
 <h2 id="disable-uninstall">10. Disable / Uninstall</h2>
-<div class="sourceCode" id="cb7"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="ex">dom0</span> <span class="st">&quot;kwriteconfig5 --file kwinrc --group Plugins --key kittyglowEnabled false&quot;</span></span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="co"># restart KWin, then optionally remove the two installed files.</span></span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="ex">dom0</span> <span class="st">&quot;kwriteconfig5 --file kwinrc --group Plugins --key kittyglowEnabled false&quot;</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="co"># restart KWin, then optionally remove the two installed files.</span></span></code></pre></div>
 <h2 id="limitations">11. Limitations</h2>
 <ul>
 <li>Effect is always-on for kitty windows (the Meta+Shift+B toggle flips
