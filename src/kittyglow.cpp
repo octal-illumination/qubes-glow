@@ -297,11 +297,17 @@ QRegion KittyGlowEffect::occludedAboveKitty(KWin::EffectWindow *kitty,
         // translucent windows still intentionally let the halo bloom through.
         if (!w->isDock() && w->opacity() < 0.99) continue;
         if (!w->isOnCurrentDesktop() || !w->isOnCurrentActivity()) continue;
-        // expandedGeometry() spans the frame AND the window shadow: front
-        // windows paint translucent shadow gradients well past frameGeometry(),
-        // and clipping only the frame let the halo shine through those shadows
-        // (LL-017 penetration artifact).
-        const QRectF gf = w->expandedGeometry();
+        // Docks/panels keep expandedGeometry(): they must ALWAYS clip the
+        // halo (LL-018) and carry no meaningful soft shadow to dim it.
+        // Normal windows clip at frameGeometry() ONLY: the halo paints
+        // BENEATH them, so their translucent shadow gradient dims it
+        // progressively right up to the frame edge — a seamless pass-behind
+        // with no wallpaper gap between halo-end and the occluding border
+        // (user report 2026-09-10; supersedes the LL-017 hard cut at
+        // expandedGeometry, which was the right call for the old full-alpha
+        // leak but wrong for the occluder-clipped architecture).
+        const QRectF gf = w->isDock() ? w->expandedGeometry()
+                                      : w->frameGeometry();
         // Device-px rect (+1 px fatten so no halo seam shows at occluder
         // edges), same top-left-origin space as the paint region —
         // GLVertexBuffer::draw() flips scissor rects for GL itself.

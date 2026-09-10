@@ -278,3 +278,9 @@
 - src/kittyglow.cpp: LL-020 final mechanism (clip = haloRect − occluders; CPU sub-quad draws via 1-arg render; isDesktop() occluder skip; instrumentation stripped in #13 cb63bd4b). E2E: positive control 5,214/25,896 px, occlusion 0 px, 24-cycle burst flat 320/394.
 - SPECIFICATION.md: LL-020/021/022 entries added (three-part render lesson; live-reload cannot swap .so; deploy sha-verify).
 - ARCHITECTURE.md §2.3/§3/§4 + HANDBOOK.md §5 + PROJECT_CONTEXT.md §5/§8/§10 synced; HTML siblings regenerated via sanctioned script.
+
+## 2026-09-10T23:11:18+05:30 — Seamless pass-behind shipped (#14) + user-accepted
+- src/kittyglow.cpp: non-dock occluders clip at frameGeometry() (LL-017 superseded; docks keep expandedGeometry). USER ACCEPTED: "Perfect, everything works as it should and seamless."
+- scripts/deploy.sh: LL-022 sha hard-gate (exit 1 on dom0/local mismatch); fired live on #14 deploy.
+- scripts/regression-checks.sh: NEW in-repo registry (Rule 20, option (a) per user) — 8 assertions green; check_not helper (bash `!` through "$@" pitfall).
+- SPECIFICATION.md LL-017 supersession + ARCHITECTURE.md §2.3 + HANDBOOK.md occlusion + PROJECT_CONTEXT.md §5 (Build State restored after atomic edit rollback) + §10; HTML siblings regenerated (18e audit clean).

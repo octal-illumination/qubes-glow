@@ -147,10 +147,17 @@ Git boundary: the whole `kitty-glow/` directory. No cross-project dependencies.
   Consequence: the kitty borderless state is persisted in `kittyglowrc` and
   applied by script; kwinrulesrc must never again carry `noborderrule` for
   kitty.
-- **LL-017** — Front-window occlusion must clip using `expandedGeometry()`
-  (frame + shadow), not `frameGeometry()`: front windows paint translucent
-  shadow gradients well past the frame, and frame-only clipping let the halo
-  shine through those shadows (penetration artifact, 2026-09-09).
+- **LL-017** — Front-window occlusion geometry depends on the architecture
+  era. Original (full-alpha leak era): clip at `expandedGeometry()`
+  (frame + shadow) because the halo painted over translucent shadow
+  gradients (penetration artifact, 2026-09-09). **SUPERSEDED 2026-09-10**
+  under the LL-020 occluder-clip architecture, user-accepted ("Perfect,
+  seamless"): non-dock occluders clip at `frameGeometry()` ONLY — the halo
+  paints BENEATH them, so each window's own shadow gradient dims it
+  progressively right up to the border (seamless pass-behind); the
+  expandedGeometry hard cut left a wallpaper gap between halo-end and the
+  occluding border. Docks/panels keep expandedGeometry (LL-018). Recorded
+  as `ll017seamless-*` assertions in scripts/regression-checks.sh.
 - **LL-018** — Docks/panels are screen chrome and ALWAYS clip the halo, even
   when translucent (adaptive plasma panel; probe: 1,450 gold px on panel vs
   48 px baseline). Genuinely translucent non-dock windows keep the

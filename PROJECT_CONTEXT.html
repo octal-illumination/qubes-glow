@@ -303,6 +303,25 @@ halo never smears. Full design: ARCHITECTURE.md.</p>
 <p>None. Stateless effect; no persistence beyond kwinrc enable flag.</p>
 <h2 id="build-state">5. Build State</h2>
 <ul>
+<li><strong>Build #14 (v3.7, seamless pass-behind, 2026-09-10)</strong>
+— sha <code>2ab0c4df…</code>, deployed + gate-verified, live in kwin PID
+51644. Non-dock occluders clip at <code>frameGeometry()</code> only
+(halo passes behind windows, dimmed by their shadow gradient; no
+wallpaper gap). <strong>USER ACCEPTED: “Perfect, everything works as it
+should and seamless.”</strong> Positive control bit-identical
+(5,214/25,896). Also: <code>scripts/deploy.sh</code> now hard-gates on
+sha mismatch (LL-022); <code>scripts/regression-checks.sh</code> added —
+8 assertions, all green.</li>
+<li><strong>Build #13 (v3.6, LL-020 final, 2026-09-10)</strong> built
+zero-warning. Artifact: <code>dist/kittyglow.so</code>, sha256
+<code>cb63bd4b…</code>, deployed + sha-verified on dom0, live in kwin
+PID 51070. Mechanism: halo clip = <code>haloRect −   occluders</code>
+(scene region advisory — LL-020c), CPU-subdivided into one quad per clip
+rect drawn unclipped via 1-arg <code>render(GL_TRIANGLES)</code>;
+<code>isDesktop()</code> excluded from occluders. E2E-verified: positive
+control 5,214 strict / 25,896 loose ring px with kitty unoccluded;
+occlusion 0 px under konsoles; 24-cycle leak burst flat at 320/394
+text-noise (no accumulation).</li>
 <li><strong>Build #8 (v4, Step C rebuild, 2026-09-09)</strong> built
 zero-warning. Artifact: <code>dist/kittyglow.so</code>, sha256
 <code>25e019db…</code>. Replaces the kwinrulesrc rule toggle with
@@ -429,30 +448,33 @@ deployment + activation target.</li>
 build env (KWin 5.27.8 devel).</li>
 </ul>
 <h2 id="last-updated">10. Last Updated</h2>
-<p>2026-09-10T20:4xZ — LL-020 saga closed: builds #11–#13. Final
-mechanism (clip = halo − occluders, CPU subdivision, unclipped 1-arg
-render, isDesktop() occluder skip) E2E-verified: positive control
-5,214/25,896 px, occlusion 0 px, 24-cycle burst flat. Docs refreshed
-(SPECIFICATION LL-020/021/022; ARCHITECTURE §2.3/§3/§4; HANDBOOK §5
-LL-021/022 caveats). 2026-09-10T00:4xZ — Build #10 executed on explicit
-“build the app”: zero- warning compile (sha 31254894), deployed to dom0
-(sha verified), kwin restarted (activation + LL-011 heal; old kwin
-34892→35345→36048 — note kwin had restarted/rebooted to 34892 between
-sessions, prior ref 32660 stale), isEffectLoaded=true, B/T shortcuts
-re-registered. Awaiting user acceptance test per §7. 2026-09-09T20:xxZ —
-LL-019 fix implemented (v3.4) in src/kittyglow.cpp: occluders rebuilt on
-every halo paint (120 ms cache deleted), anchored to the painted kitty
-window, stackingOrderChanged + windowActivated full-ring repaint hooks
-added. SPECIFICATION LL-017/018 registry gap repaired, LL-019 added;
-HANDBOOK occlusion section synced. Build #10 pending explicit build
-consent. 2026-09-09T19:xxZ — Build #9 (LL-018 fix) VERIFIED LIVE: .so
-mapped in kwin 32660 (5 mappings), B+T shortcuts re-registered, restart
-log 0 errors, metadata dir perms fixed to 755/644. Remaining: visual
-panel test + re-run panel probe (expect gold ≡ 48 px baseline).
-2026-09-09T18:05Z — LL-018 fix coded in <code>updateOccluders()</code>
-(docks/panels always clip the halo, even when translucent; probe
-evidence: 1,450 gold px on panel vs 48 px baseline, static clipping
-re-verified clean). HANDBOOK occlusion section synced. Build #9 + KWin
-restart pending user consent.</p>
+<p>2026-09-10T21:4xZ — Seamless pass-behind shipped (#14) +
+user-accepted; deploy.sh sha-gate added (LL-022); in-repo
+regression-checks.sh (8 green); Build State section restored (lost to an
+atomic edit rollback). 2026-09-10T20:4xZ — LL-020 saga closed: builds
+#11–#13. Final mechanism (clip = halo − occluders, CPU subdivision,
+unclipped 1-arg render, isDesktop() occluder skip) E2E-verified:
+positive control 5,214/25,896 px, occlusion 0 px, 24-cycle burst flat.
+Docs refreshed (SPECIFICATION LL-020/021/022; ARCHITECTURE §2.3/§3/§4;
+HANDBOOK §5 LL-021/022 caveats). 2026-09-10T00:4xZ — Build #10 executed
+on explicit “build the app”: zero- warning compile (sha 31254894),
+deployed to dom0 (sha verified), kwin restarted (activation + LL-011
+heal; old kwin 34892→35345→36048 — note kwin had restarted/rebooted to
+34892 between sessions, prior ref 32660 stale), isEffectLoaded=true, B/T
+shortcuts re-registered. Awaiting user acceptance test per §7.
+2026-09-09T20:xxZ — LL-019 fix implemented (v3.4) in src/kittyglow.cpp:
+occluders rebuilt on every halo paint (120 ms cache deleted), anchored
+to the painted kitty window, stackingOrderChanged + windowActivated
+full-ring repaint hooks added. SPECIFICATION LL-017/018 registry gap
+repaired, LL-019 added; HANDBOOK occlusion section synced. Build #10
+pending explicit build consent. 2026-09-09T19:xxZ — Build #9 (LL-018
+fix) VERIFIED LIVE: .so mapped in kwin 32660 (5 mappings), B+T shortcuts
+re-registered, restart log 0 errors, metadata dir perms fixed to
+755/644. Remaining: visual panel test + re-run panel probe (expect gold
+≡ 48 px baseline). 2026-09-09T18:05Z — LL-018 fix coded in
+<code>updateOccluders()</code> (docks/panels always clip the halo, even
+when translucent; probe evidence: 1,450 gold px on panel vs 48 px
+baseline, static clipping re-verified clean). HANDBOOK occlusion section
+synced. Build #9 + KWin restart pending user consent.</p>
 </body>
 </html>

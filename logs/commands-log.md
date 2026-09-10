@@ -629,3 +629,39 @@
 ## 2026-09-10T20:17:09+05:30
 - Command: kwin restart loading build #13 (cb63bd4b) + final positive control
 - Reason: Load the clean verified build and confirm the halo renders on it.
+
+## 2026-09-10T20:23:42+05:30
+- Command: generate-docs-html + ledger updates + git commit (LL-020 closure)
+- Reason: Rule 18 HTML regeneration, Rule 3/10/23 ledgers, session commit per user directive.
+
+## 2026-09-10T20:25:06+05:30
+- Command: SESSION_STATE rewrite + Rule 18e HTML equality audit + follow-up commit
+- Reason: Rule 17 milestone snapshot; Rule 18e verification; keep ledger current.
+
+## 2026-09-10T21:24:16+05:30
+- Command: regression-checks fix (check_not helper) + registry self-test
+- Reason: `!` through "$@" is not bash negation (expansion executes command "!"); helper restructured, all 8 assertions green.
+
+## 2026-09-10T21:31:21+05:30
+- Command: kwin restart loading build #14 (2ab0c4df) + positive control
+- Reason: LL-021 — live reload cannot swap .so code; restart required, user consented.
+
+## 2026-09-10T21:40:28+05:30
+- Command: ll014_seam.py partial-occlusion probe (env fix, attempt 3)
+- Reason: Verify seamless pass-behind behavior on build #14.
+
+## 2026-09-10T21:48:15+05:30
+- Command: ll014_seam2.py differential seam probe (Import fix, attempt 2)
+- Reason: NameError on Image; PIL import corrected.
+
+## 2026-09-10T22:05:32+05:30
+- Command: ll014_seam4.py raised-occluder seam probe + crop pull (sed-filtered)
+- Reason: True partial occlusion with kitty active; seam continuity at frame edge.
+
+## 2026-09-10T22:29:12+05:30
+- Command: demo state — kitty active, konsole3 800x400 raised above (seam crosses left ring band)
+- Reason: User visual acceptance of seamless pass-behind at the former gap location.
+
+## 2026-09-10T22:55:51+05:30
+- Command: activate kitty by class (clean demo state, retry after AFK)
+- Reason: Stable visual-acceptance state for the user.

@@ -34,6 +34,22 @@ halo never smears. Full design: ARCHITECTURE.md.
 None. Stateless effect; no persistence beyond kwinrc enable flag.
 
 ## 5. Build State
+- **Build #14 (v3.7, seamless pass-behind, 2026-09-10)** — sha `2ab0c4df…`,
+  deployed + gate-verified, live in kwin PID 51644. Non-dock occluders clip
+  at `frameGeometry()` only (halo passes behind windows, dimmed by their
+  shadow gradient; no wallpaper gap). **USER ACCEPTED: "Perfect, everything
+  works as it should and seamless."** Positive control bit-identical
+  (5,214/25,896). Also: `scripts/deploy.sh` now hard-gates on sha mismatch
+  (LL-022); `scripts/regression-checks.sh` added — 8 assertions, all green.
+- **Build #13 (v3.6, LL-020 final, 2026-09-10)** built zero-warning.
+  Artifact: `dist/kittyglow.so`, sha256 `cb63bd4b…`, deployed + sha-verified
+  on dom0, live in kwin PID 51070. Mechanism: halo clip = `haloRect −
+  occluders` (scene region advisory — LL-020c), CPU-subdivided into one quad
+  per clip rect drawn unclipped via 1-arg `render(GL_TRIANGLES)`;
+  `isDesktop()` excluded from occluders. E2E-verified: positive control
+  5,214 strict / 25,896 loose ring px with kitty unoccluded; occlusion 0 px
+  under konsoles; 24-cycle leak burst flat at 320/394 text-noise (no
+  accumulation).
 - **Build #8 (v4, Step C rebuild, 2026-09-09)** built zero-warning. Artifact:
   `dist/kittyglow.so`, sha256 `25e019db…`. Replaces the kwinrulesrc rule
   toggle with `kittyglowstate.cpp` (`~/.config/kittyglowrc` `[General]
@@ -127,6 +143,9 @@ None. Stateless effect; no persistence beyond kwinrc enable flag.
 - **dom0-replica-fed37** Podman container — Fedora 37 build env (KWin 5.27.8 devel).
 
 ## 10. Last Updated
+2026-09-10T21:4xZ — Seamless pass-behind shipped (#14) + user-accepted;
+deploy.sh sha-gate added (LL-022); in-repo regression-checks.sh (8 green);
+Build State section restored (lost to an atomic edit rollback).
 2026-09-10T20:4xZ — LL-020 saga closed: builds #11–#13. Final mechanism
 (clip = halo − occluders, CPU subdivision, unclipped 1-arg render,
 isDesktop() occluder skip) E2E-verified: positive control 5,214/25,896 px,

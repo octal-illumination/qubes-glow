@@ -491,17 +491,22 @@ non-uniform animation scale slightly distorts corner radius for the
 animation’s duration (&lt;300 ms).</li>
 <li>Occlusion clipping (rebuilt every halo paint since v3.4): windows
 logically stacked above the PAINTED kitty (per
-<code>stackingOrder()</code>, same desktop/activity, not minimized)
-subtract their frame+shadow rectangles (<code>expandedGeometry()</code>)
-from the halo’s scissor region, so the halo never paints over other
-applications. The occluder set is recomputed on every halo paint (no
-cache), and stacking/activation changes
-(<code>stackingOrderChanged</code>, <code>windowActivated</code>) force
-a full halo repaint — a window raised above an unfocused kitty clips
-correctly on the very next frame (LL-019). Opaque windows and
-docks/panels (even translucent ones, e.g. an adaptive plasma panel)
-always clip; other genuinely translucent windows are skipped, letting
-the halo show through them by design (LL-018).</li>
+<code>stackingOrder()</code>, same desktop/activity, not minimized) are
+subtracted from the halo region — docks/panels at
+<code>expandedGeometry()</code> (frame + shadow, LL-018), normal windows
+at <code>frameGeometry()</code> ONLY (build #14): the halo paints
+BENEATH them, so each window’s own shadow gradient dims it progressively
+right up to the border — a seamless pass-behind with no wallpaper gap
+(user-accepted 2026-09-10). Fully transparent terminal bodies show the
+ring through by design (only chrome/text occlude). The occluder set is
+recomputed on every halo paint (no cache), and stacking/activation
+changes (<code>stackingOrderChanged</code>,
+<code>windowActivated</code>) force a full halo repaint — a window
+raised above an unfocused kitty clips correctly on the very next frame
+(LL-019). Opaque windows and docks/panels (even translucent ones,
+e.g. an adaptive plasma panel) always clip; other genuinely translucent
+windows are skipped, letting the halo show through them by design
+(LL-018).</li>
 <li>Meta+Shift+B is autorepeat-gated (220 ms): one state flip per
 physical key press; a held key cannot churn the rule (v3.3).</li>
 <li>Meta+Shift+T and B are also affected by kglobalaccel state: if the

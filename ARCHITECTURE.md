@@ -43,7 +43,12 @@ tracks minimize/restore mid-flight, and fades with `data.opacity()`.
 ### 2.3 Occlusion clip + CPU subdivision (`occludedAboveKitty`, per paint)
 ```
 clip = haloRect                                  // scene region NOT a clip source
-clip -= union of expandedGeometry(wi) for every opaque wi logically ABOVE
+clip -= union of occluder rect per opaque wi logically ABOVE
+        the painted kitty: DOCKS use expandedGeometry() (frame + shadow
+        margin; LL-018 always-clip); NORMAL windows use frameGeometry()
+        ONLY — the halo paints beneath them, so their translucent shadow
+        gradient dims it progressively right up to the border (seamless
+        pass-behind, LL-017 superseded; no wallpaper gap)
         the painted kitty in stackingOrder() (same desktop/activity, not
         minimized; desktop windows skipped; docks/panels always count —
         LL-018; other translucent windows are skipped → bloom-through)

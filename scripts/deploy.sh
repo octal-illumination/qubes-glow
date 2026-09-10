@@ -20,6 +20,17 @@ META_DIR=/usr/share/kwin/effects/kittyglow
 
 dom0 "sudo bash -lc 'mkdir -p $SO_DIR $META_DIR; qvm-run -p Dev-General base64 -w0 $SO | base64 -d > $SO_DIR/kittyglow.so; qvm-run -p Dev-General base64 -w0 $JSON | base64 -d > $META_DIR/metadata.json; chmod 644 $SO_DIR/kittyglow.so $META_DIR/metadata.json'"
 
+# LL-022 gate (2026-09-10): a swallowed password-dialog failure used to exit 0
+# with the PREVIOUS build left on dom0 (cost a full restart cycle on a phantom
+# build). Verify the artifact identity before anything else claims success.
+LOCAL_SHA=$(sha256sum "$SO" | cut -d' ' -f1)
+DOM0_SHA=$(dom0 "sha256sum $SO_DIR/kittyglow.so" | grep -oE '^[0-9a-f]{64}' | head -1)
+if [ "$LOCAL_SHA" != "$DOM0_SHA" ]; then
+  echo "DEPLOY MISMATCH: local=$LOCAL_SHA dom0=${DOM0_SHA:-<none>}" >&2
+  exit 1
+fi
+echo "Deploy verified: $DOM0_SHA"
+
 dom0 "kwriteconfig5 --file kwinrc --group Plugins --key kittyglowEnabled true"
 
 # kglowsync KWin script package — live-apply channel for the seamless

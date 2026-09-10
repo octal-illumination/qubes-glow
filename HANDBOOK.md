@@ -183,9 +183,13 @@ dom0 "kwriteconfig5 --file kwinrc --group Plugins --key kittyglowEnabled false"
   slightly distorts corner radius for the animation's duration (<300 ms).
 - Occlusion clipping (rebuilt every halo paint since v3.4): windows logically
   stacked above the PAINTED kitty (per `stackingOrder()`, same
-  desktop/activity, not minimized) subtract their frame+shadow rectangles
-  (`expandedGeometry()`) from the halo's scissor region, so the halo never
-  paints over other applications. The occluder set is recomputed on every
+  desktop/activity, not minimized) are subtracted from the halo region —
+  docks/panels at `expandedGeometry()` (frame + shadow, LL-018), normal
+  windows at `frameGeometry()` ONLY (build #14): the halo paints BENEATH
+  them, so each window's own shadow gradient dims it progressively right up
+  to the border — a seamless pass-behind with no wallpaper gap (user-accepted
+  2026-09-10). Fully transparent terminal bodies show the ring through by
+  design (only chrome/text occlude). The occluder set is recomputed on every
   halo paint (no cache), and stacking/activation changes
   (`stackingOrderChanged`, `windowActivated`) force a full halo repaint — a
   window raised above an unfocused kitty clips correctly on the very next

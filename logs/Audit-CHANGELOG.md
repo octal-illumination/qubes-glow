@@ -61,3 +61,6 @@
 
 ## 2026-09-10T20:23:41+05:30
 - Audit: deploy pipeline failure mode (LL-022) — deploy.sh exits 0 on swallowed password-dialog failure leaving stale artifact on dom0; mitigated by mandatory post-deploy sha verification (documented in HANDBOOK §5); deploy.sh hardening proposed (pending approval).
+
+## 2026-09-10T23:11:18+05:30
+- Audit: occlusion geometry design decision (LL-017 supersession) user-accepted 2026-09-10; deploy pipeline failure mode now mechanically gated (LL-022); regression invariants registered in-repo per Rule 21 option (a).
