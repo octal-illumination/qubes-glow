@@ -399,3 +399,11 @@
 - Assertions: ll028 flipped to logical-space rule, +m5 rollback assertion
   (25 total). All static checks + container C++ syntax check green.
   Docs regenerated; 18e diff clean. Build consent requested.
+
+## 2026-09-11T13:03:50+05:30 — Build #20 shipped + probe verified
+- Compiled (0 warnings, sha f9389aec), deployed sha-verified, kwin pid
+  65324, bootstrap restored borderless default.
+- Probe: G → off; Alt+G 80 ms → off (gates intact); Alt+G restore → on.
+  Identical to build #19 — re-audit-2 batch is behavior-neutral at s=1.
+- Note: first restart attempt cancelled at the password dialog (no state
+  change); succeeded on explicit retry.

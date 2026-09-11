@@ -913,3 +913,23 @@
 ## 2026-09-11T12:56:52+05:30
 - Command: re-audit-2 fix batch (F1-F3/M5/m1-m5 edits + syntax verification)
 - Reason: User-approved implementation.
+
+## 2026-09-11T12:58:33+05:30
+- Command: build #20 compile (re-audit-2 batch)
+- Reason: User-authorized build.
+
+## 2026-09-11T12:59:49+05:30
+- Command: build #20 deploy (sha-gated)
+- Reason: Ship re-audit-2 batch to dom0.
+
+## 2026-09-11T13:02:51+05:30
+- Command: kwin restart loading build #20 (f9389aec)
+- Reason: Load re-audit-2 .so (user consented).
+
+## 2026-09-11T13:03:27+05:30
+- Command: build #20 functional probe (G+Alt+G gates, Alt+G restore)
+- Reason: Post-restart behavior verification.
+
+## 2026-09-11T13:03:50+05:30
+- Command: wrap-up doc chain for build #20
+- Reason: Rules 3/10/12/17 milestone recording.

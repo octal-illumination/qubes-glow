@@ -34,8 +34,10 @@ halo never smears. Full design: ARCHITECTURE.md.
 None. Stateless effect; no persistence beyond kwinrc enable flag.
 
 ## 5. Build State
-- **Build #20 (v3.10.1, re-audit-2 fix batch) — IMPLEMENTED, BUILD PENDING
-  CONSENT.** F1/F2/F3 coordinate-space corrections (LL-028 rewritten:
+- **Build #20 (v3.10.1, re-audit-2 fix batch) — SHIPPED 2026-09-11,
+  sha f9389aec, kwin pid 65324.** Functional probe identical to #19
+  (G+Alt+G 80 ms both fired; master restored on) — behavior-neutral at
+  s=1 as predicted; space correctness restored for HiDPI. Batch: F1/F2/F3 coordinate-space corrections (LL-028 rewritten:
   effect-facing regions are LOGICAL; one scale boundary at the vertex
   upload — corrected audit M2's wrong rule), M5 rollback completeness
   (kglowsync stripped), qRound ambiguity fix, maxExtent ceil, dead

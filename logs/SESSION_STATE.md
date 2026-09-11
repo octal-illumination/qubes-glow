@@ -34,3 +34,4 @@ Re-audit 2 fix batch implemented (build #20) — awaiting build consent.
 If user says "build the app": bash scripts/build.sh (0-warning gate via
 container /tmp/b_make.log), then scripts/deploy.sh, then ask restart
 consent. Verify assertions + deployed sha. Nothing else in flight.
+Build #20 SHIPPED (sha f9389aec, kwin 65324) — probe verified. Nothing in flight; next: Phase 7 backlog or user-directed work.

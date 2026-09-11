@@ -315,3 +315,12 @@ strip, qRound ambiguity fix (caught by container syntax check), m1-m5
 minors, LL-028 rewrite + LL-030/031, assertion flip + new M5 assertion
 (25 green), PROJECT_CONTEXT/HANDBOOK/versions updated. Build #20 pending
 build consent.
+
+## 2026-09-11T13:03:50+05:30
+#### User Request
+"build the app" → "restart kwin" (cancelled) → "restart kwin"
+#### Verbatim Output Response
+Build #20 (re-audit-2 batch) compiled zero-warnings, deployed sha-verified
+(f9389aec), kwin restarted pid 65324. Functional probe: per-action gates
+intact (G+Alt+G 80 ms both fired), master restored on. Behavior-neutral at
+s=1 as designed; HiDPI space correctness restored.
