@@ -334,3 +334,11 @@ reads, pinned-source adjudication of unloadScript semantics, full battery
 green, deployed==live). Two cosmetic minors (CMakeLists VERSION, rollback
 label) + one accepted edge documented. Corrections proposed; consent
 requested.
+
+## 2026-09-11T13:27:30+05:30
+#### User Request
+"implement changes" (re-audit-3 minors)
+#### Verbatim Output Response
+m4b (CMakeLists VERSION 3.10.1) + m5b (rollback label) applied and
+verified. No rebuild needed — compiled artifact unchanged (f9389aec
+remains live in kwin 65324).

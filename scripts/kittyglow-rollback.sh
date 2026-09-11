@@ -39,7 +39,7 @@ if [ -z "${DISPLAY:-}" ] || [ -z "${DBUS_SESSION_BUS_ADDRESS:-}" ]; then
     fi
 fi
 
-echo "[1/4] unload effect + border script from running KWin (if loaded)…"
+echo "[1/4] unload effect + sync scripts from running KWin (if loaded)…"
 if dbus-send --session --print-reply --dest=org.kde.KWin /Effects \
         org.kde.kwin.Effects.unloadEffect string:kittyglow >/dev/null 2>&1; then
     echo "      glow effect unloaded"

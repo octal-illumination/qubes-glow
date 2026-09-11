@@ -416,3 +416,9 @@
 - New minors m4b (CMakeLists VERSION 0.1) + m5b (rollback step label);
   one accepted edge (static maxExtent damage bound vs sx>1 animations).
   Corrections proposed — awaiting consent.
+
+## 2026-09-11T13:27:30+05:30 — Re-audit-3 minors applied (m4b, m5b)
+- CMakeLists project VERSION 0.1 -> 3.10.1 (m4b; runtime-inert — KWin
+  reads kittyglow.json; no rebuild required, artifact unchanged).
+- kittyglow-rollback.sh [1/4] label -> "unload effect + sync scripts"
+  (m5b). shellcheck + bash -n clean; 25/25 assertions.
