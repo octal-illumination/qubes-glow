@@ -361,3 +361,15 @@ Phase A (portability rework) declined and recorded. Project remains
 Qubes-first: qui-/48px heuristics stay hardcoded, behavior byte-identical,
 no config-ification. Future note: GitHub publishing would need only
 README/LICENSE framing, zero code changes.
+
+## 2026-09-11T14:17:20+05:30
+#### User Request
+"but right now it is developed for qubes fedora because it was developed in that container, will it work on qubes debian or qubes arch or qubes gentoo?"
+#### Verbatim Output Response
+Yes — architecturally, not accidentally: KWin runs only in dom0 (always
+Fedora; the container pins DOM0's ABI, not templates'), all AppVM windows
+arrive via the qubes-gui proxy and are composited by dom0's kittyglow.
+Shortcuts/script/DBus are dom0-side, template-independent. LL-026
+workarounds are qubes-gui protocol properties, identical across
+templates. Fedora pinning matters only when DOM0 changes Fedora version
+(Phase 7 L11 container rebase). Live cross-template verification offered.

@@ -953,3 +953,7 @@
 ## 2026-09-11T14:06:54+05:30
 - Command: researched-ideas decision update
 - Reason: Rule 8 close-out of the distributability proposal.
+
+## 2026-09-11T14:17:20+05:30
+- Command: template-compat Q&A logged
+- Reason: Rule 10 audit trail.
