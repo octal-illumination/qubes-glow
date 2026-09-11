@@ -841,3 +841,7 @@
 ## 2026-09-11T10:47:10+05:30
 - Command: docs/ledgers sync (SPEC LL-027, HANDBOOK 6b, PROJECT_CONTEXT #18, SESSION_STATE, CHANGELOG, Action-History)
 - Reason: Rules 3/10/14/17/22 atomic wrap-up of build #18.
+
+## 2026-09-11T10:47:28+05:30
+- Command: HTML regen (3 core docs) + 18e diff + git commit (build #18)
+- Reason: Rule 18/22 compliance and change record.
