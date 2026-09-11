@@ -2,7 +2,7 @@
     "KPackageStructure": "KWin/Effect",
     "KPlugin": {
         "Name": "Kitty Glow",
-        "Description": "Soft yellow halo around kitty terminal windows",
+        "Description": "Soft yellow halo around every eligible application window",
         "Id": "kittyglow",
         "Category": "Appearance",
         "Version": "0.3",

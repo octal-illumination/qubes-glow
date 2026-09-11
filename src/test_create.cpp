@@ -1,3 +1,5 @@
+// test_create.cpp — container-only plugin-load probe (never deployed).
+// Note: This code is purely AI-generated.
 #include <kwineffects.h>
 #include <QPluginLoader>
 #include <cstdio>

@@ -853,3 +853,11 @@
 ## 2026-09-11T11:10:38+05:30
 - Command: deep audit (full source read, shellcheck, node --check, sha audits, grep sweeps, math review) + report written
 - Reason: User-requested comprehensive audit; Rule 8/22f documentation.
+
+## 2026-09-11T11:18:36+05:30
+- Command: audit-fix implementation (M1-M4, L1-L10; +3 assertions ll028/ll029/m1; ROADMAP refresh; v2 script purged)
+- Reason: User-approved fix batch from deep audit.
+
+## 2026-09-11T11:19:43+05:30
+- Command: shellcheck SC2164 fix + assertions re-run
+- Reason: Audit fix batch static verification.

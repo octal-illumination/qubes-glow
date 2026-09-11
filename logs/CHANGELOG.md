@@ -339,3 +339,25 @@
 - Verified clean: SDF math, RAII/memory, buffer safety, sha/byte-identity
   of deployed artifacts, 20/20 assertions, race contracts, doc claims
   traced to code.
+
+## 2026-09-11T11:19:43+05:30 — Audit fixes implemented (M1–M4, L1–L10)
+- M1: scripts/v2-rollout-round.sh PURGED (stale v2 flow, old sha, retired
+  rule mechanism).
+- M2: prePaintWindow/repaintHalo damage widening now device-px
+  (maxExtent * renderTargetScale) — LL-028.
+- M3: per-action autorepeat gates (4 timers + gated() helper) — LL-029;
+  shared gate removed.
+- M4: ROADMAP.md refreshed to build-#18 state (was stale at build #7).
+- L1/L2: kittyglow.json Description de-drifted; kglowsync metadata 1.0→1.1.
+- L3: kittyglowstate.h/.cpp comments updated to v3.10 semantics.
+- L4/L5: glowconfig readColor clamped 0..255 + 4th-alpha dead path removed;
+  glow widths qBound 0..200.
+- L6/L7: HANDBOOK §11 documents focus-race + last-wins staging edges.
+- L8: scriptLog flattens newlines (journal-injection hygiene).
+- L9: orphaned duplicate comment removed (kittyglow.cpp).
+- L10: test_create.cpp disclaimer added.
+- +3 assertions (23 total): ll028 device-px widening, ll029 per-action
+  gates, m1 v2-script purged. SC2164 fixed in regression-checks.sh.
+- NOT applied: L11 container rebase (Phase 7 backlog).
+- All static checks green; C++ rebuild REQUIRED before deploy (consent
+  requested separately).

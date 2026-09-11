@@ -26,9 +26,11 @@ bool toggleNoBorder();
 
 // --- Glow master switch (build #15, 2026-09-10) -------------------------
 // kittyglowrc layout: [General] glowEnabled=true|false (default true).
-// Meta+Shift+B flips this; the C++ effect re-reads it paint-side, so no
-// kglowsync round-trip is needed (the script only exists because noBorder
-// is a scripting-only property — the glow is rendered by the effect).
+// Meta+Shift+Alt+G flips this (build #18: the GLOBAL glow master — the
+// focused-window toggle is runtime-only and never touches this file); the
+// C++ effect re-reads it in reconfigure()/toggle paths, so no kglowsync
+// round-trip is needed (the script only exists because noBorder is a
+// scripting-only property — the glow is rendered by the effect).
 bool loadGlowEnabled();
 void saveGlowEnabled(bool enabled);
 bool toggleGlowEnabled();

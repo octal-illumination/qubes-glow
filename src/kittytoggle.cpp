@@ -77,8 +77,13 @@ public Q_SLOTS:
     // Diagnostic bridge: KWin scripts' print() is swallowed on this build
     // (debug-level dropped by journald), so the JS side reports through the
     // same session-bus service it already polls. One-way, no reply needed.
+    // Audit L8: flatten newlines — a multi-line msg would inject fake
+    // journal lines (cosmetic hygiene; the bus is same-user trust anyway).
     Q_SCRIPTABLE void scriptLog(const QString &msg) {
-        qWarning().noquote() << "kglowsync(js):" << msg;
+        QString flat = msg;
+        flat.replace(QLatin1Char('\n'), QLatin1Char(' '));
+        flat.replace(QLatin1Char('\r'), QLatin1Char(' '));
+        qWarning().noquote() << "kglowsync(js):" << flat;
     }
 };
 

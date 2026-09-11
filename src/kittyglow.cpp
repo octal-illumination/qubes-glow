@@ -83,8 +83,20 @@ private:
     // Glow master switch (Meta+Shift+G since build #16); persisted in kittyglowrc.
     bool m_glowEnabled = true;
     // Key autorepeat made the toggles flip their state dozens of times per
-    // hold (flicker + final parity depended on hold duration); gate per press.
-    QElapsedTimer m_toggleGate;
+    // hold (flicker + final parity depended on hold duration). ONE shared
+    // gate dropped CROSS-toggle presses (B then G within 220 ms lost G —
+    // audit finding M3): every toggle owns its gate now.
+    QElapsedTimer m_gateBorderFocused;
+    QElapsedTimer m_gateGlowFocused;
+    QElapsedTimer m_gateBorderGlobal;
+    QElapsedTimer m_gateGlowGlobal;
+
+    // One flip per physical press: true = this press is a repeat/duplicate.
+    bool gated(QElapsedTimer &t) {
+        if (t.isValid() && !t.hasExpired(220)) return true;
+        t.start();
+        return false;
+    }
 };
 
 KittyGlowEffect::KittyGlowEffect() {
@@ -139,11 +151,6 @@ KittyGlowEffect::KittyGlowEffect() {
         gAll, QList<QKeySequence>() << (Qt::META | Qt::SHIFT | Qt::ALT | Qt::Key_G));
     connect(gAll, &QAction::triggered, this, &KittyGlowEffect::toggleGlowGlobal);
 
-    // Per-window glow overrides hold EffectWindow pointers — prune on
-    // destruction or the paint path would dereference a dangling pointer
-    // (glowfocus.h). The script's border overrides are id-keyed (plain
-    // JS object) and need no pruning.
-
     // The halo lies OUTSIDE the frame rect, so damage must be widened or the
     // ring smears during moves and lingers after minimize. Repaint the halo
     // area of both the new and the old geometry, and on minimize/unminimize.
@@ -187,12 +194,12 @@ KittyGlowEffect::KittyGlowEffect() {
     // never needs org.kde.KWin.reconfigure() — the LL-016 white flash.
     KittyToggle::init();
 
-    m_toggleGate.start();
     reconfigure(ReconfigureAll);
 }
 
 void KittyGlowEffect::repaintHalo(const QRectF &frame) {
-    const int e = m_cfg.maxExtent();
+    // Device-px widening — see prePaintWindow (audit M2).
+    const int e = qRound(m_cfg.maxExtent() * KWin::effects->renderTargetScale());
     KWin::effects->addRepaint(frame.toRect().adjusted(-e, -e, e, e));
 }
 
@@ -212,7 +219,10 @@ void KittyGlowEffect::prePaintWindow(KWin::EffectWindow *w, KWin::WindowPrePaint
     KWin::effects->prePaintWindow(w, data, presentTime);
     if (!m_glowEnabled || !GlowFocus::glowAllowed(w)
         || !KittyGlowTargets::isGlowWindow(w)) return;
-    const int e = m_cfg.maxExtent();
+    // Device-px widening (audit M2): the halo paint maps by
+    // renderTargetScale, so the damage must too — logical px under-covered
+    // on HiDPI targets (latent, s == 1 on this system).
+    const int e = qRound(m_cfg.maxExtent() * KWin::effects->renderTargetScale());
     const QRect g = w->frameGeometry().toRect();
     data.paint |= g.adjusted(-e, -e, e, e);
     data.setTranslucent();
@@ -393,9 +403,8 @@ QRegion KittyGlowEffect::occludedAbove(KWin::EffectWindow *painted,
 }
 
 void KittyGlowEffect::toggleBorderlessFocused() {
-    // Same autorepeat gate as every toggle: one flip per physical press.
-    if (m_toggleGate.isValid() && !m_toggleGate.hasExpired(220)) return;
-    m_toggleGate.start();
+    // Autorepeat gate: one flip per physical press (own gate — M3).
+    if (gated(m_gateBorderFocused)) return;
 
     // Focused-window border toggle (build #18, user directive: "toggling
     // glow and titlebar and border should be for the focused window not
@@ -409,8 +418,7 @@ void KittyGlowEffect::toggleBorderlessFocused() {
 }
 
 void KittyGlowEffect::toggleGlowFocused() {
-    if (m_toggleGate.isValid() && !m_toggleGate.hasExpired(220)) return;
-    m_toggleGate.start();
+    if (gated(m_gateGlowFocused)) return;
 
     // Focused-window glow toggle (build #18): runtime-only override in the
     // GlowFocus set; the persisted global default is untouched, so the
@@ -427,10 +435,9 @@ void KittyGlowEffect::toggleGlowFocused() {
 }
 
 void KittyGlowEffect::toggleBorderlessGlobal() {
-    // Same autorepeat gate as every toggle: one flip per physical press
-    // (repeats arrive 25-33 ms apart and keep restarting the timer).
-    if (m_toggleGate.isValid() && !m_toggleGate.hasExpired(220)) return;
-    m_toggleGate.start();
+    // Autorepeat gate (repeats arrive 25-33 ms apart and keep restarting
+    // the timer): one flip per physical press (own gate — M3).
+    if (gated(m_gateBorderGlobal)) return;
 
     // GLOBAL border master (build #18, Meta+Shift+Alt+B — the build #16
     // class-wide sweep moved here): persist in kittyglowrc so the kglowsync
@@ -445,8 +452,7 @@ void KittyGlowEffect::toggleBorderlessGlobal() {
 }
 
 void KittyGlowEffect::toggleGlowGlobal() {
-    if (m_toggleGate.isValid() && !m_toggleGate.hasExpired(220)) return;
-    m_toggleGate.start();
+    if (gated(m_gateGlowGlobal)) return;
 
     // GLOBAL glow master (build #18, Meta+Shift+Alt+G): persisted in
     // kittyglowrc so it survives kwin restarts; a full repaint re-evaluates

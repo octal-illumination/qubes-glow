@@ -256,7 +256,16 @@ dom0 "kwriteconfig5 --file kwinrc --group Plugins --key kittyglowEnabled false"
   e.g. an adaptive plasma panel) always clip; other genuinely translucent
   windows are skipped, letting the halo show through them by design (LL-018).
 - Meta+Shift+B and G are autorepeat-gated (220 ms): one state flip per
-  physical key press; a held key cannot churn either state (v3.9).
+  physical press. Each toggle owns its gate — a B press followed by a G
+  press inside 220 ms now toggles BOTH (audit M3 fix; the old shared gate
+  silently dropped the second press).
+- Toggle timing edges (documented, accepted): the focused-window border
+  flip is resolved by the script ~60 ms after the keypress
+  (`workspace.activeClient` at poll time) — an alt-tab inside that window
+  flips the NEW focused window; and if the 60 ms poll ever stalled past
+  two gated presses, the single command slot is last-wins (one flip
+  instead of two). Both are improbable on the local bus and recover with
+  one more press. A held key cannot churn either state (v3.9).
 - Meta+Shift+T and B are also affected by kglobalaccel state: if the daemon
   ever deactivates a shortcut it persists an empty active field in
   `kglobalshortcutsrc` (T's line reads `Meta+Shift+T,,…`). Symptom: shortcut

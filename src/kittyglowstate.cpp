@@ -1,13 +1,16 @@
-// kittyglowstate.cpp — persistent borderless-state store for kittyglow.
+// kittyglowstate.cpp — persistent state store for kittyglow.
 // Note: This code is purely AI-generated.
 //
 // kittyglowrc layout (~/.config/kittyglowrc):
 //   [General]
-//   noBorder=true|false
+//   noBorder=true|false      (global border default; true = borderless)
+//   glowEnabled=true|false   (global glow master; default true)
 //
-// Written by the C++ effect's Meta+Shift+B toggle path; read by
-// kittytoggle.cpp's getCurrentState() (kglowsync bootstrap) and after any
-// kwin restart. See kittyglowstate.h for why kwinrulesrc is out.
+// Written by the C++ effect's GLOBAL toggle paths (Meta+Shift+Alt+B/G);
+// noBorder is read by kittytoggle.cpp's getCurrentState() (kglowsync
+// bootstrap) after any kwin restart. Per-window overrides are runtime-only
+// and never persisted here (build #18 — see SPECIFICATION LL-027).
+// See kittyglowstate.h for why kwinrulesrc is out.
 #include "kittyglowstate.h"
 
 #include <KConfigGroup>

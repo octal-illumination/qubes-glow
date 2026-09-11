@@ -277,6 +277,20 @@ Git boundary: the whole `kitty-glow/` directory. No cross-project dependencies.
   kglobalaccel is the NO-ARG `allShortcutInfos` on `/component/kwin`;
   keyed queries (`getGlobalShortcutsByKey`, `action()`) require exactly
   encoded key ints (LL-012).
+- **LL-028** — damage widening must track `renderTargetScale` (audit M2,
+  2026-09-11): `prePaintWindow`/`repaintHalo` widen damage by the glow
+  extent in LOGICAL px, but the halo paint maps geometry by
+  `renderTargetScale` and the animation scale. At s = 1 (this system) the
+  bug is invisible; on a HiDPI target the widened damage under-covers the
+  halo → ring smearing on every animated move. Rule: any rect that pads a
+  paint region must be expressed in the SAME px space as the eventual GL
+  vertices (device px here).
+- **LL-029** — per-action autorepeat gates (audit M3, 2026-09-11): a
+  single shared `QElapsedTimer` gate across all toggle actions silently
+  dropped CROSS-toggle presses (B then G within 220 ms lost G — a
+  heuristic error a user feels but cannot name). Every action owns its
+  gate. Corollary: any "debounce" state shared across semantically
+  independent actions is a latent action-eater.
 
 ## 9. Official References
 

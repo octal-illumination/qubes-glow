@@ -6,7 +6,7 @@
 # Every fix records one machine-verifiable invariant. Run before marking any
 # task complete:  bash scripts/regression-checks.sh
 set -u
-cd "$(cd "$(dirname "$0")/.." && pwd)"
+cd "$(cd "$(dirname "$0")/.." && pwd)" || exit 1
 SRC=src/kittyglow.cpp
 FAILS=0
 NAMES=""
@@ -72,6 +72,9 @@ check ll025-bootstrap-watchdog      bash -c 'grep -qF "booted" src/kwin-script/k
 check ll027-focused-routing         bash -c 'grep -qF "toggleBorderlessFocused" src/kittyglow.cpp && grep -qF "toggleGlowFocused" src/kittyglow.cpp && grep -qF "KittyGlowEffect::toggleBorderlessFocused" src/kittyglow.cpp && grep -qF "nextWindowOp" src/kittytoggle.cpp'
 check ll027-global-masters          bash -c 'grep -qF "Toggle Borders All Windows" src/kittyglow.cpp && grep -qF "Toggle Glow All Windows" src/kittyglow.cpp && grep -qF "toggleGlowGlobal" src/kittyglow.cpp'
 check ll027-override-protection     bash -c 'grep -qF "var overrides = {}" src/kwin-script/kglowsync/contents/code/main.js && grep -qF "id in overrides" src/kwin-script/kglowsync/contents/code/main.js && grep -qF "focusedBorderFlip" src/kwin-script/kglowsync/contents/code/main.js && grep -qF "GlowFocus::pruneWindow" src/kittyglow.cpp'
+check ll028-device-px-widening      bash -c '[ $(grep -cF "maxExtent() * KWin::effects->renderTargetScale()" src/kittyglow.cpp) -ge 2 ]'
+check ll029-per-action-gates        bash -c 'grep -qF "m_gateBorderFocused" src/kittyglow.cpp && grep -qF "m_gateGlowFocused" src/kittyglow.cpp && grep -qF "m_gateBorderGlobal" src/kittyglow.cpp && grep -qF "m_gateGlowGlobal" src/kittyglow.cpp && ! grep -qF "m_toggleGate" src/kittyglow.cpp'
+check audit-m1-v2-script-purged     bash -c '[ ! -f scripts/v2-rollout-round.sh ]'
 check ll026-b-stages-borderless    bash -c 'grep -qF "void KittyGlowEffect::toggleBorderlessGlobal()" src/kittyglow.cpp && grep -qF "KittyToggle::requestApply(next)" src/kittyglow.cpp && grep -qF "KittyGlowState::toggleNoBorder()" src/kittyglow.cpp'
 check ll026-g-glow-master-switch   bash -c 'grep -qF "Qt::META | Qt::SHIFT | Qt::Key_G" src/kittyglow.cpp && grep -qF "connect(g, &QAction::triggered, this, &KittyGlowEffect::toggleGlowFocused);" src/kittyglow.cpp && grep -qF "connect(b, &QAction::triggered, this, &KittyGlowEffect::toggleBorderlessFocused);" src/kittyglow.cpp && grep -qF "connect(gAll, &QAction::triggered, this, &KittyGlowEffect::toggleGlowGlobal);" src/kittyglow.cpp && grep -qF "connect(bAll, &QAction::triggered, this, &KittyGlowEffect::toggleBorderlessGlobal);" src/kittyglow.cpp'
 check ll026-script-app-windows     bash -c 'grep -qF "isBorderlessTarget" src/kwin-script/kglowsync/contents/code/main.js && grep -qF "appWindows()" src/kwin-script/kglowsync/contents/code/main.js && ! grep -qF "isKitty" src/kwin-script/kglowsync/contents/code/main.js'
