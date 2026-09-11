@@ -785,3 +785,11 @@
 ## 2026-09-11T09:22:36+05:30
 - Command: docs/ledgers sync (SPEC/PC/HANDBOOK/research + SESSION_STATE/CHANGELOG/Action-History)
 - Reason: Rule 3/14/22 atomic documentation of build #17.
+
+## 2026-09-11T09:22:53+05:30
+- Command: HTML regen (3 core docs) + 18e diff + git commit (build #17)
+- Reason: Rule 18/22 compliance and change record.
+
+## 2026-09-11T09:25:13+05:30
+- Command: git history ground-truth audit (phase-1/#16 sha attribution)
+- Reason: Verify no session work is uncommitted.
