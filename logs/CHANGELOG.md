@@ -361,3 +361,11 @@
 - NOT applied: L11 container rebase (Phase 7 backlog).
 - All static checks green; C++ rebuild REQUIRED before deploy (consent
   requested separately).
+
+## 2026-09-11T12:29:38+05:30 — Build #19 shipped + M3 verified live
+- Compiled (0 warnings, sha 07537ab5), deployed (sha-verified), kwin
+  restarted (pid 64176), bootstrap restored borderless default.
+- M3 live proof: G → Alt+G 80 ms apart → journal shows BOTH
+  "toggle: glow (focused …)" and "toggle: glow (global)" — the shared
+  gate would have dropped the second press. Glow master restored on.
+- Full fix batch contents: see previous entry + commit 10db577.

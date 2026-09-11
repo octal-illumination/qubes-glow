@@ -869,3 +869,27 @@
 ## 2026-09-11T11:22:16+05:30
 - Command: 18e self-check caught stale ROADMAP.html; pointer restored + regenerated
 - Reason: Rule 18e mandatory equality diff.
+
+## 2026-09-11T11:24:05+05:30
+- Command: build #19 compile (audit-fix batch)
+- Reason: User-authorized build.
+
+## 2026-09-11T11:25:15+05:30
+- Command: build #19 deploy (sha-gated, .so + json + main.js + kglowsync metadata)
+- Reason: Ship audit-fix batch to dom0.
+
+## 2026-09-11T11:26:13+05:30
+- Command: kwin restart loading build #19 (07537ab5)
+- Reason: Load audit-fix .so (user consented).
+
+## 2026-09-11T11:27:14+05:30
+- Command: M3 verification (G + Alt+G inside 220ms — both must fire)
+- Reason: Per-action gate fix behavioral proof.
+
+## 2026-09-11T12:29:06+05:30
+- Command: Alt+G restore (glow master on, overrides cleared)
+- Reason: End-state restoration after M3 probe.
+
+## 2026-09-11T12:29:38+05:30
+- Command: wrap-up doc chain (PROJECT_CONTEXT/CHANGELOG/Action-History/SESSION_STATE + commit)
+- Reason: Rules 3/10/12/17 milestone recording.

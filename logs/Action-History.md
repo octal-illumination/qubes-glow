@@ -284,3 +284,13 @@ Full audit completed across all sources and process chain. Verdict: 0
 critical/high, 4 medium, 11 low, all verified-clean sections documented.
 Report: docs/research/2026-09-11-deep-audit.md. No code modified; fixes
 proposed and awaiting consent.
+
+## 2026-09-11T12:29:38+05:30
+#### User Request
+"build the app" → "restart kwin"
+#### Verbatim Output Response
+Build #19 (audit-fix batch M1–M4, L1–L10) compiled with zero warnings,
+deployed sha-verified (07537ab5), kwin restarted — plugin loaded, kglowsync
+bootstrapped persisted state. M3 per-action-gate fix proven live: G then
+Alt+G within 80 ms both fired (old shared gate dropped the second press).
+Glow master restored on; end state clean.

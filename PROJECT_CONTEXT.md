@@ -34,8 +34,10 @@ halo never smears. Full design: ARCHITECTURE.md.
 None. Stateless effect; no persistence beyond kwinrc enable flag.
 
 ## 5. Build State
-- **Build #19 (v3.10.1, audit-fix batch) — IMPLEMENTED, BUILD PENDING
-  CONSENT.** Per-action autorepeat gates (LL-029), device-px damage
+- **Build #19 (v3.10.1, audit-fix batch) — SHIPPED 2026-09-11,
+  sha 07537ab5, kwin pid 64176.** M3 gate fix behaviorally verified live
+  (G + Alt+G inside 80 ms → both fired; shared gate would drop 2nd).
+  Glow master restored on. Audit-fix batch: Per-action autorepeat gates (LL-029), device-px damage
   widening (LL-028), scriptLog newline sanitize, glowconfig clamps,
   orphaned comment removed, v2-rollout-round.sh purged, metadata de-drift,
   ROADMAP refreshed. 23/23 assertions. Deep audit:
