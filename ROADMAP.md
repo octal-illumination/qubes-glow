@@ -1,3 +1,4 @@
+<!-- HTML sibling: regenerate ONLY via bash ~/Projects/scripts/generate-docs-html.sh <this-file> — Rule 18c left-aligned CSS. Never hand-roll pandoc. -->
 # ROADMAP — kitty-glow
 
 > **Note:** All documentation and code in this project are purely AI-generated.

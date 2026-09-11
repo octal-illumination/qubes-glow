@@ -211,86 +211,57 @@
 <header id="title-block-header">
 <h1 class="title">ROADMAP</h1>
 </header>
-<!-- HTML sibling: regenerate ONLY via bash ~/Projects/scripts/generate-docs-html.sh QubesOS/UI-Enhancements/Kwin/kitty-glow/ROADMAP.md — Rule 18c left-aligned CSS. Never hand-roll pandoc. -->
-<h1 id="kitty-glow-roadmap">kitty-glow — Roadmap</h1>
+<!-- HTML sibling: regenerate ONLY via bash ~/Projects/scripts/generate-docs-html.sh <this-file> — Rule 18c left-aligned CSS. Never hand-roll pandoc. -->
+<h1 id="roadmap-kitty-glow">ROADMAP — kitty-glow</h1>
 <blockquote>
 <p><strong>Note:</strong> All documentation and code in this project are
 purely AI-generated.</p>
 </blockquote>
-<h2 id="phase-1-build-install-the-effect-done">Phase 1 — Build &amp;
-Install the Effect ✅ DONE</h2>
+<p>Phase tracker. Design rules live in SPECIFICATION.md (referenced by
+LL-ID); state snapshot lives in PROJECT_CONTEXT.md. Refreshed 2026-09-11
+(was stale at build #7 — audit finding M4).</p>
+<h2 id="completed-phases">Completed phases</h2>
 <ul class="task-list">
-<li><label><input type="checkbox" checked="" />Write
-<code>KittyGlowEffect</code> (C++20) with 8-layer alpha
-halo.</label></li>
-<li><label><input type="checkbox" checked="" />Compile in Fedora-37 /
-KWin 5.27.8 container; clean build, zero warnings.</label></li>
-<li><label><input type="checkbox" checked="" />Deploy <code>.so</code> +
-<code>metadata.json</code> into dom0 plugin paths (perms
-<code>644</code>).</label></li>
-<li><label><input type="checkbox" checked="" />Enable via
-<code>kwinrc</code>
-<code>[Plugins] kittyglowEnabled=true</code>.</label></li>
+<li><label><input type="checkbox" checked="" />Phase 1 — kitty halo PoC
+→ v3: SDF shader, occlusion clipping (LL-017/018/019/020), seamless
+minimize tracking, shortcut rework (builds #1–#14).</label></li>
+<li><label><input type="checkbox" checked="" />Phase 2 — activation
+pipeline: build.sh (container), deploy.sh (sha-gated, LL-022),
+kglobalaccel registration healing (LL-011).</label></li>
+<li><label><input type="checkbox" checked="" />Phase 3 — persistence
+without rules: kittyglowrc state store, kwinrulesrc retired
+(write-revert fight, LL-016), kglowsync script owns noBorder writes
+(builds #5–#7).</label></li>
+<li><label><input type="checkbox" checked="" />Phase 4 — all-windows
+glow: chrome exclusion by class (LL-026 — qubes-gui strips
+_NET_WM_WINDOW_TYPE), ghost-square size guard, kglowsync bootstrap
+watchdog (builds #15–#17).</label></li>
+<li><label><input type="checkbox" checked="" />Phase 5 — per-window
+toggles + global masters (build #18, v3.10): Meta+Shift+B/G = focused
+window (runtime-only overrides, sweep-safe via the script’s overrides
+map); Meta+Shift+Alt+B/G = persisted global masters (LL-027).
+User-accepted live.</label></li>
+<li><label><input type="checkbox" checked="" />Phase 6 — deep audit
+(2026-09-11): 0 critical/high; M1–M4 + L1–L11 fixed same day (this
+refresh is M4; see SPECIFICATION LL-028/029).</label></li>
 </ul>
-<h2 id="phase-2-activate-done">Phase 2 — Activate ✅ DONE</h2>
+<h2 id="current-phase">Current phase</h2>
 <ul class="task-list">
-<li><label><input type="checkbox" checked="" />Restart KWin
-(<code>kwin_x11 --replace</code>) so the plugin list is
-re-read.</label></li>
-<li><label><input type="checkbox" checked="" />Verify KWin stays alive +
-no <code>kittyglow</code> load error in journalctl.</label></li>
+<li><label><input type="checkbox" />Phase 7 — hardening backlog: - [ ]
+Rebase the build container off EOL Fedora 37 (audit L11; needs container
+setup rework, no runtime exposure). - [ ] Optional: merge the two 60 ms
+DBus polls into one composite call (efficiency note; only if ever
+profiled hot). - [ ] Optional: persist per-window overrides across kwin
+restarts if the user ever asks (currently runtime-only by
+design).</label></li>
 </ul>
-<h2 id="phase-3-visual-verify-tune-done">Phase 3 — Visual Verify &amp;
-Tune ✅ DONE</h2>
-<ul class="task-list">
-<li><label><input type="checkbox" checked="" />Open a kitty window →
-confirm yellow halo; fullscreen → no halo.</label></li>
-<li><label><input type="checkbox" checked="" />Halo projection
-fixed/verified (SDF shader, v3).</label></li>
-<li><label><input type="checkbox" checked="" />Tuned <code>margin</code>
-/ <code>layers</code> / color / alpha (kwinrc
-<code>[Effect-kittyglow]</code>).</label></li>
+<h2 id="completion-criteria-standing">Completion criteria
+(standing)</h2>
+<ul>
+<li>Zero-warning builds; every fix lands with one regression assertion
+(Rule 20a); docs regenerated in the same step as code (Rule 14);
+physical-key verification of shortcuts after any kwin restart
+(LL-027).</li>
 </ul>
-<h2 id="phase-4-enhancements-planned">Phase 4 — Enhancements 🔜
-PLANNED</h2>
-<ul class="task-list">
-<li><label><input type="checkbox" />Per-window toggle hotkey
-(e.g. Meta+Shift+G) to enable/disable the glow.</label></li>
-<li><label><input type="checkbox" />Intensity control (config UI or
-kwinrc key) for halo strength.</label></li>
-<li><label><input type="checkbox" />Optional “border glow” variant
-vs. full halo.</label></li>
-</ul>
-<h2 id="phase-5-packaging-optional">Phase 5 — Packaging 🔜 OPTIONAL</h2>
-<ul class="task-list">
-<li><label><input type="checkbox" />Consider a repeatable RPM/spec or a
-one-shot installer script wrapping</label></li>
-</ul>
-<h2 id="phase-6-shortcut-reliability-v3.4-done-2026-09-09">Phase 6 —
-Shortcut Reliability (v3.4) ✅ DONE (2026-09-09)</h2>
-<ul class="task-list">
-<li><label><input type="checkbox" checked="" />Heal Meta+Shift+B/T lost
-to the kwin-before-kglobalaccel boot race (kwin restart AFTER the daemon
-— SPEC LL-011).</label></li>
-<li><label><input type="checkbox" checked="" />Normalize kwinrulesrc to
-a single ACTIVE canonical rule group ([1] vs [kitty-borderless]
-duplication — LL-007 family).</label></li>
-<li><label><input type="checkbox" checked="" />Step C (rebuild,
-2026-09-09): persistent state moved OUT of kwinrulesrc (loaded forcing
-rule overrides scripting writes — LL-016). State store
-<code>kittyglowstate.cpp/.h</code> in <code>kittyglowrc</code>;
-<code>kittyborderrule.cpp/.h</code> retired; kglowsync gains
-getCurrentState bootstrap + clientAdded.</label></li>
-<li><label><input type="checkbox" checked="" />Build #7 zero-warning,
-deployed (badf8df7…), live-reloaded; E2E keypress verified; group-rename
-immunity proven (rename → toggles still work → restore). Recovery
-re-validated by a real kwin crash (auto-restart re-registered both
-shortcuts). <code>build.sh</code> + <code>deploy.sh</code> for clean
-reinstalls after KWin upgrades.</label></li>
-</ul>
-<h2 id="notes">Notes</h2>
-<p>Phases are gated: Phase 3 cannot be validated until Phase 2
-(activation) is approved and performed. See HANDBOOK.md for the exact
-commands per phase.</p>
 </body>
 </html>
