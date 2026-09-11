@@ -2,11 +2,11 @@
 - Timestamp: 2026-09-11T09:22:36+05:30
 - Objective: RESOLVED — session handoff from 2M-token session 01a077e8; git
   history reconstructed; build #16 then #17 shipped and verified live.
-- Key facts: kwin 60603 running build #17 sha d66b9009; dom0 bridge =
-  scripts/dom0-bridge.sh (Edit /root/.opencode/agent/db file, password
-  dialog per call); user = chenpan; xauth=/tmp/xauth_PCByVw, display :0;
-  kittyglowrc stores noBorder+glowEnabled (retired kwinrulesrc rule —
-  verified absent today).
+- Key facts: kwin 60603 running build #17 sha d66b9009; dom0 access =
+  `~/.local/bin/dom0` (pre-existing qrexec dom0.AuthExec bridge, NOT a repo
+  file; password dialog per call); user = chenpan; xauth=/tmp/xauth_PCByVw,
+  display :0; kittyglowrc stores noBorder+glowEnabled (retired kwinrulesrc
+  rule — verified absent today).
 - Build #17: size guard (sub-48px unmanaged Qui-* ghosts, corner 456→0) +
   kglowsync 5s bootstrap watchdog (lost-reply wedge). 17/17 assertions.
 - B toggle verified E2E: requestApply → consumed → sweep 14 windows both
