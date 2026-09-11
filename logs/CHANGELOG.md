@@ -312,3 +312,18 @@
   build state refreshed; research doc resolution appended.
 - Verified live (kwin 60603): ghost gone, tray clean, B swept 14 windows
   both directions, G fires, borderless default at startup.
+
+## 2026-09-11T10:47:10+05:30 — Build #18 shipped + user-accepted (7df23937)
+- src/glowfocus.{h,cpp}: NEW — runtime-only per-window glow override set,
+  pruned on windowDeleted (dangling-pointer guard).
+- src/kittyglow.cpp: B/G rerouted to FOCUSED-window handlers; NEW global
+  masters Meta+Shift+Alt+B/G (persisted sweep semantics); paint gates
+  consult GlowFocus::glowAllowed; windowDeleted pruning.
+- src/kittytoggle.{h,cpp}: nextWindowOp() DBus slot (window-op channel).
+- main.js: overrides map (windowId->bool) shields per-window flips from
+  the 400 ms sweep; focusedBorderFlip via workspace.activeClient.
+- CMakeLists + kittyglow.json v0.3; +3 assertions (20 total, all green).
+- Verified live (kwin 62946): focused-op flips sweep-safe (konsole+kitty),
+  focused G scope-named, Alt-masters global with visual swing, user
+  physical-key acceptance PASSED. LL-027 recorded; HANDBOOK 6b rewritten;
+  PROJECT_CONTEXT updated.

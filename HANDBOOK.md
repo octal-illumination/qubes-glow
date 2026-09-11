@@ -12,9 +12,11 @@ window-type predicates, and plasma surfaces, Qubes tray-widget ghosts,
 xembedsniproxy and krunner are excluded by window class (LL-026 — qubes-gui
 strips `_NET_WM_WINDOW_TYPE`). Features: automatic window tracking, 8-layer
 alpha falloff, seamless pass-behind occlusion, fullscreen suppression,
-OpenGL-compositing only, and two persisted toggles: **Meta+Shift+G** = glow
-master switch, **Meta+Shift+B** = class-wide border (frame+titlebar) toggle
-applied live by the kglowsync script.
+OpenGL-compositing only, and four toggle shortcuts: **Meta+Shift+G** =
+glow toggle for the FOCUSED window, **Meta+Shift+B** = border/titlebar
+toggle for the FOCUSED window (both runtime-only, build #18), and the
+global masters **Meta+Shift+Alt+G** / **Meta+Shift+Alt+B** (persisted,
+sweep all eligible windows via the kglowsync script).
 
 ## 2. Prerequisites
 
@@ -95,42 +97,60 @@ Note: no kitty binary exists in dom0 — the rule matches kitty windows launched
 in AppVMs, which appear in dom0 (Qubes window integration) with wmclass
 `kitty`.
 
-### 6b. Borderless shortcuts (v3)
+### 6b. Toggle shortcuts (v3.10, build #18 — per-window + global masters)
 
-Two independent toggles exist:
+Four toggles exist. Launch default: glow ON, borders OFF (borderless) for
+every eligible app window — per-window overrides always reset to this at
+kwin restart (runtime-only, by design).
 
-- **Meta+Shift+B — Toggle Window Borders (effect-registered, class-wide).**
-  Registered by the effect itself via `KGlobalAccel::setShortcut` (objectName
-  kept as the historical `Toggle Kitty Borderless` id for kglobalaccel
-  stability). Flips the persistent borderless state in
-  `~/.config/kittyglowrc` (`[General] noBorder`) and stages the new value via
-  `KittyToggle::requestApply()`; the kglowsync KWin script consumes it on its
-  60 ms poll and applies `noBorder` live to **every eligible app window**
-  (build #16: generalized from kitty-only by user directive 2026-09-11) —
-  no reconfigure, no restart. Eligibility mirrors the glow predicate
-  (LL-026): scripting type flags where present + chrome-class exclusion
-  (plasma surfaces, `Qui-*` ghosts, `xembedsniproxy`, `krunner`). State
-  survives reboots via the script bootstrap. Since the 2026-09-09
-  write-revert diagnosis the state lives in `kittyglowstate.cpp` — NOT in a
-  kwinrulesrc forcing rule: a loaded rule overrides KWin scripting
-  `noBorder` writes (scripting < rules), so the rule file must never carry
-  `noborderrule` for kitty again. The old content-based rule toggle
-  (`kittyborderrule.cpp`) was retired. E2E-verified 2026-09-11 (build #17):
-  sweep wrote `noBorder` to all 14 eligible app windows in BOTH directions
-  via `requestApply` → `nextSource consumed`; state bootstrap re-applies it
-  on every kwin start (5 s watchdog re-arm, LL-026 supplement).
-  **Verification caveat:** `xdotool getwindowgeometry` reports the CLIENT
-  X window, and KWin X11 decorations wrap the client without resizing it —
-  frame-size probes can never see a titlebar appear/disappear. Verify B by
-  the kglowsync journal sweep lines or visually.
-- **Meta+Shift+G — Toggle Glow (effect-registered, build #16).** Glow master
-  switch: flips `kittyglowrc` `[General] glowEnabled` and repaints fully —
-  live, no restart, no flash. Moved off Meta+Shift+B by user directive
-  2026-09-11 (B carried the glow switch only in build #15).
+- **Meta+Shift+B — Toggle Window Borders (FOCUSED window).** Flips the
+  focused window's border/titlebar only. The effect stages a window-op on
+  the `nextWindowOp` DBus channel; the kglowsync script resolves its own
+  `workspace.activeClient` (no window id crosses the bus), flips that
+  window's `noBorder`, and records it in an overrides map (windowId →
+  bool) so the 400 ms safety-net sweep PROTECTS the choice instead of
+  clobbering it (LL-027). Runtime-only: dies with the window or kwin
+  restart. E2E-verified live 2026-09-11 (journal: `focused-op: win=…
+  (dev-general:kitty) noBorder true -> false`, sweep-safe soak).
+- **Meta+Shift+G — Toggle Glow (FOCUSED window).** Flips the focused
+  window's halo only, via a runtime override set in the effect
+  (`glowfocus.h`, pruned on `windowDeleted`); the persisted global default
+  is untouched. Journal names the scope: `toggle: glow (focused …) ->`.
+  Note: with the focused window's halo occluded by maximized neighbours
+  the visual change can be invisible even though the toggle fired —
+  check the journal line.
+- **Meta+Shift+Alt+B — Toggle Borders All Windows (GLOBAL master).** The
+  build #16/#17 class-wide sweep: flips the persisted
+  `~/.config/kittyglowrc` `[General] noBorder` and stages it via
+  `KittyToggle::requestApply()`; the script sweeps **every eligible app
+  window** live (60 ms poll + 400 ms safety net; 5 s bootstrap watchdog
+  re-applies the default on every kwin start). Re-imposes the global
+  default on all windows, resetting any per-window choices (documented
+  reset semantics).
+- **Meta+Shift+Alt+G — Toggle Glow All Windows (GLOBAL master).** Flips
+  the persisted `[General] glowEnabled` and repaints fully — live, no
+  restart, no flash — and clears every per-window glow override (master =
+  everything back to the new default).
 - **Meta+Shift+T — Window No Border (native KWin).** Per-focused-window
   titlebar/frame toggle, rebound from Meta+Shift+B when the effect needed B
   (kglobalshortcutsrc, applied via `plasma-kglobalaccel` unit restart — the
   unit name is `plasma-kglobalaccel.service`, not `kglobalaccel5`).
+
+Common notes: eligibility mirrors the glow predicate (LL-026): scripting
+type flags where present + chrome-class exclusion (plasma surfaces,
+`Qui-*` ghosts, `xembedsniproxy`, `krunner`); size guard sub-48 px
+(LL-026 supplement). Since the 2026-09-09 write-revert diagnosis the
+persisted state lives in `kittyglowstate.cpp` — NOT in a kwinrulesrc
+forcing rule (scripting < rules; the rule file must never carry
+`noborderrule` again). Effect shortcuts register under the kglobalaccel
+component **kwin** (`/component/kwin`), not their own component.
+**Synthetic-key trap (LL-027):** after a kwin `--replace`, `xdotool key`
+(XTEST) can fail to trigger a live, correctly-registered binding while
+physical keys fire instantly — verify shortcuts on the real keyboard.
+**Verification caveat:** `xdotool getwindowgeometry` reports the CLIENT
+X window, and KWin X11 decorations wrap the client without resizing it —
+frame-size probes can never see a titlebar appear/disappear. Verify B by
+the kglowsync journal lines or visually.
 
 ### 6c. Live-reloadable glow config (v3)
 

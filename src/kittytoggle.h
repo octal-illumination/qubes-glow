@@ -19,6 +19,14 @@ void init();
 // (60 ms worst-case latency). Safe to call repeatedly; last value wins.
 void requestApply(bool noBorder);
 
+// Stage a per-window command for the script (build #18: Meta+Shift+B
+// became the FOCUSED-window toggle; the global sweep moved to
+// Meta+Shift+Alt+B). op 1 = flip borders on the script's focused window.
+// The script resolves the focused window itself (workspace.activeClient),
+// so the C++ side never needs the JS windowId. Runtime-only: neither the
+// staging slot nor the script's override map survives a kwin restart.
+void requestWindowOp(int op);
+
 }  // namespace KittyToggle
 
 #endif  // KITTYTOGGLE_H

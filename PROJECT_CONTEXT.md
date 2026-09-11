@@ -34,16 +34,19 @@ halo never smears. Full design: ARCHITECTURE.md.
 None. Stateless effect; no persistence beyond kwinrc enable flag.
 
 ## 5. Build State
+- **Build #18 (v3.10, per-window toggles + global masters, 2026-09-11)**
+  — sha `7df23937…`, deployed + sha-verified, live in kwin 62946. B/G now
+  act on the FOCUSED window (runtime-only overrides; script-side overrides
+  map shields them from the 400 ms sweep — LL-027); global masters moved to
+  Meta+Shift+Alt+B/G (persisted, sweep + reset semantics). VERIFIED LIVE:
+  focused B flips only the focused window (journal `focused-op` lines,
+  konsole AND kitty, sweep-safe), focused G fires scope-named, Alt-masters
+  sweep/flip with 4734 px visual swing, user physical-key acceptance
+  PASSED. New files: src/glowfocus.{h,cpp}.
 - **Build #17 (v3.9.1, ghost-square fix + kglowsync watchdog, 2026-09-11)**
-  — sha `d66b9009…`, deployed + sha-verified, live in kwin 60603. Size
-  guard (sub-48 px windows never haloed) kills the unmanaged Qui-* tray
-  source ghosts (corner gold 456 → 0); bootstrap watchdog re-arms on lost
-  replies. VERIFIED LIVE: B = class-wide borderless (requestApply →
-  consumed → sweep wrote all 14 app windows, both directions); G = glow
-  toggle; ghost corner 0; tray clean; borderless default at startup.
-  NOTE: xdotool client geometry does NOT reflect titlebar changes (KWin X11
-  wraps the client without resizing it) — frame-size probes are useless for
-  border verification; use the sweep journal lines / visual check.
+  — sha `d66b9009…`. Size guard (sub-48 px windows never haloed) kills the
+  unmanaged Qui-* tray source ghosts (corner gold 456 → 0); bootstrap
+  watchdog re-arms on lost replies.
 - **Build #16 (v3.9, shortcut split + chrome-class exclusion, 2026-09-11)**
   — superseded by #17 within the hour (its kglowsync wedged on a lost
   bootstrap reply; size guard added for the ghost square).
@@ -170,6 +173,10 @@ None. Stateless effect; no persistence beyond kwinrc enable flag.
 - **dom0-replica-fed37** Podman container — Fedora 37 build env (KWin 5.27.8 devel).
 
 ## 10. Last Updated
+2026-09-11T10:5x — Build #18 SHIPPED + user-accepted (sha 7df23937, kwin
+62946): per-window B/G toggles + global Alt-masters; LL-027 recorded
+(single-writer overrides map, pointer-set pruning, /component/kwin,
+synthetic-key trap). 20 regression assertions green.
 2026-09-11T09:2x — Build #17 SHIPPED + verified live (sha d66b9009, kwin
 60603): ghost square eliminated (size guard; unmanaged Qui-* sources),
 kglowsync watchdog (lost-reply re-arm), B/G toggles verified end-to-end

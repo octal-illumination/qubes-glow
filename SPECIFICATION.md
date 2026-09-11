@@ -250,6 +250,29 @@ Git boundary: the whole `kitty-glow/` directory. No cross-project dependencies.
   LOST when the request lands on the dying kwin during --replace overlap —
   no throw, no callback, script wedged with desired=null; seen live on
   build #16's first restart).
+- **LL-027** — per-window toggles + global masters (build #18, user
+  directive 2026-09-11: "toggling glow and titlebar and border should be
+  for the focused window not globally"). Design invariants:
+  (1) Launch defaults stay global and persisted — glow ON, borderless
+  everywhere (bootstrap sweep); per-window overrides are RUNTIME-ONLY and
+  reset at every kwin restart, by design.
+  (2) The script remains the SINGLE noBorder writer: focused-window border
+  flips travel the kittytoggle `nextWindowOp` DBus channel; the script
+  resolves `workspace.activeClient` itself (no windowId crosses the bus)
+  and shields the flipped window from the 400 ms safety-net sweep via a
+  windowId-keyed overrides map — otherwise the sweep clobbers the override
+  within 400 ms (the map is the fix, verified live 2026-09-11).
+  (3) Effect-side glow overrides are a pointer set — MUST be pruned on
+  `windowDeleted` (glowfocus.h) or the paint path dereferences a dangling
+  pointer.
+  (4) Effect shortcut actions register under the kglobalaccel component
+  **kwin** (`/component/kwin`), NOT `/component/kittyglow` — query there
+  when auditing live bindings.
+  (5) **Synthetic-key trap:** `xdotool key super+shift+b` (XTEST) failed to
+  trigger a live, correctly-registered binding (file + live daemon both
+  correct) after a kwin --replace, while physical keys fired instantly —
+  verify shortcuts PHYSICALLY before debugging code; the journal names
+  every toggle's scope (`focused`/`global`) so the outcome is provable.
 - Robust ownership query on
   kglobalaccel is the NO-ARG `allShortcutInfos` on `/component/kwin`;
   keyed queries (`getGlobalShortcutsByKey`, `action()`) require exactly

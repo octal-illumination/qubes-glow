@@ -797,3 +797,47 @@
 ## 2026-09-11T09:26:30+05:30
 - Command: SESSION_STATE correction commit + final status check
 - Reason: Accurate handoff record; Rule 23.
+
+## 2026-09-11T10:08:29+05:30
+- Command: build #18 implementation (glowfocus module, kittytoggle window-op channel, kittyglow 4-handler rewiring, main.js overrides map, CMake+version, +3 assertions)
+- Reason: Per-window B/G toggles + global Alt-masters (user directive 2026-09-11).
+
+## 2026-09-11T10:09:34+05:30
+- Command: assertion update (ll023/ll026 patterns refactored per Rule 20c)
+- Reason: Invariants intact, structure moved to 4-handler routing.
+
+## 2026-09-11T10:14:39+05:30
+- Command: build #18 compile (build.sh, container)
+- Reason: User-authorized build of per-window toggle feature.
+
+## 2026-09-11T10:15:43+05:30
+- Command: build #18 deploy (sha-gated, .so + json + main.js)
+- Reason: Ship per-window toggle feature to dom0.
+
+## 2026-09-11T10:17:18+05:30
+- Command: kwin restart loading build #18 (7df23937)
+- Reason: Load per-window toggle .so + register Alt-masters (user consented).
+
+## 2026-09-11T10:19:26+05:30
+- Command: ll018_verify.py (focused B + sweep soak + focused G + global Alt-masters)
+- Reason: Build #18 behavioral verification.
+
+## 2026-09-11T10:23:30+05:30
+- Command: kglobalshortcutsrc inspection (B binding missing?)
+- Reason: Focused-B fires nothing; G and Alt+B fire.
+
+## 2026-09-11T10:24:41+05:30
+- Command: live kglobalaccel component query for kittyglow
+- Reason: File binding exists; live daemon table suspected stale for B.
+
+## 2026-09-11T10:25:53+05:30
+- Command: /component/kwin live shortcut list (kittyglow entries?)
+- Reason: Locating the live component holding the four bindings.
+
+## 2026-09-11T10:43:43+05:30
+- Command: journal capture of focused-op lines (user physical test)
+- Reason: Record script-side per-window chain evidence.
+
+## 2026-09-11T10:47:10+05:30
+- Command: docs/ledgers sync (SPEC LL-027, HANDBOOK 6b, PROJECT_CONTEXT #18, SESSION_STATE, CHANGELOG, Action-History)
+- Reason: Rules 3/10/14/17/22 atomic wrap-up of build #18.

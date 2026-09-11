@@ -1,7 +1,6 @@
-// kittyglow — v3.9: ALL-WINDOW occlusion-clipped SDF glow (per-paint
-// occluder rebuild, CPU-subdivided halo quads — LL-020), animation-mapped
-// halo. Meta+Shift+G = glow master switch; Meta+Shift+B = class-wide
-// borderless toggle (build #16, 2026-09-11).
+// kittyglow — v3.10: per-window toggles + global masters (build #18,
+// 2026-09-11). ALL-WINDOW occlusion-clipped SDF glow (per-paint occluder
+// rebuild, CPU-subdivided halo quads — LL-020), animation-mapped halo.
 // Note: This code is purely AI-generated.
 //
 // Render path: one hardware-blended triangle fan quad around the frame rect;
@@ -17,15 +16,21 @@
 // Qubes tray-widget ghosts, xembedsniproxy and krunner are excluded by
 // window class because qubes-gui strips _NET_WM_WINDOW_TYPE (LL-026).
 //
-// Meta+Shift+G toggles the GLOW globally: flips kittyglowrc
-// [General] glowEnabled and addRepaintFull()s — live, no restart, no flash.
-// Meta+Shift+B toggles class-wide BORDERLESS (frame+titlebar) for every
-// eligible app window: flips kittyglowrc [General] noBorder and stages the
-// new value for the kglowsync script (kittytoggle nextSource channel),
-// which writes Client.noBorder live. (Build #15 briefly repurposed B as
-// the glow switch — reverted by user directive 2026-09-11. Per-window
-// borderless remains on Meta+Shift+T, KWin's native action.)
+// Meta+Shift+G toggles the GLOW on the FOCUSED window only (runtime-only
+// override; glow stays ON at launch for every app window). Meta+Shift+B
+// toggles BORDER/TITLEBAR on the FOCUSED window only (runtime-only; windows
+// launch borderless). The GLOBAL masters moved to Meta+Shift+Alt+G / B:
+// those flip kittyglowrc [General] glowEnabled / noBorder and (for borders)
+// stage the sweep for the kglowsync script (kittytoggle nextSource
+// channel), which writes Client.noBorder live. Per-window border flips
+// travel the same bus as a window-op command (kittytoggle nextWindowOp);
+// the script resolves the focused window itself and shields that window
+// from the 400 ms safety-net sweep via its overrides map. (Build #15
+// briefly repurposed B as the glow switch — reverted by user directive
+// 2026-09-11. Per-window borderless on Meta+Shift+T remains KWin's native
+// per-window action.)
 #include "glowconfig.h"
+#include "glowfocus.h"
 #include "glowshader.h"
 #include "glowtargets.h"
 
@@ -65,8 +70,10 @@ public:
                      KWin::WindowPaintData &data) override;
 
 private:
-    void toggleBorderless();
-    void toggleGlow();
+    void toggleBorderlessFocused();   // Meta+Shift+B: focused window only
+    void toggleGlowFocused();         // Meta+Shift+G: focused window only
+    void toggleBorderlessGlobal();    // Meta+Shift+Alt+B: sweep + persist
+    void toggleGlowGlobal();          // Meta+Shift+Alt+G: master + persist
     void repaintHalo(const QRectF &frame);
     void repaintAllGlowHalos();
     QRegion occludedAbove(KWin::EffectWindow *painted, const QRectF &halo,
@@ -81,12 +88,14 @@ private:
 };
 
 KittyGlowEffect::KittyGlowEffect() {
-    // Meta+Shift+B — class-wide border (frame+titlebar) toggle, applied
-    // live by the kglowsync script to every eligible app window (user
-    // directive 2026-09-11: "extend that for all windows"). objectName
-    // kept as the historical "Toggle Kitty Borderless": it is the
-    // kglobalaccel registration id, and re-registering a new id for the
-    // same binding risks the daemon silently rejecting the key.
+    // Meta+Shift+B — FOCUSED-window border (frame+titlebar) toggle (build
+    // #18, user directive 2026-09-11: toggles act on the focused window,
+    // not globally). The command travels the kittytoggle nextWindowOp
+    // channel; the kglowsync script resolves ITS focused window and shields
+    // it from the 400 ms sweep. objectName kept as the historical "Toggle
+    // Kitty Borderless": it is the kglobalaccel registration id, and
+    // re-registering a new id for the same binding risks the daemon
+    // silently rejecting the key.
     QAction *b = new QAction(this);
     b->setObjectName(QStringLiteral("Toggle Kitty Borderless"));
     b->setText(QStringLiteral("Toggle Window Borders"));
@@ -94,10 +103,10 @@ KittyGlowEffect::KittyGlowEffect() {
         b, QList<QKeySequence>() << (Qt::META | Qt::SHIFT | Qt::Key_B));
     KGlobalAccel::self()->setShortcut(
         b, QList<QKeySequence>() << (Qt::META | Qt::SHIFT | Qt::Key_B));
-    connect(b, &QAction::triggered, this, &KittyGlowEffect::toggleBorderless);
+    connect(b, &QAction::triggered, this, &KittyGlowEffect::toggleBorderlessFocused);
 
-    // Meta+Shift+G — glow master switch (user directive 2026-09-11: the
-    // glow toggle moves off B, which returns to border/titlebar duty).
+    // Meta+Shift+G — FOCUSED-window glow toggle (build #18; the global
+    // master moved to Meta+Shift+Alt+G).
     QAction *g = new QAction(this);
     g->setObjectName(QStringLiteral("Toggle Glow"));
     g->setText(QStringLiteral("Toggle Glow"));
@@ -105,7 +114,35 @@ KittyGlowEffect::KittyGlowEffect() {
         g, QList<QKeySequence>() << (Qt::META | Qt::SHIFT | Qt::Key_G));
     KGlobalAccel::self()->setShortcut(
         g, QList<QKeySequence>() << (Qt::META | Qt::SHIFT | Qt::Key_G));
-    connect(g, &QAction::triggered, this, &KittyGlowEffect::toggleGlow);
+    connect(g, &QAction::triggered, this, &KittyGlowEffect::toggleGlowFocused);
+
+    // Meta+Shift+Alt+B — GLOBAL border master (build #18): the old
+    // class-wide sweep, persisted in kittyglowrc + re-applied by the
+    // script's bootstrap.
+    QAction *bAll = new QAction(this);
+    bAll->setObjectName(QStringLiteral("Toggle Borders All Windows"));
+    bAll->setText(QStringLiteral("Toggle Borders All Windows"));
+    KGlobalAccel::self()->setDefaultShortcut(
+        bAll, QList<QKeySequence>() << (Qt::META | Qt::SHIFT | Qt::ALT | Qt::Key_B));
+    KGlobalAccel::self()->setShortcut(
+        bAll, QList<QKeySequence>() << (Qt::META | Qt::SHIFT | Qt::ALT | Qt::Key_B));
+    connect(bAll, &QAction::triggered, this, &KittyGlowEffect::toggleBorderlessGlobal);
+
+    // Meta+Shift+Alt+G — GLOBAL glow master (build #18): flips the
+    // persisted glowEnabled and resets every per-window glow override.
+    QAction *gAll = new QAction(this);
+    gAll->setObjectName(QStringLiteral("Toggle Glow All Windows"));
+    gAll->setText(QStringLiteral("Toggle Glow All Windows"));
+    KGlobalAccel::self()->setDefaultShortcut(
+        gAll, QList<QKeySequence>() << (Qt::META | Qt::SHIFT | Qt::ALT | Qt::Key_G));
+    KGlobalAccel::self()->setShortcut(
+        gAll, QList<QKeySequence>() << (Qt::META | Qt::SHIFT | Qt::ALT | Qt::Key_G));
+    connect(gAll, &QAction::triggered, this, &KittyGlowEffect::toggleGlowGlobal);
+
+    // Per-window glow overrides hold EffectWindow pointers — prune on
+    // destruction or the paint path would dereference a dangling pointer
+    // (glowfocus.h). The script's border overrides are id-keyed (plain
+    // JS object) and need no pruning.
 
     // The halo lies OUTSIDE the frame rect, so damage must be widened or the
     // ring smears during moves and lingers after minimize. Repaint the halo
@@ -139,6 +176,12 @@ KittyGlowEffect::KittyGlowEffect() {
     connect(KWin::effects, &KWin::EffectsHandler::windowActivated, this,
             [this](KWin::EffectWindow *) { repaintAllGlowHalos(); });
 
+    // Build #18: per-window glow overrides hold EffectWindow pointers —
+    // prune the destroyed window's entry or the paint path dereferences a
+    // dangling pointer on the next frame (glowfocus.h).
+    connect(KWin::effects, &KWin::EffectsHandler::windowDeleted, this,
+            [](KWin::EffectWindow *w) { GlowFocus::pruneWindow(w); });
+
     // Seamless toggle channel: DBus pull-service + kglowsync poller script
     // (see kittytoggle.h). The script applies noBorder live so the toggle
     // never needs org.kde.KWin.reconfigure() — the LL-016 white flash.
@@ -167,7 +210,8 @@ void KittyGlowEffect::reconfigure(ReconfigureFlags flags) {
 void KittyGlowEffect::prePaintWindow(KWin::EffectWindow *w, KWin::WindowPrePaintData &data,
                                      std::chrono::milliseconds presentTime) {
     KWin::effects->prePaintWindow(w, data, presentTime);
-    if (!m_glowEnabled || !KittyGlowTargets::isGlowWindow(w)) return;
+    if (!m_glowEnabled || !GlowFocus::glowAllowed(w)
+        || !KittyGlowTargets::isGlowWindow(w)) return;
     const int e = m_cfg.maxExtent();
     const QRect g = w->frameGeometry().toRect();
     data.paint |= g.adjusted(-e, -e, e, e);
@@ -185,7 +229,8 @@ void KittyGlowEffect::paintWindow(KWin::EffectWindow *w, int mask, QRegion regio
     // animation frames. While fully minimized the window is not in the paint
     // loop at all, so no halo leaks in the steady state; the alpha guard below
     // still fades the halo if an effect animates opacity.
-    if (!m_glowEnabled || !KittyGlowTargets::isGlowWindow(w)) return;  // glow master switch + eligibility
+    if (!m_glowEnabled || !GlowFocus::glowAllowed(w)
+        || !KittyGlowTargets::isGlowWindow(w)) return;  // master + per-window + eligibility
     if (!m_shader) return;
     const QRectF g = w->frameGeometry();
     const float s = static_cast<float>(KWin::effects->renderTargetScale());
@@ -347,41 +392,72 @@ QRegion KittyGlowEffect::occludedAbove(KWin::EffectWindow *painted,
     return occl.intersected(halo.toRect());
 }
 
-void KittyGlowEffect::toggleBorderless() {
-    // Same autorepeat gate as the glow toggle: one flip per physical press
+void KittyGlowEffect::toggleBorderlessFocused() {
+    // Same autorepeat gate as every toggle: one flip per physical press.
+    if (m_toggleGate.isValid() && !m_toggleGate.hasExpired(220)) return;
+    m_toggleGate.start();
+
+    // Focused-window border toggle (build #18, user directive: "toggling
+    // glow and titlebar and border should be for the focused window not
+    // globally"). The effect stages a window-op; the kglowsync script
+    // resolves ITS focused window on the next 60 ms poll, flips that
+    // window's noBorder and shields it from the 400 ms sweep via its
+    // overrides map (runtime-only — a restart restores the launch default:
+    // borderless).
+    KittyToggle::requestWindowOp(1);
+    qWarning() << "toggle: border (focused window) staged";
+}
+
+void KittyGlowEffect::toggleGlowFocused() {
+    if (m_toggleGate.isValid() && !m_toggleGate.hasExpired(220)) return;
+    m_toggleGate.start();
+
+    // Focused-window glow toggle (build #18): runtime-only override in the
+    // GlowFocus set; the persisted global default is untouched, so the
+    // halo returns at the next kwin restart (launch default: glow on).
+    KWin::EffectWindow *w = KWin::effects->activeWindow();
+    if (!w || !KittyGlowTargets::isGlowWindow(w)) {
+        qWarning() << "toggle: glow (focused) — no eligible focused window";
+        return;
+    }
+    const bool on = GlowFocus::toggleGlow(w);
+    KWin::effects->addRepaintFull();
+    qWarning() << "toggle: glow (focused" << w->windowClass() << ") ->"
+               << (on ? "on" : "off");
+}
+
+void KittyGlowEffect::toggleBorderlessGlobal() {
+    // Same autorepeat gate as every toggle: one flip per physical press
     // (repeats arrive 25-33 ms apart and keep restarting the timer).
     if (m_toggleGate.isValid() && !m_toggleGate.hasExpired(220)) return;
     m_toggleGate.start();
 
-    // Class-wide borderless (build #16, user directive 2026-09-11): persist
-    // in kittyglowrc so the kglowsync bootstrap restores it after kwin
-    // restarts, and stage for the script's 60 ms poll — live, no restart,
-    // no reconfigure flash. Which windows receive noBorder is the script's
-    // mirror of KittyGlowTargets (LL-026).
+    // GLOBAL border master (build #18, Meta+Shift+Alt+B — the build #16
+    // class-wide sweep moved here): persist in kittyglowrc so the kglowsync
+    // bootstrap restores it after kwin restarts, and stage for the script's
+    // 60 ms poll — live, no restart, no reconfigure flash. The sweep
+    // re-imposes the global default on every eligible window, resetting any
+    // per-window overrides (documented reset semantics). Which windows
+    // receive noBorder is the script's mirror of KittyGlowTargets (LL-026).
     const bool next = KittyGlowState::toggleNoBorder();
     KittyToggle::requestApply(next);
-    qWarning() << "toggle: borderless ->" << (next ? "on" : "off");
+    qWarning() << "toggle: borderless (global) ->" << (next ? "on" : "off");
 }
 
-void KittyGlowEffect::toggleGlow() {
-    // kglobalaccel re-emits triggered() for every autorepeat of a held key;
-    // gate to one toggle per physical press (repeats arrive 25-33 ms apart
-    // and keep restarting the timer; a release + new press is always later
-    // than the 220 ms window).
+void KittyGlowEffect::toggleGlowGlobal() {
     if (m_toggleGate.isValid() && !m_toggleGate.hasExpired(220)) return;
     m_toggleGate.start();
 
-    // Glow master switch (Meta+Shift+G since build #16; B carried it only
-    // in build #15): persisted in kittyglowrc so it survives kwin
-    // restarts; a full repaint re-evaluates every window's halo on the
-    // very next frame — live, no restart, no flash (the LL-016 white
-    // flash came from reconfigure(), which we avoid). The borderless
-    // plumbing (kglowsync) is NOT touched here: windows keep their
-    // persisted borderless state (Meta+Shift+B); per-window borderless =
-    // Meta+Shift+T.
+    // GLOBAL glow master (build #18, Meta+Shift+Alt+G): persisted in
+    // kittyglowrc so it survives kwin restarts; a full repaint re-evaluates
+    // every window's halo on the very next frame — live, no restart, no
+    // flash (the LL-016 white flash came from reconfigure(), which we
+    // avoid). Also resets every per-window glow override: the master switch
+    // means "everything back to the new default".
     m_glowEnabled = KittyGlowState::toggleGlowEnabled();
+    GlowFocus::clear();
     KWin::effects->addRepaintFull();
-    qWarning() << "toggle: glow ->" << (m_glowEnabled ? "on" : "off");
+    qWarning() << "toggle: glow (global) ->" << (m_glowEnabled ? "on" : "off");
 }
 
 KWIN_EFFECT_FACTORY(KittyGlowEffect, "kittyglow.json")

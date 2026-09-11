@@ -60,7 +60,7 @@ check_not ll016-no-noborderrule-in-src     grep -rqF 'noborderrule' src/
 # (LL-026), Meta+Shift+G is the persisted glow master switch, and
 # Meta+Shift+B is the class-wide borderless toggle staged via requestApply.
 check ll023-dialogs-notifications-excluded grep -qF 'isDialog() || w->isNotification()' src/glowtargets.h
-check ll023-glow-gate-paint-path        bash -c '[ $(grep -cF "if (!m_glowEnabled || !KittyGlowTargets::isGlowWindow(w)) return;" src/kittyglow.cpp) -ge 2 ]'
+check ll023-glow-gate-paint-path        bash -c '[ $(grep -cF "GlowFocus::glowAllowed(w)" src/kittyglow.cpp) -ge 2 ]'
 
 # LL-026 (2026-09-11): qubes-gui strips _NET_WM_WINDOW_TYPE — chrome must
 # be excluded by WM_CLASS (plasma surfaces, Qubes tray-widget ghosts,
@@ -69,8 +69,11 @@ check ll023-glow-gate-paint-path        bash -c '[ $(grep -cF "if (!m_glowEnable
 check ll026-chrome-class-exclusion bash -c 'grep -qF "plasmashell" src/glowtargets.h && grep -qF "qui-" src/glowtargets.h && grep -qF "xembedsniproxy" src/glowtargets.h && grep -qF "krunner" src/glowtargets.h'
 check ll026-min-frame-size-guard    bash -c 'grep -qF "fg.width() < 48 || fg.height() < 48" src/glowtargets.h && grep -qF "fg.width < 48 || fg.height < 48" src/kwin-script/kglowsync/contents/code/main.js'
 check ll025-bootstrap-watchdog      bash -c 'grep -qF "booted" src/kwin-script/kglowsync/contents/code/main.js && grep -qF "var bootWatch" src/kwin-script/kglowsync/contents/code/main.js'
-check ll026-b-stages-borderless    bash -c 'grep -qF "void KittyGlowEffect::toggleBorderless()" src/kittyglow.cpp && grep -qF "KittyToggle::requestApply(next)" src/kittyglow.cpp && grep -qF "KittyGlowState::toggleNoBorder()" src/kittyglow.cpp'
-check ll026-g-glow-master-switch   bash -c 'grep -qF "Qt::META | Qt::SHIFT | Qt::Key_G" src/kittyglow.cpp && grep -qF "connect(g, &QAction::triggered, this, &KittyGlowEffect::toggleGlow);" src/kittyglow.cpp && grep -qF "connect(b, &QAction::triggered, this, &KittyGlowEffect::toggleBorderless);" src/kittyglow.cpp'
+check ll027-focused-routing         bash -c 'grep -qF "toggleBorderlessFocused" src/kittyglow.cpp && grep -qF "toggleGlowFocused" src/kittyglow.cpp && grep -qF "KittyGlowEffect::toggleBorderlessFocused" src/kittyglow.cpp && grep -qF "nextWindowOp" src/kittytoggle.cpp'
+check ll027-global-masters          bash -c 'grep -qF "Toggle Borders All Windows" src/kittyglow.cpp && grep -qF "Toggle Glow All Windows" src/kittyglow.cpp && grep -qF "toggleGlowGlobal" src/kittyglow.cpp'
+check ll027-override-protection     bash -c 'grep -qF "var overrides = {}" src/kwin-script/kglowsync/contents/code/main.js && grep -qF "id in overrides" src/kwin-script/kglowsync/contents/code/main.js && grep -qF "focusedBorderFlip" src/kwin-script/kglowsync/contents/code/main.js && grep -qF "GlowFocus::pruneWindow" src/kittyglow.cpp'
+check ll026-b-stages-borderless    bash -c 'grep -qF "void KittyGlowEffect::toggleBorderlessGlobal()" src/kittyglow.cpp && grep -qF "KittyToggle::requestApply(next)" src/kittyglow.cpp && grep -qF "KittyGlowState::toggleNoBorder()" src/kittyglow.cpp'
+check ll026-g-glow-master-switch   bash -c 'grep -qF "Qt::META | Qt::SHIFT | Qt::Key_G" src/kittyglow.cpp && grep -qF "connect(g, &QAction::triggered, this, &KittyGlowEffect::toggleGlowFocused);" src/kittyglow.cpp && grep -qF "connect(b, &QAction::triggered, this, &KittyGlowEffect::toggleBorderlessFocused);" src/kittyglow.cpp && grep -qF "connect(gAll, &QAction::triggered, this, &KittyGlowEffect::toggleGlowGlobal);" src/kittyglow.cpp && grep -qF "connect(bAll, &QAction::triggered, this, &KittyGlowEffect::toggleBorderlessGlobal);" src/kittyglow.cpp'
 check ll026-script-app-windows     bash -c 'grep -qF "isBorderlessTarget" src/kwin-script/kglowsync/contents/code/main.js && grep -qF "appWindows()" src/kwin-script/kglowsync/contents/code/main.js && ! grep -qF "isKitty" src/kwin-script/kglowsync/contents/code/main.js'
 
 # LL-025 (2026-09-11): kwin --replace bus-name race — kglowsync must not die

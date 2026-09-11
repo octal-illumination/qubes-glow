@@ -266,3 +266,12 @@ kwin 60191→60603 with build #17 (d66b9009). Verified: kittyglow loaded,
 kglowsync bootstrap applied noBorder to 14 app windows, ghost corner
 456→0, B sweep both directions, G toggle fires. Docs/ledgers synced,
 committed.
+
+## 2026-09-11T10:47:10+05:30
+#### User Request
+"everything works" (after physical test of per-window B, per-window B
+restore, Alt+G master restore)
+#### Verbatim Output Response
+Build #18 (v3.10) accepted. Per-window B/G verified sweep-safe via journal
+(focused-op lines on konsole+kitty), global Alt-masters verified. Docs,
+ledgers, HTML siblings synced; committed.

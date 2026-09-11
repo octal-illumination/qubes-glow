@@ -10,8 +10,14 @@
 //   * on load: getCurrentState() via callDBus restores the persisted state
 //     and applies it to all existing eligible app windows (covers kwin
 //     restarts);
-//   * polls nextSource() every 60 ms for staged toggle commands from the
-//     C++ effect (1 = borderless, 2 = bordered, 0 = nothing);
+//   * polls nextSource() every 60 ms for staged global commands from the
+//     C++ effect (1 = borderless, 2 = bordered, 0 = nothing) and
+//     nextWindowOp() for per-window commands (1 = flip borders on the
+//     focused window; build #18 — Meta+Shift+B is per-window now, the
+//     global sweep lives on Meta+Shift+Alt+B);
+//   * per-window overrides (windowId -> noBorder) shield the user's
+//     per-window choices from the 400 ms sweep; runtime-only — a restart
+//     restores the launch default (borderless everywhere, glow on).
 //   * applies desired to every eligible app window via Client.noBorder —
 //     event-driven on clientAdded, plus a 400 ms sweep as safety net;
 //   * heartbeat: if the effect stops replying for >2 s (plugin unloaded),
@@ -104,17 +110,50 @@ function makeTimer(ms, fn) {
 var desired = null;      // last commanded noBorder value (true/false)
 var lastReplyMs = 0;     // heartbeat of the effect's service
 
-// Applies desired to every eligible app window; logs each actual write. With
-// no forcing rule these writes stick, so a steady state produces no output.
+// Per-window border overrides (build #18): windowId (string) -> bool.
+// Written by the focused-window flip (Meta+Shift+B); consulted by
+// applyDesired BEFORE the global default so the 400 ms safety-net sweep
+// protects the user's per-window choice instead of clobbering it. Keyed by
+// windowId (plain string keys — no object references, nothing to prune;
+// stale ids of closed windows are harmless garbage). Runtime-only by
+// design: kwin restart restores the launch default (borderless).
+var overrides = {};
+
+// Flip borders on the script's OWN focused window (the C++ effect stages
+// the command without a window id — workspace.activeClient is the same
+// window the user pressed the key on, 60 ms earlier). The new state is
+// recorded in overrides so the sweep keeps it.
+function focusedBorderFlip(origin) {
+    var c = workspace.activeClient ? workspace.activeClient : null;
+    if (!c || !isBorderlessTarget(c)) {
+        slog(origin + ": no eligible focused window ("
+             + (c ? String(c.resourceClass) : "none") + ")");
+        return;
+    }
+    var before = c.noBorder;
+    var next = !before;
+    c.noBorder = next;
+    overrides[String(c.windowId)] = next;
+    slog(origin + ": win=" + String(c.windowId) + " ("
+         + String(c.resourceClass) + ") noBorder " + before + " -> " + next);
+}
+
+// Applies the effective noBorder value to every eligible app window; logs
+// each actual write. Effective value per window = per-window override if
+// one exists, else the global default. With no forcing rule these writes
+// stick, so a steady state produces no output.
 function applyDesired(origin) {
     if (desired === null) return;
     var ws = appWindows();
     for (var i = 0; i < ws.length; i++) {
+        var id = String(ws[i].windowId);
+        var want = (id in overrides) ? overrides[id] : desired;
         var before = ws[i].noBorder;
-        if (before !== desired) {
-            ws[i].noBorder = desired;
-            slog(origin + ": win=" + String(ws[i].windowId) + " noBorder "
-                 + before + " -> " + desired + " (now=" + ws[i].noBorder + ")");
+        if (before !== want) {
+            ws[i].noBorder = want;
+            slog(origin + ": win=" + id + " noBorder "
+                 + before + " -> " + want
+                 + (id in overrides ? " (per-window)" : ""));
         }
     }
 }
@@ -160,6 +199,14 @@ var poll = makeTimer(60, function() {
             var v = Number(src);
             if (v === 1) desired = true;
             else if (v === 2) desired = false;
+        });
+        // Per-window command channel (build #18): 1 = flip borders on the
+        // focused window. Heartbeat shared with nextSource — the effect
+        // answers both, so either reply proves the service is alive.
+        callDBus(SERVICE, PATH, IFACE, "nextWindowOp", function(op) {
+            lastReplyMs = nowMs();
+            var v = Number(op);
+            if (v === 1) focusedBorderFlip("focused-op");
         });
     } catch (e) { /* transient service gap: heartbeat pauses the sweep */ }
 });

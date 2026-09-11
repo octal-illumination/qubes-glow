@@ -30,6 +30,11 @@ constexpr auto OBJECT_PATH = "/sync";
 // DBus dispatch — both run in kwin's main thread, so no locking is needed.
 int s_pending = 0;
 
+// Per-window command slot (build #18): 0 = nothing pending, 1 = flip
+// borders on the script's focused window. Same single-threaded staging
+// contract as s_pending; last command wins (manual key presses only).
+int s_pendingOp = 0;
+
 class SyncService : public QObject {
     Q_OBJECT
     Q_CLASSINFO("D-Bus Interface", "org.kde.kittyglow")
@@ -55,6 +60,18 @@ public Q_SLOTS:
     // restart without waiting for a toggle. Read-only, never consumed.
     Q_SCRIPTABLE bool getCurrentState() {
         return KittyGlowState::loadNoBorder();
+    }
+
+    // Per-window command channel (build #18). Polled by the script alongside
+    // nextSource(); returns and consumes the staged op (0 = nothing). The
+    // script resolves the focused window itself, so no window id crosses
+    // the bus.
+    int nextWindowOp() {
+        const int v = s_pendingOp;
+        s_pendingOp = 0;
+        if (v != 0)
+            qWarning() << "kittyglow: nextWindowOp consumed staged ->" << v;
+        return v;
     }
 
     // Diagnostic bridge: KWin scripts' print() is swallowed on this build
@@ -118,6 +135,10 @@ void init() {
 
 void requestApply(bool noBorder) {
     s_pending = noBorder ? 1 : 2;
+}
+
+void requestWindowOp(int op) {
+    s_pendingOp = op;
 }
 
 }  // namespace KittyToggle

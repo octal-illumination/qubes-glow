@@ -5,7 +5,7 @@
         "Description": "Soft yellow halo around kitty terminal windows",
         "Id": "kittyglow",
         "Category": "Appearance",
-        "Version": "0.2",
+        "Version": "0.3",
         "License": "GPL",
         "Authors": [
             { "Name": "AI-generated" }

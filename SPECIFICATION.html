@@ -574,6 +574,35 @@ until the first service reply (a reply can be silently LOST when the
 request lands on the dying kwin during –replace overlap — no throw, no
 callback, script wedged with desired=null; seen live on build #16’s
 first restart).</li>
+<li><strong>LL-027</strong> — per-window toggles + global masters (build
+#18, user directive 2026-09-11: “toggling glow and titlebar and border
+should be for the focused window not globally”). Design invariants:
+<ol type="1">
+<li>Launch defaults stay global and persisted — glow ON, borderless
+everywhere (bootstrap sweep); per-window overrides are RUNTIME-ONLY and
+reset at every kwin restart, by design.</li>
+<li>The script remains the SINGLE noBorder writer: focused-window border
+flips travel the kittytoggle <code>nextWindowOp</code> DBus channel; the
+script resolves <code>workspace.activeClient</code> itself (no windowId
+crosses the bus) and shields the flipped window from the 400 ms
+safety-net sweep via a windowId-keyed overrides map — otherwise the
+sweep clobbers the override within 400 ms (the map is the fix, verified
+live 2026-09-11).</li>
+<li>Effect-side glow overrides are a pointer set — MUST be pruned on
+<code>windowDeleted</code> (glowfocus.h) or the paint path dereferences
+a dangling pointer.</li>
+<li>Effect shortcut actions register under the kglobalaccel component
+<strong>kwin</strong> (<code>/component/kwin</code>), NOT
+<code>/component/kittyglow</code> — query there when auditing live
+bindings.</li>
+<li><strong>Synthetic-key trap:</strong>
+<code>xdotool key super+shift+b</code> (XTEST) failed to trigger a live,
+correctly-registered binding (file + live daemon both correct) after a
+kwin –replace, while physical keys fired instantly — verify shortcuts
+PHYSICALLY before debugging code; the journal names every toggle’s scope
+(<code>focused</code>/<code>global</code>) so the outcome is
+provable.</li>
+</ol></li>
 <li>Robust ownership query on kglobalaccel is the NO-ARG
 <code>allShortcutInfos</code> on <code>/component/kwin</code>; keyed
 queries (<code>getGlobalShortcutsByKey</code>, <code>action()</code>)
