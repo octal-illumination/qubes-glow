@@ -324,3 +324,13 @@ Build #20 (re-audit-2 batch) compiled zero-warnings, deployed sha-verified
 (f9389aec), kwin restarted pid 65324. Functional probe: per-action gates
 intact (G+Alt+G 80 ms both fired), master restored on. Behavior-neutral at
 s=1 as designed; HiDPI space correctness restored.
+
+## 2026-09-11T13:18:39+05:30
+#### User Request
+"redo a deep comprehensive ... check" (re-audit 3)
+#### Verdict Output Response
+Re-audit 3 complete: build #20 batch verified clean end-to-end (live-file
+reads, pinned-source adjudication of unloadScript semantics, full battery
+green, deployed==live). Two cosmetic minors (CMakeLists VERSION, rollback
+label) + one accepted edge documented. Corrections proposed; consent
+requested.

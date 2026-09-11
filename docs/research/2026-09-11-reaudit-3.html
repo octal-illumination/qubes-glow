@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>2026-09-11-reaudit-3</title>
+  <style>
+    html {
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <style>
+  html{margin:0!important}body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;max-width:960px;margin:0;padding:2em;line-height:1.6;color:#1a1a1a;background:#fff}
+  h1,h2,h3,h4{margin-top:1.5em;margin-bottom:0.5em}
+  code{background:#f0f0f0;padding:.2em .4em;border-radius:3px;font-size:.9em}
+  pre code{background:none;padding:0}
+  pre{background:#f5f5f5;padding:1em;border-radius:5px;overflow-x:auto}
+  table{border-collapse:collapse;width:100%}
+  th,td{border:1px solid #ddd;padding:.5em;text-align:left}
+  th{background:#f0f0f0}
+  a{color:#0366d6}
+  blockquote{border-left:4px solid #ddd;padding-left:1em;color:#666}
+  @media(prefers-color-scheme:dark){
+  body{color:#e1e1e1;background:#1a1a1a}
+  code{background:#2d2d2d}
+  pre{background:#2d2d2d}
+  th{background:#2d2d2d}
+  th,td{border-color:#444}
+  a{color:#58a6ff}
+  blockquote{border-left-color:#555;color:#aaa}
+  }
+  </style>
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+    document.addEventListener('DOMContentLoaded', () => {
+      // Pandoc outputs <pre class="mermaid"><code>...</code></pre>. 
+      // Mermaid expects the text directly inside the element.
+      document.querySelectorAll('pre.mermaid code').forEach((el) => {
+        const pre = el.parentElement;
+        pre.textContent = el.textContent; // Strip the code tag
+      });
+      mermaid.initialize({ 
+        startOnLoad: true,
+        theme: window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'default'
+      });
+    });
+  </script>
+</head>
+<body>
+<div style="background-color: #fff3cd; color: #856404; padding: 10px 15px; margin-bottom: 20px; border-radius: 4px; border: 1px solid #ffeeba; text-align: center; font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+    ⚠️ Note: All documentation and code in this project are purely AI-generated.
+</div>
+<header id="title-block-header">
+<h1 class="title">2026-09-11-reaudit-3</h1>
+</header>
+<!-- HTML sibling: regenerate ONLY via bash ~/Projects/scripts/generate-docs-html.sh <this-file> — Rule 18c left-aligned CSS. Never hand-roll pandoc. -->
+<h1 id="re-audit-3-kitty-glow-post-build-20-2026-09-11">Re-audit 3 —
+kitty-glow post-build-#20 (2026-09-11)</h1>
+<blockquote>
+<p><strong>Note:</strong> All documentation and code in this project are
+purely AI-generated.</p>
+</blockquote>
+<p>Full-spectrum re-audit over the re-audit-2 fix batch itself (build
+#20, sha f9389aec). Scope identical to re-audit 2; method:
+changed-surface diff scoping (4c97409..HEAD), full re-read of every
+changed hunk in the live files, pinned-source adjudication of the one
+framework claim the previous batch introduced, full static battery,
+deployed-identity check.</p>
+<h2 id="verdict">Verdict</h2>
+<p><strong>No critical or high findings. No regressions from build
+#20.</strong> The re-audit-2 batch survives its own audit. Two new
+cosmetic minors, one accepted edge documented.</p>
+<h2 id="verified-correct-live-file-re-reads-not-diff-trust">Verified
+correct (live-file re-reads, not diff trust)</h2>
+<ul>
+<li><strong>F1/F2/F3 pipeline coherence</strong> — the coordinate-space
+rule holds end-to-end in the current code: <code>tr</code> logical -&gt;
+k0/k1 logical -&gt; halo rect logical; damage widened by logical
+<code>maxExtent</code>; occluders logical; the ONLY <code>* s</code>
+sites are the vertex upload (geo.frame, geo.extents, geo.radius, clip
+rects). Translation is scaled exactly once (at upload), matching
+<code>PaintData::toMatrix(deviceScale)</code>. <code>map()</code>
+matches blur’s canonical transformed-shape math (blur.cpp:628-629).</li>
+<li><strong>qRound fix</strong> —
+<code>const int e = m_cfg.maxExtent();</code> at both sites; no overload
+ambiguity; maxExtent ceils float widths (m2) so the int is a safe upper
+bound.</li>
+<li><strong>M5 rollback</strong> — framework claim now cited (LL-031):
+auto-loaded scripts carry <code>pluginName = service.pluginId()</code>
+(scripting.cpp:775) = metadata Id “kglowsync”; <code>unloadScript</code>
+matches exactly that (scripting.cpp:828-838). KWin also self-unloads
+disabled plugins (scripting.cpp:771-773), so the kwinrc key deletion is
+the durable mechanism and the explicit unload makes it immediate —
+correct belt-and-braces.</li>
+<li><strong>bootWatch stop</strong> —
+<code>(booted || bootTries &gt;= 60)</code> stops the timer in both
+terminal states; closure capture is safe (first tick is 5 s after
+assignment).</li>
+<li><strong>Deployed identity</strong> — dom0’s live kittyglow.so sha ==
+dist artifact (f9389aec…), matching the running kwin 65324.</li>
+</ul>
+<h2 id="new-minors-cosmetic">New minors (cosmetic)</h2>
+<ul>
+<li><strong>m4b</strong> — CMakeLists
+<code>project(kittyglow VERSION 0.1)</code> was missed by the m4 version
+unification (artifacts now say 3.10.1). Runtime-inert (KWin reads
+kittyglow.json, not the CMake project version); consistency only.</li>
+<li><strong>m5b</strong> — rollback step label “[1/4] unload effect +
+border script” understates: it now unloads the effect AND two
+scripts.</li>
+</ul>
+<h2 id="edge-documented-accepted-no-change">Edge documented (accepted,
+no change)</h2>
+<p>Damage is widened by static <code>maxExtent()</code> — no
+animation-scale term. An animation with scale sx &gt; 1 could
+transiently expand the halo past the widened damage (smear for a frame
+or two). Practical animations shrink (minimize ~1 -&gt; 0.25); per-frame
+scale is unknowable at prePaint time; the M2 lesson history argues
+against speculative complexity. Accepted edge.</p>
+<h2 id="clean-bills-carried-forward-unchanged-files">Clean bills
+(carried forward — unchanged files)</h2>
+<p>git diff scoping confirms only the intended files changed since
+re-audit 2; their clean bills stand: races (single-threaded JS,
+consume-on-read, idempotent bootstrap, per-action gates), memory
+(unique_ptr shader, parented DBus object, balanced GL state, pruned
+override set), security (sha-gated deploy, CR+LF flatten, no
+injection/overflow paths; the rollback /proc-environ eval remains
+same-user trust), SDF math (unchanged, verified), efficiency (O(n^2)
+occluder walk documented negligible), lint (shellcheck clean; registry
+SC2016 is the documented quoted-grep style), JS/JSON valid, 25/25
+assertions, 18e doc-zone diff clean.</p>
+<h2 id="proposed-corrections-with-consent">Proposed corrections (with
+consent)</h2>
+<p>m4b: CMakeLists VERSION 0.1 -&gt; 3.10.1. m5b: rollback label -&gt;
+“unload effect + sync scripts”. Both cosmetic; no rebuild required for
+either (CMakeLists change does not alter the compiled artifact).</p>
+</body>
+</html>

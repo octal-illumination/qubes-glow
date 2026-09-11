@@ -933,3 +933,11 @@
 ## 2026-09-11T13:03:50+05:30
 - Command: wrap-up doc chain for build #20
 - Reason: Rules 3/10/12/17 milestone recording.
+
+## 2026-09-11T13:17:33+05:30
+- Command: re-audit 3 battery + deployed identity
+- Reason: Full-spectrum re-audit verification.
+
+## 2026-09-11T13:18:39+05:30
+- Command: re-audit 3 report + HTML + 18e diff
+- Reason: User-requested comprehensive audit deliverable.

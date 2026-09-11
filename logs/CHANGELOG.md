@@ -407,3 +407,12 @@
   Identical to build #19 — re-audit-2 batch is behavior-neutral at s=1.
 - Note: first restart attempt cancelled at the password dialog (no state
   change); succeeded on explicit retry.
+
+## 2026-09-11T13:18:39+05:30 — Re-audit 3 complete (post build #20)
+- Full-spectrum re-audit of the re-audit-2 batch. Report:
+  docs/research/2026-09-11-reaudit-3.md. Verdict: no critical/high, no
+  regressions; F1-F3/M5 verified in live files; M5's unloadScript claim
+  adjudicated against pinned source (scripting.cpp:775, 828-838).
+- New minors m4b (CMakeLists VERSION 0.1) + m5b (rollback step label);
+  one accepted edge (static maxExtent damage bound vs sx>1 animations).
+  Corrections proposed — awaiting consent.
