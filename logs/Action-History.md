@@ -373,3 +373,16 @@ Shortcuts/script/DBus are dom0-side, template-independent. LL-026
 workarounds are qubes-gui protocol properties, identical across
 templates. Fedora pinning matters only when DOM0 changes Fedora version
 (Phase 7 L11 container rebase). Live cross-template verification offered.
+
+## 2026-09-11T14:40:31+05:30
+#### User Request
+"if i have a dom0 debian, or a dom0 gentoo, or a dom0 arch, how would that work?"
+#### Verbatim Output Response
+Non-Fedora dom0 does not exist in supported Qubes (dom0 is Fedora-wired:
+installer, RPM dom0-update, xen toolstack). Hypothetically: effect source
+distro-agnostic; container re-pin + deploy.sh path changes needed
+(qmake-discovery solves); the REAL gate is Plasma version — Debian 12 /
+Gentoo (5.27) work, Arch (Plasma 6) is an API break. Qubes-first decision
+doubly safe: dom0 stays Fedora in every supported release; only trigger
+is a dom0 Fedora version bump = tracked L11 rebase. (Web search/browser
+timed out; 4.3 dom0 Fedora version to confirm at rebase time.)
