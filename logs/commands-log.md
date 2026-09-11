@@ -849,3 +849,7 @@
 ## 2026-09-11T10:53:43+05:30
 - Command: output-history entry (JS-vs-C++ rationale)
 - Reason: Rule 8 — internal rationale ledger.
+
+## 2026-09-11T11:10:38+05:30
+- Command: deep audit (full source read, shellcheck, node --check, sha audits, grep sweeps, math review) + report written
+- Reason: User-requested comprehensive audit; Rule 8/22f documentation.

@@ -327,3 +327,15 @@
   focused G scope-named, Alt-masters global with visual swing, user
   physical-key acceptance PASSED. LL-027 recorded; HANDBOOK 6b rewritten;
   PROJECT_CONTEXT updated.
+
+## 2026-09-11T11:10:38+05:30 — Deep comprehensive audit (docs/research/2026-09-11-deep-audit.md)
+- Full-source audit of build #18: structure, logic, ops, syntax, idiom,
+  integration, process flow, lint (shellcheck/node), security, memory,
+  races, math, AI-drift. NO code modified (audit only).
+- Verdict: 0 critical/high; 4 medium (stale v2 deploy script w/ retired
+  rule flow + old sha; latent HiDPI damage-widening bug; shared autorepeat
+  gate dropping cross-toggle presses; stale ROADMAP) + 11 low. All fixes
+  PROPOSED, awaiting consent.
+- Verified clean: SDF math, RAII/memory, buffer safety, sha/byte-identity
+  of deployed artifacts, 20/20 assertions, race contracts, doc claims
+  traced to code.
