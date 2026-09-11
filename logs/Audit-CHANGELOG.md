@@ -64,3 +64,6 @@
 
 ## 2026-09-10T23:11:18+05:30
 - Audit: occlusion geometry design decision (LL-017 supersession) user-accepted 2026-09-10; deploy pipeline failure mode now mechanically gated (LL-022); regression invariants registered in-repo per Rule 21 option (a).
+
+## 2026-09-11T08:05+05:45 — Audit: doc/lifecycle audit
+- Verified benign loader-noise root cause (metadata-only KPackage probed by both loaders, since 2026-09-07); no security impact. Deploy chain sha-gated (LL-022 held: cancelled dialog → exit 1, no false success).

@@ -284,3 +284,10 @@
 - scripts/deploy.sh: LL-022 sha hard-gate (exit 1 on dom0/local mismatch); fired live on #14 deploy.
 - scripts/regression-checks.sh: NEW in-repo registry (Rule 20, option (a) per user) — 8 assertions green; check_not helper (bash `!` through "$@" pitfall).
 - SPECIFICATION.md LL-017 supersession + ARCHITECTURE.md §2.3 + HANDBOOK.md occlusion + PROJECT_CONTEXT.md §5 (Build State restored after atomic edit rollback) + §10; HTML siblings regenerated (18e audit clean).
+
+## 2026-09-11T08:05+05:45 — Build #15 (all-windows glow) shipped
+- src/kwin-script/kglowsync/contents/code/main.js: resilient bootstrap (slog try/catch + retry ≤60×500ms) — LL-025 bus-name race on kwin --replace.
+- logs/probe/ll015_diagnose.py, ll015_allwin.py, ll015_verify2/3/4.py: build #15 probes (config audit, staged ring/exclusion checks, xprop notification type).
+- scripts/regression-checks.sh: +ll025-kglowsync-resilient-bootstrap (11 assertions, all green).
+- SPECIFICATION.md: LL-024 (benign two-loader metadata probe) + LL-025; HANDBOOK §1/§11 all-windows behavior + verification methods; PROJECT_CONTEXT §5/§6/§7/§10 build #15 state; SESSION_STATE.md rewritten.
+- Deploy sha-verified 6d8886da… on kwin 56055; verification: kitty 1,287 px PASS, dialog 112 PASS, notification dock-strip 0 PASS, toggle + borderless persistence live.

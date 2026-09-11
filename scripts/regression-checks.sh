@@ -54,6 +54,19 @@ check ll017seamless-normal-frame       grep -qF ': w->frameGeometry();' "$SRC"
 # (write-revert fight with the kglowsync script); state lives in kittyglowrc.
 check_not ll016-no-noborderrule-in-src     grep -rqF 'noborderrule' src/
 
+# LL-023 (2026-09-10): all-windows glow — eligibility is a deny-list in
+# glowtargets.h (dialogs, notifications/OSD, splash, tooltip, popup, utility,
+# desktop, docks), and Meta+Shift+B is the persisted glow master switch
+# gated per paint in both paint path entry points.
+check ll023-dialogs-notifications-excluded grep -qF 'isDialog() || w->isNotification()' src/glowtargets.h
+check ll023-glow-gate-paint-path        bash -c '[ $(grep -cF "if (!m_glowEnabled || !KittyGlowTargets::isGlowWindow(w)) return;" src/kittyglow.cpp) -ge 2 ]'
+
+# LL-025 (2026-09-11): kwin --replace bus-name race — kglowsync must not die
+# at load when org.kde.kittyglow is still held by the old kwin instance.
+# The script's bootstrap retries (bootTries loop) and slog must swallow
+# callDBus failures instead of throwing at script evaluation time.
+check ll025-kglowsync-resilient-bootstrap bash -c 'grep -qF "bootTries" src/kwin-script/kglowsync/contents/code/main.js && grep -qF "catch (e) {}" src/kwin-script/kglowsync/contents/code/main.js'
+
 echo "---"
 if [ "$FAILS" -eq 0 ]; then
   echo "ALL CHECKS PASSED"

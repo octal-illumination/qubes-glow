@@ -34,6 +34,13 @@ halo never smears. Full design: ARCHITECTURE.md.
 None. Stateless effect; no persistence beyond kwinrc enable flag.
 
 ## 5. Build State
+- **Build #15 (v3.8, all-windows glow, 2026-09-11)** — sha `6d8886da…`,
+  deployed + sha-verified, live in kwin PID 56055. Eligibility is
+  window-type-based (normal app windows glow; dialogs/notifications/OSD/
+  menus/tooltips/splash/utility excluded — LL-023). Verified: kitty ring
+  1,287 px on clean layout; dialog band 112 (noise-level, PASS);
+  notification dock-strip band 0. kglowsync hardened against the
+  `--replace` bus-name race (LL-025, resilient bootstrap + retry).
 - **Build #14 (v3.7, seamless pass-behind, 2026-09-10)** — sha `2ab0c4df…`,
   deployed + gate-verified, live in kwin PID 51644. Non-dock occluders clip
   at `frameGeometry()` only (halo passes behind windows, dimmed by their
@@ -79,7 +86,9 @@ None. Stateless effect; no persistence beyond kwinrc enable flag.
 - Parity at rest: `rules=kitty-borderless`, `noborder=true` (borderless).
 
 ## 6. Active Features
-- Automatic kitty-window detection (`windowClass()` contains "kitty").
+- **All-windows glow (build #15)**: every normal application window gets
+  the halo; dialogs, notifications, OSD, popup menus, tooltips, splash
+  and utility windows are excluded (window-type predicates, LL-023).
 - 8-layer translucent yellow halo (RGB 255,221,0, margin 22 px, alpha 0→70).
 - Fullscreen suppression; OpenGL-compositing guard.
 - Live activation over DBus (`/Effects` loadEffect) — no compositor restart.
@@ -94,11 +103,10 @@ None. Stateless effect; no persistence beyond kwinrc enable flag.
   (incl. crash auto-restarts); manual healing = restart kwin_x11 last (LL-011).
 
 ## 7. Pending / In-Progress
-- v3.4 (LL-019 fix) user acceptance test after Build #10 deploy + kwin
-  restart: place konsole/firefox window over unfocused kitty → NO glow
-  penetration, including right after raise; halo recolors on focus change;
-  minimize/restore tracking + B/T single-fire unaffected; panel clipping
-  (LL-018) still clean.
+- User acceptance of the all-windows glow (build #15): subjective look of
+  halos on non-kitty apps (konsole, firefox) + notification/menu exclusion
+  aesthetics. Programmatic verification already passed (kitty 1,287 px;
+  dialog 112 = noise; notification dock-strip 0).
 
 ## 8. Known Issues
 - Halo penetrates any window placed in front of kitty (LL-019): the 120 ms
@@ -143,6 +151,10 @@ None. Stateless effect; no persistence beyond kwinrc enable flag.
 - **dom0-replica-fed37** Podman container — Fedora 37 build env (KWin 5.27.8 devel).
 
 ## 10. Last Updated
+2026-09-11T08:0x — All-windows glow shipped (#15, sha 6d8886da, kwin
+56055): type-based eligibility (LL-023), kglowsync resilient bootstrap
+(LL-025), benign loader-noise documented (LL-024). Probes verify2/3/4 in
+logs/probe/. Stale v3.4 acceptance item retired (was user-accepted #10).
 2026-09-10T21:4xZ — Seamless pass-behind shipped (#14) + user-accepted;
 deploy.sh sha-gate added (LL-022); in-repo regression-checks.sh (8 green);
 Build State section restored (lost to an atomic edit rollback).

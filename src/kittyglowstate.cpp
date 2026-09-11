@@ -46,4 +46,22 @@ bool toggleNoBorder() {
     return next;
 }
 
+// --- Glow master switch -------------------------------------------------
+
+bool loadGlowEnabled() {
+    return stateGroup().readEntry(QStringLiteral("glowEnabled"), true);
+}
+
+void saveGlowEnabled(bool enabled) {
+    KConfigGroup g = stateGroup();
+    g.writeEntry(QStringLiteral("glowEnabled"), enabled);
+    g.sync();
+}
+
+bool toggleGlowEnabled() {
+    const bool next = !loadGlowEnabled();
+    saveGlowEnabled(next);
+    return next;
+}
+
 } // namespace KittyGlowState

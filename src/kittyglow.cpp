@@ -1,6 +1,6 @@
-// kittyglow — v3.6: occlusion-clipped SDF glow (per-paint occluder rebuild,
-// CPU-subdivided halo quads — LL-020), animation-mapped halo, repeat-gated
-// shortcut.
+// kittyglow — v3.8: ALL-WINDOW occlusion-clipped SDF glow (per-paint
+// occluder rebuild, CPU-subdivided halo quads — LL-020), animation-mapped
+// halo, Meta+Shift+B = glow master switch (build #15, 2026-09-10).
 // Note: This code is purely AI-generated.
 //
 // Render path: one hardware-blended triangle fan quad around the frame rect;
@@ -10,15 +10,19 @@
 // mapped through the scene's animation transform (scale/translation on
 // WindowPaintData), so the halo tracks minimize/restore mid-flight instead of
 // snapping to the destination geometry, and fades with data.opacity().
+// Eligibility: every real application window — dialogs, notifications,
+// OSDs, splashes, tooltips, popups, utility palettes, desktop and
+// docks/panels are excluded (glowtargets.h).
 //
-// Shortcuts: Meta+Shift+B (here) flips the persistent kitty window rule
-// [kitty-borderless] (kwinrulesrc, Force rule) and stages the new value for
-// the kglowsync KWin script (60 ms DBus poll, kittytoggle.cpp) which applies
-// noBorder live — no reconfigure, no kwin restart, no flash (LL-016); the
-// native per-focused-window toggle "Window No Border" is rebound to
-// Meta+Shift+T by v2-rollout-round.sh.
+// Meta+Shift+B toggles the GLOW globally: flips kittyglowrc
+// [General] glowEnabled and addRepaintFull()s — live, no restart, no flash.
+// (Build #14 and earlier it toggled kitty's borderless rule; that
+// plumbing — kittyglowstate noBorder + kittytoggle + kglowsync — is kept
+// for state persistence but no longer bound to the shortcut. Per-window
+// borderless remains on Meta+Shift+T, KWin's native action.)
 #include "glowconfig.h"
 #include "glowshader.h"
+#include "glowtargets.h"
 
 #include <kwineffects.h>
 #include <kwinglutils.h>
@@ -40,10 +44,8 @@
 
 namespace {
 
-bool isKittyWindow(KWin::EffectWindow *w) {
-    if (w->isDesktop() || w->isDock()) return false;
-    return w->windowClass().toLower().contains(QStringLiteral("kitty"));
-}
+// Eligibility moved to glowtargets.h (Rule 13) when the halo generalized
+// to all application windows (build #15).
 
 }  // namespace
 
@@ -58,59 +60,65 @@ public:
                      KWin::WindowPaintData &data) override;
 
 private:
-    void toggleKittyBorderless();
+    void toggleGlow();
     void repaintHalo(const QRectF &frame);
-    void repaintAllKittyHalos();
-    QRegion occludedAboveKitty(KWin::EffectWindow *kitty, const QRectF &halo,
-                               qreal scale) const;
+    void repaintAllGlowHalos();
+    QRegion occludedAbove(KWin::EffectWindow *painted, const QRectF &halo,
+                          qreal scale) const;
     KittyGlow::GlowConfig m_cfg;
     std::unique_ptr<KWin::GLShader> m_shader;
-    // Key autorepeat made Meta+Shift+B flip the rule dozens of times per hold
+    // Glow master switch (Meta+Shift+B); persisted in kittyglowrc.
+    bool m_glowEnabled = true;
+    // Key autorepeat made Meta+Shift+B flip the state dozens of times per hold
     // (flicker + final parity depended on hold duration); gate per press.
     QElapsedTimer m_toggleGate;
 };
 
 KittyGlowEffect::KittyGlowEffect() {
     QAction *a = new QAction(this);
+    // objectName kept as the historical "Toggle Kitty Borderless": it is the
+    // kglobalaccel registration id, and re-registering a new id for the same
+    // Meta+Shift+B binding risks the daemon silently rejecting the key. The
+    // display text now tells the truth (glow master switch, build #15).
     a->setObjectName(QStringLiteral("Toggle Kitty Borderless"));
-    a->setText(QStringLiteral("Toggle Kitty Borderless"));
+    a->setText(QStringLiteral("Toggle Glow"));
     KGlobalAccel::self()->setDefaultShortcut(
         a, QList<QKeySequence>() << (Qt::META | Qt::SHIFT | Qt::Key_B));
     KGlobalAccel::self()->setShortcut(
         a, QList<QKeySequence>() << (Qt::META | Qt::SHIFT | Qt::Key_B));
-    connect(a, &QAction::triggered, this, &KittyGlowEffect::toggleKittyBorderless);
+    connect(a, &QAction::triggered, this, &KittyGlowEffect::toggleGlow);
 
     // The halo lies OUTSIDE the frame rect, so damage must be widened or the
     // ring smears during moves and lingers after minimize. Repaint the halo
     // area of both the new and the old geometry, and on minimize/unminimize.
     connect(KWin::effects, &KWin::EffectsHandler::windowFrameGeometryChanged, this,
             [this](KWin::EffectWindow *w, const QRectF &old) {
-        if (!isKittyWindow(w)) return;
+        if (!KittyGlowTargets::isGlowWindow(w)) return;
         repaintHalo(w->frameGeometry());
         repaintHalo(old);
     });
     connect(KWin::effects, &KWin::EffectsHandler::windowMinimized, this,
             [this](KWin::EffectWindow *w) {
-        if (isKittyWindow(w)) repaintHalo(w->frameGeometry());
+        if (KittyGlowTargets::isGlowWindow(w)) repaintHalo(w->frameGeometry());
     });
     connect(KWin::effects, &KWin::EffectsHandler::windowUnminimized, this,
             [this](KWin::EffectWindow *w) {
-        if (isKittyWindow(w)) repaintHalo(w->frameGeometry());
+        if (KittyGlowTargets::isGlowWindow(w)) repaintHalo(w->frameGeometry());
     });
 
     // LL-019: the halo clip comes from the stacking at paint time, but
     // nothing repainted the halo when stacking CHANGED (window raised above
     // kitty) — the one unclipped transition frame then persisted forever,
     // because an unfocused kitty never repaints by itself. Repaint every
-    // kitty halo on raise/lower; the next frame re-clips from fresh state.
+    // glow halo on raise/lower; the next frame re-clips from fresh state.
     connect(KWin::effects, &KWin::EffectsHandler::stackingOrderChanged, this,
-            [this]() { repaintAllKittyHalos(); });
+            [this]() { repaintAllGlowHalos(); });
 
     // LL-019 (stale color): the halo color is picked at paint time from
-    // activeWindow(), so the halo stayed ACTIVE-gold after focus moved away
-    // until kitty's next repaint. Repaint on every activation change.
+    // activeWindow(), so a halo stayed ACTIVE-gold after focus moved away
+    // until the window's next repaint. Repaint on every activation change.
     connect(KWin::effects, &KWin::EffectsHandler::windowActivated, this,
-            [this](KWin::EffectWindow *) { repaintAllKittyHalos(); });
+            [this](KWin::EffectWindow *) { repaintAllGlowHalos(); });
 
     // Seamless toggle channel: DBus pull-service + kglowsync poller script
     // (see kittytoggle.h). The script applies noBorder live so the toggle
@@ -129,6 +137,7 @@ void KittyGlowEffect::repaintHalo(const QRectF &frame) {
 void KittyGlowEffect::reconfigure(ReconfigureFlags flags) {
     Q_UNUSED(flags)
     m_cfg = KittyGlow::loadGlowConfig(KSharedConfig::openConfig(QStringLiteral("kwinrc")));
+    m_glowEnabled = KittyGlowState::loadGlowEnabled();
     if (KWin::effects->isOpenGLCompositing()) {
         KWin::effects->makeOpenGLContextCurrent();
         m_shader = KittyGlow::GlowShader::create();  // caller-owned; rebuild here
@@ -139,7 +148,7 @@ void KittyGlowEffect::reconfigure(ReconfigureFlags flags) {
 void KittyGlowEffect::prePaintWindow(KWin::EffectWindow *w, KWin::WindowPrePaintData &data,
                                      std::chrono::milliseconds presentTime) {
     KWin::effects->prePaintWindow(w, data, presentTime);
-    if (!isKittyWindow(w)) return;
+    if (!m_glowEnabled || !KittyGlowTargets::isGlowWindow(w)) return;
     const int e = m_cfg.maxExtent();
     const QRect g = w->frameGeometry().toRect();
     data.paint |= g.adjusted(-e, -e, e, e);
@@ -157,7 +166,7 @@ void KittyGlowEffect::paintWindow(KWin::EffectWindow *w, int mask, QRegion regio
     // animation frames. While fully minimized the window is not in the paint
     // loop at all, so no halo leaks in the steady state; the alpha guard below
     // still fades the halo if an effect animates opacity.
-    if (!isKittyWindow(w)) return;  // halo only for kitty (filter must stay!)
+    if (!m_glowEnabled || !KittyGlowTargets::isGlowWindow(w)) return;  // glow master switch + eligibility
     if (!m_shader) return;
     const QRectF g = w->frameGeometry();
     const float s = static_cast<float>(KWin::effects->renderTargetScale());
@@ -194,7 +203,7 @@ void KittyGlowEffect::paintWindow(KWin::EffectWindow *w, int mask, QRegion regio
     // SDF is fragment-position-based, so subdivided partial draws of the same
     // quad are pixel-identical to an unclipped draw.
     // LL-019: occluders are rebuilt on EVERY halo paint — see
-    // occludedAboveKitty(); the old 120 ms cache lagged restacks.
+    // occludedAbove(); the old 120 ms cache lagged restacks.
     // The scene's paint region for kitty covers only its frame: the ring
     // widening done in prePaintWindow does NOT propagate into paintWindow's
     // region parameter in KWin 5.27.8 (gate logging, 2026-09-10: region∩halo
@@ -205,7 +214,7 @@ void KittyGlowEffect::paintWindow(KWin::EffectWindow *w, int mask, QRegion regio
     // damage tracking is handled by the prePaintWindow widening + the LL-019
     // stacking/activation repaint hooks.
     QRegion clip = halo.toRect();
-    clip -= occludedAboveKitty(w, halo, s);
+    clip -= occludedAbove(w, halo, s);
     if (clip.isEmpty()) return;
 
     QColor color = KWin::effects->activeWindow() == w ? m_cfg.colorActive
@@ -255,35 +264,36 @@ void KittyGlowEffect::paintWindow(KWin::EffectWindow *w, int mask, QRegion regio
     KWin::ShaderManager::instance()->popShader();
 }
 
-// Repaint the full halo ring of every kitty window (stacking/activation
+// Repaint the full halo ring of every glow window (stacking/activation
 // hooks); the next paint pass recomputes each halo's clip from fresh state.
-void KittyGlowEffect::repaintAllKittyHalos() {
+void KittyGlowEffect::repaintAllGlowHalos() {
     const auto stack = KWin::effects->stackingOrder();
     for (auto *w : stack) {
-        if (w && !w->isDeleted() && isKittyWindow(w))
+        if (w && !w->isDeleted() && KittyGlowTargets::isGlowWindow(w))
             repaintHalo(w->frameGeometry());
     }
 }
 
 // Occluders for ONE halo paint: windows logically stacked ABOVE the PAINTED
-// kitty window that paint fully opaque frames, as a device-px region cut out
-// of the halo. Rebuilt on EVERY halo paint — the old 120 ms stacking snapshot
+// window that paint fully opaque frames, as a device-px region cut out of
+// the halo. Rebuilt on EVERY halo paint — the old 120 ms stacking snapshot
 // lagged raise/drag transitions (LL-019): one frame drew unclipped and an
-// unfocused kitty never repainted it away. Anchoring to the painted window
-// (not "the topmost kitty") also fixes the occluder set with 2+ kitty
-// windows. Cost: one stackingOrder() walk per halo paint — negligible.
+// unfocused window never repainted it away. Anchoring to the painted window
+// (not "the topmost window") also keeps the occluder set correct with any
+// number of stacked windows. Cost: one stackingOrder() walk per halo paint —
+// negligible.
 // NOTE: stackingOrder() is the logical bottom→top order and is NOT reordered
 // while a window is dragged (elevation is paint-time only).
-QRegion KittyGlowEffect::occludedAboveKitty(KWin::EffectWindow *kitty,
-                                            const QRectF &halo, qreal scale) const {
+QRegion KittyGlowEffect::occludedAbove(KWin::EffectWindow *painted,
+                                       const QRectF &halo, qreal scale) const {
     QRegion occl;
     const auto stack = KWin::effects->stackingOrder();
-    int kittyIdx = -1;
-    for (int i = 0; i < stack.size() && kittyIdx < 0; ++i) {
-        if (stack.at(i) == kitty) kittyIdx = i;
+    int paintedIdx = -1;
+    for (int i = 0; i < stack.size() && paintedIdx < 0; ++i) {
+        if (stack.at(i) == painted) paintedIdx = i;
     }
-    if (kittyIdx < 0) return occl;  // not in stack (closing): draw unclipped
-    for (int i = kittyIdx + 1; i < stack.size(); ++i) {
+    if (paintedIdx < 0) return occl;  // not in stack (closing): draw unclipped
+    for (int i = paintedIdx + 1; i < stack.size(); ++i) {
         KWin::EffectWindow *w = stack.at(i);
         if (!w || w->isDeleted() || w->isMinimized()) continue;
         // Desktop windows (plasma's fullscreen desktop containment) are by
@@ -318,27 +328,23 @@ QRegion KittyGlowEffect::occludedAboveKitty(KWin::EffectWindow *kitty,
     return occl.intersected(halo.toRect());
 }
 
-void KittyGlowEffect::toggleKittyBorderless() {
+void KittyGlowEffect::toggleGlow() {
     // kglobalaccel re-emits triggered() for every autorepeat of a held key;
-    // each pass rewrote kwinrulesrc and restarted kwin_x11 (white/black
-    // flicker, final parity random). Gate to one toggle per physical press:
-    // repeats arrive 25-33 ms apart and keep restarting the timer, so a held
-    // key suppresses itself; a release + new press is always later than the
-    // 220 ms window.
+    // gate to one toggle per physical press (repeats arrive 25-33 ms apart
+    // and keep restarting the timer; a release + new press is always later
+    // than the 220 ms window).
     if (m_toggleGate.isValid() && !m_toggleGate.hasExpired(220)) return;
     m_toggleGate.start();
 
-    // State-based toggle (kittyglowstate.cpp): the value lives in our own
-    // kittyglowrc, so no in-memory forcing rule can fight the kglowsync
-    // script's noBorder writes (the 2026-09-09 write-revert fight). The
-    // kwinrulesrc kitty rule is retired; see HANDBOOK.md migration note.
-    const bool flipped = KittyGlowState::toggleNoBorder();
-    // No reconfigure here — that call is the LL-016 white flash. Stage the
-    // new value; the kglowsync script applies it to kitty windows within
-    // 60 ms and the halo follows via windowFrameGeometryChanged.
-    KittyToggle::requestApply(flipped);
-    qWarning() << "toggle: flipped noborder ->" << flipped
-               << "and staged for kglowsync";
+    // Glow master switch (build #15): persisted in kittyglowrc so it
+    // survives kwin restarts; a full repaint re-evaluates every window's
+    // halo on the very next frame — live, no restart, no flash (the
+    // LL-016 white flash came from reconfigure(), which we avoid).
+    // The borderless plumbing (kglowsync) is NOT touched: kitty keeps its
+    // persisted borderless state; per-window borderless = Meta+Shift+T.
+    m_glowEnabled = KittyGlowState::toggleGlowEnabled();
+    KWin::effects->addRepaintFull();
+    qWarning() << "toggle: glow ->" << (m_glowEnabled ? "on" : "off");
 }
 
 KWIN_EFFECT_FACTORY(KittyGlowEffect, "kittyglow.json")

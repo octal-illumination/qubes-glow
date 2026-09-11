@@ -245,3 +245,9 @@ Build #13 (cb63bd4b) deployed+sha-verified, kwin restarted (PID 51070), positive
 "Perfect, everythin works as it should and seamless."
 #### Verbatim Output Response
 User acceptance recorded. Docs synced (SPECIFICATION LL-017 supersession, ARCHITECTURE §2.3, HANDBOOK, PROJECT_CONTEXT §5/§10), HTML regenerated + audited, ledgers updated, regression registry committed, session committed.
+
+## 2026-09-11T08:05+05:45
+#### User Request
+"go" (deploy #15) → "restart kwin" → (chained wrap-up directives per session plan).
+#### Verbatim Output Response
+Deployed build #15 (sha 6d8886da, gate-verified), restarted kwin (PID 56055), diagnosed the scripted-effect failure as benign loader noise (LL-024), hardened kglowsync against the --replace bus-name race (LL-025), verified all-windows glow programmatically (kitty 1287 px, dialog/notification excluded), added regression assertion, synced docs + HTML, committed.

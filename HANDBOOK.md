@@ -5,9 +5,13 @@
 
 ## 1. Purpose & Features
 
-A KWin effect that draws a soft yellow halo around every `kitty` terminal window.
-Features: automatic tracking of kitty windows, 8-layer alpha falloff, fullscreen
-suppression, OpenGL-compositing only.
+A KWin effect that draws a soft yellow halo around every eligible window —
+all normal application windows (build #15); dialogs, notifications, OSD,
+popup menus, tooltips, splash and utility windows are excluded by
+window-type predicates. Features: automatic window tracking, 8-layer alpha
+falloff, seamless pass-behind occlusion, fullscreen suppression,
+OpenGL-compositing only, and a persisted Meta+Shift+B master toggle
+(borderless state syncs with it via the kglowsync script).
 
 ## 2. Prerequisites
 
@@ -174,7 +178,14 @@ dom0 "kwriteconfig5 --file kwinrc --group Plugins --key kittyglowEnabled false"
 
 ## 11. Limitations
 
-- Effect is always-on for kitty windows (the Meta+Shift+B toggle flips the
+- Journal noise: `Could not initialize scripted effect: "kittyglow"` on
+  every kwin start/reconfigure is BENIGN (LL-024) — the scripted loader
+  probes the metadata-only effect package before the plugin loader loads
+  the C++ .so. Never a sign of breakage; verify by behavior instead.
+- The Plasma notification toast cannot be probed directly (unmanaged
+  window): exclusion is verified by construction (type predicate, LL-023)
+  plus observation that the toast's dock-type strip gets no halo (band 0).
+- Effect is always-on for app windows (the Meta+Shift+B toggle flips the
   rule class-wide, not per-window — see ROADMAP).
 - v3.4 renderer: one SDF quad per kitty window, mapped through the scene's
   animation transform (scale about frame top-left + translation, the same

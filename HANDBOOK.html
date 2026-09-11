@@ -282,10 +282,14 @@
 purely AI-generated.</p>
 </blockquote>
 <h2 id="purpose-features">1. Purpose &amp; Features</h2>
-<p>A KWin effect that draws a soft yellow halo around every
-<code>kitty</code> terminal window. Features: automatic tracking of
-kitty windows, 8-layer alpha falloff, fullscreen suppression,
-OpenGL-compositing only.</p>
+<p>A KWin effect that draws a soft yellow halo around every eligible
+window — all normal application windows (build #15); dialogs,
+notifications, OSD, popup menus, tooltips, splash and utility windows
+are excluded by window-type predicates. Features: automatic window
+tracking, 8-layer alpha falloff, seamless pass-behind occlusion,
+fullscreen suppression, OpenGL-compositing only, and a persisted
+Meta+Shift+B master toggle (borderless state syncs with it via the
+kglowsync script).</p>
 <h2 id="prerequisites">2. Prerequisites</h2>
 <ul>
 <li>A running <code>dom0-replica-fed37</code> Podman container (Fedora
@@ -481,7 +485,16 @@ class="sourceCode bash"><code class="sourceCode bash"><span id="cb8-1"><a href="
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="co"># restart KWin, then optionally remove the two installed files.</span></span></code></pre></div>
 <h2 id="limitations">11. Limitations</h2>
 <ul>
-<li>Effect is always-on for kitty windows (the Meta+Shift+B toggle flips
+<li>Journal noise:
+<code>Could not initialize scripted effect: "kittyglow"</code> on every
+kwin start/reconfigure is BENIGN (LL-024) — the scripted loader probes
+the metadata-only effect package before the plugin loader loads the C++
+.so. Never a sign of breakage; verify by behavior instead.</li>
+<li>The Plasma notification toast cannot be probed directly (unmanaged
+window): exclusion is verified by construction (type predicate, LL-023)
+plus observation that the toast’s dock-type strip gets no halo (band
+0).</li>
+<li>Effect is always-on for app windows (the Meta+Shift+B toggle flips
 the rule class-wide, not per-window — see ROADMAP).</li>
 <li>v3.4 renderer: one SDF quad per kitty window, mapped through the
 scene’s animation transform (scale about frame top-left + translation,

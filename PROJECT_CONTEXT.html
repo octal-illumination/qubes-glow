@@ -303,6 +303,14 @@ halo never smears. Full design: ARCHITECTURE.md.</p>
 <p>None. Stateless effect; no persistence beyond kwinrc enable flag.</p>
 <h2 id="build-state">5. Build State</h2>
 <ul>
+<li><strong>Build #15 (v3.8, all-windows glow, 2026-09-11)</strong> —
+sha <code>6d8886da…</code>, deployed + sha-verified, live in kwin PID
+56055. Eligibility is window-type-based (normal app windows glow;
+dialogs/notifications/OSD/ menus/tooltips/splash/utility excluded —
+LL-023). Verified: kitty ring 1,287 px on clean layout; dialog band 112
+(noise-level, PASS); notification dock-strip band 0. kglowsync hardened
+against the <code>--replace</code> bus-name race (LL-025, resilient
+bootstrap + retry).</li>
 <li><strong>Build #14 (v3.7, seamless pass-behind, 2026-09-10)</strong>
 — sha <code>2ab0c4df…</code>, deployed + gate-verified, live in kwin PID
 51644. Non-dock occluders clip at <code>frameGeometry()</code> only
@@ -361,8 +369,10 @@ crash; stable since).</li>
 </ul>
 <h2 id="active-features">6. Active Features</h2>
 <ul>
-<li>Automatic kitty-window detection (<code>windowClass()</code>
-contains “kitty”).</li>
+<li><strong>All-windows glow (build #15)</strong>: every normal
+application window gets the halo; dialogs, notifications, OSD, popup
+menus, tooltips, splash and utility windows are excluded (window-type
+predicates, LL-023).</li>
 <li>8-layer translucent yellow halo (RGB 255,221,0, margin 22 px, alpha
 0→70).</li>
 <li>Fullscreen suppression; OpenGL-compositing guard.</li>
@@ -385,11 +395,10 @@ kwin_x11 last (LL-011).</li>
 </ul>
 <h2 id="pending-in-progress">7. Pending / In-Progress</h2>
 <ul>
-<li>v3.4 (LL-019 fix) user acceptance test after Build #10 deploy + kwin
-restart: place konsole/firefox window over unfocused kitty → NO glow
-penetration, including right after raise; halo recolors on focus change;
-minimize/restore tracking + B/T single-fire unaffected; panel clipping
-(LL-018) still clean.</li>
+<li>User acceptance of the all-windows glow (build #15): subjective look
+of halos on non-kitty apps (konsole, firefox) + notification/menu
+exclusion aesthetics. Programmatic verification already passed (kitty
+1,287 px; dialog 112 = noise; notification dock-strip 0).</li>
 </ul>
 <h2 id="known-issues">8. Known Issues</h2>
 <ul>
@@ -448,33 +457,37 @@ deployment + activation target.</li>
 build env (KWin 5.27.8 devel).</li>
 </ul>
 <h2 id="last-updated">10. Last Updated</h2>
-<p>2026-09-10T21:4xZ — Seamless pass-behind shipped (#14) +
-user-accepted; deploy.sh sha-gate added (LL-022); in-repo
-regression-checks.sh (8 green); Build State section restored (lost to an
-atomic edit rollback). 2026-09-10T20:4xZ — LL-020 saga closed: builds
-#11–#13. Final mechanism (clip = halo − occluders, CPU subdivision,
-unclipped 1-arg render, isDesktop() occluder skip) E2E-verified:
-positive control 5,214/25,896 px, occlusion 0 px, 24-cycle burst flat.
-Docs refreshed (SPECIFICATION LL-020/021/022; ARCHITECTURE §2.3/§3/§4;
-HANDBOOK §5 LL-021/022 caveats). 2026-09-10T00:4xZ — Build #10 executed
-on explicit “build the app”: zero- warning compile (sha 31254894),
-deployed to dom0 (sha verified), kwin restarted (activation + LL-011
-heal; old kwin 34892→35345→36048 — note kwin had restarted/rebooted to
-34892 between sessions, prior ref 32660 stale), isEffectLoaded=true, B/T
-shortcuts re-registered. Awaiting user acceptance test per §7.
-2026-09-09T20:xxZ — LL-019 fix implemented (v3.4) in src/kittyglow.cpp:
-occluders rebuilt on every halo paint (120 ms cache deleted), anchored
-to the painted kitty window, stackingOrderChanged + windowActivated
-full-ring repaint hooks added. SPECIFICATION LL-017/018 registry gap
-repaired, LL-019 added; HANDBOOK occlusion section synced. Build #10
-pending explicit build consent. 2026-09-09T19:xxZ — Build #9 (LL-018
-fix) VERIFIED LIVE: .so mapped in kwin 32660 (5 mappings), B+T shortcuts
-re-registered, restart log 0 errors, metadata dir perms fixed to
-755/644. Remaining: visual panel test + re-run panel probe (expect gold
-≡ 48 px baseline). 2026-09-09T18:05Z — LL-018 fix coded in
-<code>updateOccluders()</code> (docks/panels always clip the halo, even
-when translucent; probe evidence: 1,450 gold px on panel vs 48 px
-baseline, static clipping re-verified clean). HANDBOOK occlusion section
-synced. Build #9 + KWin restart pending user consent.</p>
+<p>2026-09-11T08:0x — All-windows glow shipped (#15, sha 6d8886da, kwin
+56055): type-based eligibility (LL-023), kglowsync resilient bootstrap
+(LL-025), benign loader-noise documented (LL-024). Probes verify2/3/4 in
+logs/probe/. Stale v3.4 acceptance item retired (was user-accepted #10).
+2026-09-10T21:4xZ — Seamless pass-behind shipped (#14) + user-accepted;
+deploy.sh sha-gate added (LL-022); in-repo regression-checks.sh (8
+green); Build State section restored (lost to an atomic edit rollback).
+2026-09-10T20:4xZ — LL-020 saga closed: builds #11–#13. Final mechanism
+(clip = halo − occluders, CPU subdivision, unclipped 1-arg render,
+isDesktop() occluder skip) E2E-verified: positive control 5,214/25,896
+px, occlusion 0 px, 24-cycle burst flat. Docs refreshed (SPECIFICATION
+LL-020/021/022; ARCHITECTURE §2.3/§3/§4; HANDBOOK §5 LL-021/022
+caveats). 2026-09-10T00:4xZ — Build #10 executed on explicit “build the
+app”: zero- warning compile (sha 31254894), deployed to dom0 (sha
+verified), kwin restarted (activation + LL-011 heal; old kwin
+34892→35345→36048 — note kwin had restarted/rebooted to 34892 between
+sessions, prior ref 32660 stale), isEffectLoaded=true, B/T shortcuts
+re-registered. Awaiting user acceptance test per §7. 2026-09-09T20:xxZ —
+LL-019 fix implemented (v3.4) in src/kittyglow.cpp: occluders rebuilt on
+every halo paint (120 ms cache deleted), anchored to the painted kitty
+window, stackingOrderChanged + windowActivated full-ring repaint hooks
+added. SPECIFICATION LL-017/018 registry gap repaired, LL-019 added;
+HANDBOOK occlusion section synced. Build #10 pending explicit build
+consent. 2026-09-09T19:xxZ — Build #9 (LL-018 fix) VERIFIED LIVE: .so
+mapped in kwin 32660 (5 mappings), B+T shortcuts re-registered, restart
+log 0 errors, metadata dir perms fixed to 755/644. Remaining: visual
+panel test + re-run panel probe (expect gold ≡ 48 px baseline).
+2026-09-09T18:05Z — LL-018 fix coded in <code>updateOccluders()</code>
+(docks/panels always clip the halo, even when translucent; probe
+evidence: 1,450 gold px on panel vs 48 px baseline, static clipping
+re-verified clean). HANDBOOK occlusion section synced. Build #9 + KWin
+restart pending user consent.</p>
 </body>
 </html>

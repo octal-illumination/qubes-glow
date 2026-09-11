@@ -205,6 +205,23 @@ Git boundary: the whole `kitty-glow/` directory. No cross-project dependencies.
   #12-debug — cost a full restart cycle on a phantom build). ALWAYS
   sha-verify the deployed artifact (`sha256sum` dom0 vs `dist/`) after
   every deploy, before any restart or verification.
+- **LL-024** — `/usr/share/kwin/effects/kittyglow/` holds a metadata-only
+  KPackage (no `contents/`). KWin probes EVERY `KWin/Effect` package with
+  BOTH loaders: the scripted loader logs `Could not initialize scripted
+  effect: "kittyglow"` (no script to run), then the plugin loader loads
+  the C++ `.so` fine. The failure line is BENIGN and has fired on every
+  start/reconfigure since 2026-09-07 — it is NOT evidence that kglowsync
+  or the effect broke. Verify by behavior (journal toggle lines,
+  `getCurrentState` via DBus, painted pixels), never by that line.
+- **LL-025** — `kwin_x11 --replace` overlaps instances: the OLD kwin holds
+  the `org.kde.kittyglow` DBus name until it exits, so the new effect's
+  service may not answer while kglowsync boots; a `callDBus` throw at
+  script-evaluation time kills the script (`Could not initialize`). Fix:
+  kglowsync's `slog` swallows callDBus failures and the bootstrap retries
+  every 500 ms (≤60×) until the service answers (assertion
+  `ll025-kglowsync-resilient-bootstrap`). C++-side retry was rejected —
+  script packages reload on reconfigure, so the JS-side fix needs no
+  kwin restart to revive.
 - Robust ownership query on
   kglobalaccel is the NO-ARG `allShortcutInfos` on `/component/kwin`;
   keyed queries (`getGlobalShortcutsByKey`, `action()`) require exactly

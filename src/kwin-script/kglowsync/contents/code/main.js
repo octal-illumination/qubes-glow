@@ -46,7 +46,11 @@ function kittyWindows() {
 }
 
 function slog(msg) {
-    callDBus(SERVICE, PATH, IFACE, "scriptLog", String(msg));
+    // Service may not own its bus name yet (kwin --replace overlap: the old
+    // instance holds org.kde.kittyglow until it exits). Drop diagnostics
+    // rather than letting callDBus throw and kill the whole script.
+    try { callDBus(SERVICE, PATH, IFACE, "scriptLog", String(msg)); }
+    catch (e) {}
 }
 
 // Returns a started QTimer(ms, fn) or null — never throws. Parentless
@@ -93,23 +97,40 @@ function applyDesired(origin) {
 
 slog("script alive, kitty windows=" + kittyWindows().length);
 
-// Bootstrap: restore the persisted state after kwin/script restarts. The
-// reply doubles as the first service heartbeat.
-callDBus(SERVICE, PATH, IFACE, "getCurrentState", function(st) {
-    lastReplyMs = nowMs();
-    desired = (Number(st) === 1);
-    slog("bootstrap: persisted state=" + st + " -> desired=" + desired);
-    applyDesired("bootstrap");
-});
+// Bootstrap with retry: at script load the C++ effect's service may not
+// own its bus name yet (see slog) — the old kwin instance holds it until it
+// exits after --replace. Retry every 500 ms up to 60 times (30 s) instead
+// of dying at load ("Could not initialize scripted effect", 2026-09-10).
+var bootTries = 0;
+function bootstrap() {
+    bootTries++;
+    try {
+        callDBus(SERVICE, PATH, IFACE, "getCurrentState", function(st) {
+            lastReplyMs = nowMs();
+            desired = (Number(st) === 1);
+            slog("bootstrap: persisted state=" + st + " -> desired=" + desired);
+            applyDesired("bootstrap");
+        });
+    } catch (e) {
+        if (bootTries < 60) {
+            makeTimer(500, bootstrap);
+        } else {
+            slog("FATAL: service unreachable after 30s of retries");
+        }
+    }
+}
+bootstrap();
 
 // Live toggle channel: consume staged commands from the C++ effect.
 var poll = makeTimer(60, function() {
-    callDBus(SERVICE, PATH, IFACE, "nextSource", function(src) {
-        lastReplyMs = nowMs();
-        var v = Number(src);
-        if (v === 1) desired = true;
-        else if (v === 2) desired = false;
-    });
+    try {
+        callDBus(SERVICE, PATH, IFACE, "nextSource", function(src) {
+            lastReplyMs = nowMs();
+            var v = Number(src);
+            if (v === 1) desired = true;
+            else if (v === 2) desired = false;
+        });
+    } catch (e) { /* transient service gap: heartbeat pauses the sweep */ }
 });
 if (poll === null) slog("FATAL poll timer not constructible");
 

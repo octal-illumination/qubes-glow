@@ -665,3 +665,55 @@
 ## 2026-09-10T22:55:51+05:30
 - Command: activate kitty by class (clean demo state, retry after AFK)
 - Reason: Stable visual-acceptance state for the user.
+
+## 2026-09-10T23:11:18+05:30
+- Command: regression-checks + docs HTML regen + 18e audit + ledgers + commit (seamless closure)
+- Reason: Rule 3/9/10/18/23 atomic completion of the user-accepted change.
+
+## 2026-09-10T23:14:23+05:30
+- Command: SESSION_STATE final rewrite + commit
+- Reason: Rule 17 milestone snapshot at session close.
+
+## 2026-09-10T23:53:37+05:30
+- Command: build #15 deploy retry (sha gate)
+- Reason: First attempt cancelled at the dom0 dialog.
+
+## 2026-09-11T07:37:20+05:30
+- Command: build #15 deploy (attempt 3, user approved dialog)
+- Reason: Load the all-windows glow build onto dom0.
+
+## 2026-09-11T07:40:02+05:30
+- Command: kwin restart loading build #15 (6d8886da) + shortcut registry check
+- Reason: LL-021 — restart required to load the all-windows glow build (user consented).
+
+## 2026-09-11T07:43:05+05:30
+- Command: ll015_allwin.py verification chain (retry)
+- Reason: First attempt cancelled.
+
+## 2026-09-11T07:45:17+05:30
+- Command: ll015_diag.py — global gold counts + config + shortcut registry + journal
+- Reason: STEP1 ring absent and shortcut dead; isolate which.
+
+## 2026-09-11T07:47:48+05:30
+- Command: ll015_verify2.py staged verification + kglowsync revival
+- Reason: Clean-layout ring checks, exclusions, scripted-effect race fix.
+
+## 2026-09-11T07:52:22+05:30
+- Command: kglowsync resilient main.js push + reconfigure + verify3
+- Reason: Fix script-init race (bus-name overlap on --replace); staged ring/exclusion verification.
+
+## 2026-09-11T07:54:03+05:30
+- Command: kglowsync deep diagnosis (file sha, service, full JS error)
+- Reason: Script still fails after resilient rewrite; need the real JS exception.
+
+## 2026-09-11T07:55:39+05:30
+- Command: stale-kpackage check + service query with session env
+- Reason: Failing script named kittyglow not kglowsync; suspected PoC leftover.
+
+## 2026-09-11T07:59:01+05:30
+- Command: ll015_verify4.py final probe (per-window bands + notification xprop)
+- Reason: Confirm app-window rings and notification exclusion.
+
+## 2026-09-11T08:02:30+05:30
+- Command: regression-checks.sh + bash -n (LL-025 assertion added)
+- Reason: Register the kglowsync resilient-bootstrap fix as a machine-verifiable invariant (Rule 20).

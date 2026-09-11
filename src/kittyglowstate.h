@@ -13,7 +13,7 @@
 
 namespace KittyGlowState {
 
-// Current persisted state. true = borderless (the feature's default and
+// Current persisted state. true = enabled (the feature's default and
 // the value used when no state has ever been saved).
 bool loadNoBorder();
 
@@ -23,6 +23,15 @@ void saveNoBorder(bool noBorder);
 
 // Convenience: load, flip, save, return the new value.
 bool toggleNoBorder();
+
+// --- Glow master switch (build #15, 2026-09-10) -------------------------
+// kittyglowrc layout: [General] glowEnabled=true|false (default true).
+// Meta+Shift+B flips this; the C++ effect re-reads it paint-side, so no
+// kglowsync round-trip is needed (the script only exists because noBorder
+// is a scripting-only property — the glow is rendered by the effect).
+bool loadGlowEnabled();
+void saveGlowEnabled(bool enabled);
+bool toggleGlowEnabled();
 
 } // namespace KittyGlowState
 
