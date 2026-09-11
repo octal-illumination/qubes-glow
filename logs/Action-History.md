@@ -342,3 +342,13 @@ requested.
 m4b (CMakeLists VERSION 3.10.1) + m5b (rollback label) applied and
 verified. No rebuild needed — compiled artifact unchanged (f9389aec
 remains live in kwin 65324).
+
+## 2026-09-11T13:33:11+05:30
+#### User Request
+"This glow was specifically compiled for dom0 environment, but if this is going to be distributable or uploaded on github for the world to use, shouldn't this be able to work in any system kde plasma(this version) works?"
+#### Verbatim Output Response
+Assessment delivered: core is portable (standard KDE API), blockers are
+packaging/process (CMake install rules, dom0 deploy machinery, Qubes
+heuristics as config options, LICENSE, README) + Plasma 6 API break.
+Phased distribution plan proposed (A: portability, B: CI/releases,
+C: Wayland/Plasma 6). dom0 flow preserved. Awaiting decision.

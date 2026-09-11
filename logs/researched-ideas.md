@@ -66,3 +66,24 @@ Status: [Complete]
 - **Why the search was done:** Build #15's all-windows glow was producing a halo with no visible window inside it; needed identification before implementing the chrome-exclusion fix so the predicate change is evidence-based, not guesswork.
 - **Summary of Findings:** Pixel-level component analysis of the full screen (strict-gold mask) found a 452 px ring at bbox (0,0)–(40,44): the 22 px-margin halo of four stale `Qui-updates`/`Qui-domains`/`Qui-clipboard`/`Qui-disk-space` 16×16 windows pinned at (0,0) — VM-side source windows of Qubes tray widgets that qubes-gui keeps mapped while their visible XEMBED copies live in the panel. They paint no content and carry no `_NET_WM_WINDOW_TYPE` (qubes-gui does not replicate the property — verified on konsole/kitty/firefox/Qui-*), so KWin classifies them normal and the type-based exclusions in `isGlowWindow()` never match VM-proxied windows. Full write-up: `docs/research/2026-09-11-ghost-square-qubes-tray-ghosts.md`.
 - **Final Decision & Rationale:** Fix = class-based chrome exclusion (`plasmashell`, `Qui-*`, `xembedsniproxy`, `krunner`) in glowtargets.h + main.js, because WM_CLASS is the only window property that reliably survives the Qubes GUI proxy; type predicates remain for dom0-native windows. Implementation proposed 2026-09-11, awaiting user "implement changes"; follow-up questions (top-right vs top-left discrepancy, Qube Manager halo, VM-internal dialogs, working supportInformation method) recorded as the Global-TODO Step 12 task.
+
+## Distributability of kitty-glow beyond dom0 (2026-09-11T13:33:11+05:30)
+Status: [Not Completed]
+1. **What was asked / The Problem** — User: if uploaded to GitHub for the
+   world, shouldn't it work on any system this KDE Plasma version works?
+2. **Why the search was done** — Assess dom0/Qubes coupling vs portable
+   core before proposing a distribution roadmap.
+3. **Summary of Findings** — Effect core is 100% standard KDE API (no
+   dom0 paths/qvm calls in src/); blockers are all in packaging/process:
+   no CMake install rules, dom0 helper/qvm-run deploy, hardcoded
+   /usr/lib64 + chenpan, container-only build, Qubes eligibility
+   heuristics (qui-*, 48px guard) leaking into stock behavior, missing
+   LICENSE, stale README, GPL/MIT inconsistency. Compat: Plasma 5.27 X11
+   = target (5.2x likely, needs CI); Plasma 6 = API break, NOT supported;
+   5.27 Wayland = API-compatible + F1-F3 fixes make space handling right,
+   but untested -> experimental. dom0 flow must be preserved alongside
+   (Rule 21).
+4. **Final Decision & Rationale** — Proposed Phase A (CMake install,
+   config-ify Qubes heuristics, LICENSE, README), Phase B (multi-distro
+   CI, releases), Phase C (Wayland verification, Plasma 6 port later).
+   Awaiting user decision on Phase A.

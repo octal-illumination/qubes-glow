@@ -945,3 +945,7 @@
 ## 2026-09-11T13:27:30+05:30
 - Command: m4b/m5b cosmetic edits + verification
 - Reason: User-approved re-audit-3 corrections.
+
+## 2026-09-11T13:33:11+05:30
+- Command: distributability assessment logged (researched-ideas)
+- Reason: Rule 8 research documentation.
