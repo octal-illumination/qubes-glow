@@ -305,3 +305,13 @@ F1-F3 coordinate-space errors (corrects previous audit's M2; latent at
 s==1), M5 rollback gap (kglowsync not stripped), 6 minor notes, and one
 wrong lesson (LL-028) enshrined in code+docs. No critical/high; no
 build-#19 regression. Report + fix proposal delivered; consent requested.
+
+## 2026-09-11T12:56:52+05:30
+#### User Request
+"implement changes" (re-audit-2 fix batch)
+#### Verbatim Output Response
+Implemented F1/F2/F3 logical-space corrections, M5 rollback kglowsync
+strip, qRound ambiguity fix (caught by container syntax check), m1-m5
+minors, LL-028 rewrite + LL-030/031, assertion flip + new M5 assertion
+(25 green), PROJECT_CONTEXT/HANDBOOK/versions updated. Build #20 pending
+build consent.

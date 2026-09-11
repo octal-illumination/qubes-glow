@@ -5,7 +5,7 @@
         "Description": "Soft yellow halo around every eligible application window",
         "Id": "kittyglow",
         "Category": "Appearance",
-        "Version": "0.3",
+        "Version": "3.10.1",
         "License": "GPL",
         "Authors": [
             { "Name": "AI-generated" }

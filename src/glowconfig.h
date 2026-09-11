@@ -5,6 +5,7 @@
 #include <KConfigGroup>
 #include <KSharedConfig>
 #include <QColor>
+#include <cmath>
 
 namespace KittyGlow {
 
@@ -21,10 +22,13 @@ struct GlowConfig {
     bool enabled = true;
 
     int maxExtent() const {
-        int m = static_cast<int>(widthLeft);
-        m = qMax(m, static_cast<int>(widthTop));
-        m = qMax(m, static_cast<int>(widthRight));
-        m = qMax(m, static_cast<int>(widthBottom));
+        // Ceil, not truncate (re-audit 2 m2): the draw path uses the float
+        // width, so truncation could under-widen the damage by up to 1
+        // logical px.
+        int m = static_cast<int>(std::ceil(widthLeft));
+        m = qMax(m, static_cast<int>(std::ceil(widthTop)));
+        m = qMax(m, static_cast<int>(std::ceil(widthRight)));
+        m = qMax(m, static_cast<int>(std::ceil(widthBottom)));
         return m;
     }
 };

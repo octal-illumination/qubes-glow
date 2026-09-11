@@ -188,7 +188,7 @@ bootstrap();
 // the first reply lands (bounded by bootTries).
 var bootWatch = makeTimer(5000, function() {
     if (!booted && bootTries < 60) bootstrap();
-    if (booted && bootWatch) bootWatch.stop();
+    if ((booted || bootTries >= 60) && bootWatch) bootWatch.stop();
 });
 
 // Live toggle channel: consume staged commands from the C++ effect.
@@ -221,6 +221,10 @@ var watch = makeTimer(400, function() {
 if (watch === null) slog("FATAL watch timer not constructible");
 
 // Spawn coverage: borderless state applies the moment an eligible window maps.
+// Deliberately NOT heartbeat-gated (unlike the sweep): desired is the
+// last-known-good commanded state and should govern new windows even while
+// the effect is down; a kwin restart re-bootstraps from kittyglowrc anyway
+// (re-audit 2 m5).
 if (workspace.clientAdded) {
     workspace.clientAdded.connect(function(c) {
         if (desired !== null && isBorderlessTarget(c)) {

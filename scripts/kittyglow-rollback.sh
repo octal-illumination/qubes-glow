@@ -2,10 +2,13 @@
 # kittyglow-rollback — one-command escape hatch for the kittyglow KWin effect.
 # Note: This code is purely AI-generated.
 #
-# Removes every trace of BOTH kitty customizations — the kittyglow compositor
-# effect AND the kitty-toggle-border KWin script (whose over-broad window
-# matching stripped titlebars/borders from ALL windows, konsole included) —
-# and hands you a working desktop.
+# Removes every trace of the kitty customizations — the kittyglow compositor
+# effect AND the kglowsync live-sync KWin script (which enforces the last
+# commanded borderless state on every eligible window) plus the RETIRED
+# kitty-toggle-border script (whose over-broad window matching stripped
+# titlebars/borders from ALL windows, konsole included) — and hands you a
+# working desktop. Re-audit 2 M5: kglowsync MUST be stripped too, or new
+# windows keep spawning borderless after the "clean" rollback.
 # Safe to run from ANY dom0 terminal or TTY, in ANY state (KWin up or down,
 # effect loaded or not, xfwm4 running).
 #
@@ -44,6 +47,12 @@ else
     echo "      glow effect not loaded (nothing to do)"
 fi
 if dbus-send --session --print-reply --dest=org.kde.KWin /Scripting \
+        org.kde.kwin.Scripting.unloadScript string:kglowsync >/dev/null 2>&1; then
+    echo "      kglowsync script unloaded"
+else
+    echo "      kglowsync script not loaded (nothing to do)"
+fi
+if dbus-send --session --print-reply --dest=org.kde.KWin /Scripting \
         org.kde.kwin.Scripting.unloadScript string:kitty-toggle-border >/dev/null 2>&1; then
     echo "      border script unloaded"
 else
@@ -54,15 +63,19 @@ dbus-send --session --print-reply --dest=org.kde.KWin /KWin \
     org.kde.KWin.reconfigure >/dev/null 2>&1 || true
 
 echo "[2/4] strip auto-enable flags + plugin file + script dir…"
-for KEY in kittyglowEnabled kitty-toggle-borderEnabled; do
+for KEY in kittyglowEnabled kglowsyncEnabled kitty-toggle-borderEnabled; do
     if command -v kwriteconfig5 >/dev/null 2>&1; then
         kwriteconfig5 --file "$KWINRC" --group Plugins --key "$KEY" --delete
     elif [ -f "$KWINRC" ]; then
         sed -i "/^${KEY}/d" "$KWINRC"
     fi
 done
-SCRIPT_DIR="$HOME/.local/share/kwin/scripts/kitty-toggle-border"
-rm -rf "$SCRIPT_DIR" 2>/dev/null && echo "      removed: $SCRIPT_DIR"
+for SDIR in "$HOME/.local/share/kwin/scripts/kglowsync" \
+            "$HOME/.local/share/kwin/scripts/kitty-toggle-border"; do
+    if [ -d "$SDIR" ]; then
+        rm -rf "$SDIR" && echo "      removed: $SDIR"
+    fi
+done
 if sudo rm -f "$SO"; then
     echo "      removed: $SO"
 else

@@ -186,6 +186,10 @@ dom0 "sudo -u chenpan env DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1000/bus 
 `kittyglow-rollback` is installed in dom0 at `/usr/local/bin` (hard copy per
 workspace Rule 21). Modes: default (strip artifacts, restore clean KWin),
 `xfwm4` (switch to xfwm4 instead), `only` (strip artifacts, leave WM alone).
+It strips BOTH components the deploy installs — the kittyglow effect AND the
+kglowsync live-sync script (unloaded, kwinrc flag deleted, script dir
+removed); without the kglowsync strip new windows would keep spawning
+borderless after a "clean" rollback (re-audit 2 M5).
 
 ## 8. Verify
 

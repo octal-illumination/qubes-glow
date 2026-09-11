@@ -379,3 +379,23 @@
   all latent (s==1 system). M5: rollback misses kglowsync. Six minor notes.
 - Drift corrections proposed (SPEC LL-028, assertion ll028,
   PROJECT_CONTEXT, kittyglow.cpp comments) — awaiting consent.
+
+## 2026-09-11T12:56:52+05:30 — Re-audit-2 fix batch implemented (build #20 pending consent)
+- F1: damage widening back to LOGICAL px (maxExtent, no renderTargetScale)
+  in prePaintWindow + repaintHalo — LL-028 rewritten (one scale boundary,
+  at the vertex upload).
+- F2: occludedAbove occluders now logical px; unused scale param dropped.
+- F3: PaintData translation consumed logically (no ×s).
+- qRound(int) ambiguity caught by container -fsyntax-only; fixed (int
+  direct). maxExtent now ceils float widths (m2).
+- M5: kittyglow-rollback.sh strips kglowsync (unloadScript, kwinrc key,
+  script dir); header + HANDBOOK §7 updated.
+- m1 dead constants removed (kittyglowstate.cpp); m3 bootWatch stops after
+  tries exhaust; m5 clientAdded heartbeat nuance documented in main.js;
+  m4 versions unified to 3.10.1 (kittyglow.json 0.3 → 3.10.1, kglowsync
+  1.1 → 3.10.1); kittyglow.cpp header → build #20.
+- SPECIFICATION: LL-028 rewritten; LL-030 (rollback completeness) and
+  LL-031 (adjudicate audit claims against pinned source) added.
+- Assertions: ll028 flipped to logical-space rule, +m5 rollback assertion
+  (25 total). All static checks + container C++ syntax check green.
+  Docs regenerated; 18e diff clean. Build consent requested.

@@ -303,12 +303,22 @@ halo never smears. Full design: ARCHITECTURE.md.</p>
 <p>None. Stateless effect; no persistence beyond kwinrc enable flag.</p>
 <h2 id="build-state">5. Build State</h2>
 <ul>
-<li><strong>Build #19 (v3.10.1, audit-fix batch) — IMPLEMENTED, BUILD
-PENDING CONSENT.</strong> Per-action autorepeat gates (LL-029),
-device-px damage widening (LL-028), scriptLog newline sanitize,
-glowconfig clamps, orphaned comment removed, v2-rollout-round.sh purged,
-metadata de-drift, ROADMAP refreshed. 23/23 assertions. Deep audit:
-docs/research/2026-09-11-deep-audit.md (0 critical/high).</li>
+<li><strong>Build #20 (v3.10.1, re-audit-2 fix batch) — IMPLEMENTED,
+BUILD PENDING CONSENT.</strong> F1/F2/F3 coordinate-space corrections
+(LL-028 rewritten: effect-facing regions are LOGICAL; one scale boundary
+at the vertex upload — corrected audit M2’s wrong rule), M5 rollback
+completeness (kglowsync stripped), qRound ambiguity fix, maxExtent ceil,
+dead constants removed, bootWatch stop, versions unified to 3.10.1. 25
+assertions green; C++ syntax-verified in container (moc +
+-fsyntax-only). Report: docs/research/2026-09-11-reaudit-2.md.</li>
+<li><strong>Build #19 (audit-fix batch) — SHIPPED 2026-09-11, sha
+07537ab5, kwin pid 64176.</strong> M3 gate fix behaviorally verified
+live (G + Alt+G inside 80 ms → both fired; shared gate would drop 2nd).
+Glow master restored on. Audit-fix batch: per-action autorepeat gates
+(LL-029), M2 “device-px” widening — WRONG SPACE, corrected by re-audit 2
+(LL-028), scriptLog newline sanitize, glowconfig clamps, orphaned
+comment removed, v2-rollout-round.sh purged, metadata de-drift, ROADMAP
+refreshed. Deep audit: docs/research/2026-09-11-deep-audit.md.</li>
 <li><strong>Build #18 (v3.10, per-window toggles + global masters,
 2026-09-11)</strong> — sha <code>7df23937…</code>, deployed +
 sha-verified, live in kwin 62946. B/G now act on the FOCUSED window

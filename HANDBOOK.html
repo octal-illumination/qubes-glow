@@ -463,7 +463,11 @@ class="sourceCode bash"><code class="sourceCode bash"><span id="cb7-1"><a href="
 <code>/usr/local/bin</code> (hard copy per workspace Rule 21). Modes:
 default (strip artifacts, restore clean KWin), <code>xfwm4</code>
 (switch to xfwm4 instead), <code>only</code> (strip artifacts, leave WM
-alone).</p>
+alone). It strips BOTH components the deploy installs — the kittyglow
+effect AND the kglowsync live-sync script (unloaded, kwinrc flag
+deleted, script dir removed); without the kglowsync strip new windows
+would keep spawning borderless after a “clean” rollback (re-audit 2
+M5).</p>
 <h2 id="verify">8. Verify</h2>
 <ul>
 <li>KWin alive: <code>pgrep -a kwin_x11</code> in dom0.</li>

@@ -20,13 +20,12 @@ namespace KittyGlowState {
 
 namespace {
 
-constexpr auto CONFIG_FILE = "kittyglowrc";
-constexpr auto GROUP_NAME = "General";
 constexpr auto KEY_NAME = "noBorder";
 
 KConfigGroup stateGroup() {
     // QStringLiteral needs a raw literal (token-pasting macro) — pass the
-    // strings inline rather than through the constexpr constants.
+    // strings inline rather than through constexpr constants (the dead
+    // CONFIG_FILE/GROUP_NAME constants were removed, re-audit 2 m1).
     auto cfg = KSharedConfig::openConfig(QStringLiteral("kittyglowrc"));
     return KConfigGroup(cfg, QStringLiteral("General"));
 }

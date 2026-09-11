@@ -277,14 +277,33 @@ Git boundary: the whole `kitty-glow/` directory. No cross-project dependencies.
   kglobalaccel is the NO-ARG `allShortcutInfos` on `/component/kwin`;
   keyed queries (`getGlobalShortcutsByKey`, `action()`) require exactly
   encoded key ints (LL-012).
-- **LL-028** — damage widening must track `renderTargetScale` (audit M2,
-  2026-09-11): `prePaintWindow`/`repaintHalo` widen damage by the glow
-  extent in LOGICAL px, but the halo paint maps geometry by
-  `renderTargetScale` and the animation scale. At s = 1 (this system) the
-  bug is invisible; on a HiDPI target the widened damage under-covers the
-  halo → ring smearing on every animated move. Rule: any rect that pads a
-  paint region must be expressed in the SAME px space as the eventual GL
-  vertices (device px here).
+- **LL-028** — ONE scale boundary, at the vertex upload (re-audit 2
+  supersedes audit M2, 2026-09-11): in KWin 5.27.8 every effect-facing
+  region — damage in prePaintWindow, addRepaint, occluders, the halo rect,
+  and PaintData translation — is LOGICAL px (Scene::addRepaint intersects
+  the logical viewport unscaled, scene.cpp:92; the GL scissor converts via
+  mapToRenderTarget internally, itemrenderer_opengl.cpp:331;
+  PaintData::toMatrix applies * deviceScale internally,
+  kwineffects.cpp:208). Only the projection/vertex layer is device px
+  (ortho box = rect * scale, itemrenderer.cpp:45). Audit M2's "widen damage
+  in device px" was wrong-space — it over-widened (benign) at s > 1, while
+  occluders built ×s genuinely double-scaled (over-clip). Rule: never
+  multiply effect-facing geometry by renderTargetScale; scale exactly
+  once, where vertices are built.
+- **LL-030** — rollback completeness (re-audit 2 M5, 2026-09-11): an escape
+  hatch must strip every component the deploy installs, not only the ones
+  from the era it was written in — kittyglow-rollback.sh removed the
+  retired kitty-toggle-border but not kglowsync, which then kept enforcing
+  the last commanded borderless state on newly spawned windows after a
+  "clean" rollback. Rule: new deployed component ⇒ update the rollback
+  script in the same change.
+- **LL-031** — audit claims are hypotheses until adjudicated against
+  pinned source (re-audit 2, 2026-09-11): the deep audit's M2 coordinate-
+  space claim was plausible, codified as a lesson, AND enshrined as a
+  regression assertion — and was wrong; only re-derivation from the pinned
+  KWin source caught it. Rule: every "the framework does X" claim gets a
+  file:line citation from the pinned source before it becomes code, lesson,
+  or assertion.
 - **LL-029** — per-action autorepeat gates (audit M3, 2026-09-11): a
   single shared `QElapsedTimer` gate across all toggle actions silently
   dropped CROSS-toggle presses (B then G within 220 ms lost G — a

@@ -1,5 +1,6 @@
-// kittyglow — v3.10: per-window toggles + global masters (build #18,
-// 2026-09-11). ALL-WINDOW occlusion-clipped SDF glow (per-paint occluder
+// kittyglow — v3.10.1: per-window toggles + global masters (build #20,
+// 2026-09-11, re-audit 2 space corrections). ALL-WINDOW occlusion-clipped
+// SDF glow (per-paint occluder
 // rebuild, CPU-subdivided halo quads — LL-020), animation-mapped halo.
 // Note: This code is purely AI-generated.
 //
@@ -76,8 +77,7 @@ private:
     void toggleGlowGlobal();          // Meta+Shift+Alt+G: master + persist
     void repaintHalo(const QRectF &frame);
     void repaintAllGlowHalos();
-    QRegion occludedAbove(KWin::EffectWindow *painted, const QRectF &halo,
-                          qreal scale) const;
+    QRegion occludedAbove(KWin::EffectWindow *painted, const QRectF &halo) const;
     KittyGlow::GlowConfig m_cfg;
     std::unique_ptr<KWin::GLShader> m_shader;
     // Glow master switch (Meta+Shift+G since build #16); persisted in kittyglowrc.
@@ -198,8 +198,10 @@ KittyGlowEffect::KittyGlowEffect() {
 }
 
 void KittyGlowEffect::repaintHalo(const QRectF &frame) {
-    // Device-px widening — see prePaintWindow (audit M2).
-    const int e = qRound(m_cfg.maxExtent() * KWin::effects->renderTargetScale());
+    // LOGICAL-px widening (re-audit 2 F1): every effect-facing region —
+    // damage, addRepaint, occluders — is logical px in KWin 5.27.8; the ONE
+    // scale boundary is the vertex upload (see prePaintWindow).
+    const int e = m_cfg.maxExtent();
     KWin::effects->addRepaint(frame.toRect().adjusted(-e, -e, e, e));
 }
 
@@ -219,10 +221,15 @@ void KittyGlowEffect::prePaintWindow(KWin::EffectWindow *w, KWin::WindowPrePaint
     KWin::effects->prePaintWindow(w, data, presentTime);
     if (!m_glowEnabled || !GlowFocus::glowAllowed(w)
         || !KittyGlowTargets::isGlowWindow(w)) return;
-    // Device-px widening (audit M2): the halo paint maps by
-    // renderTargetScale, so the damage must too — logical px under-covered
-    // on HiDPI targets (latent, s == 1 on this system).
-    const int e = qRound(m_cfg.maxExtent() * KWin::effects->renderTargetScale());
+    // LOGICAL-px widening (re-audit 2 F1 — supersedes audit M2): damage
+    // regions are logical in KWin 5.27.8 (Scene::addRepaint intersects the
+    // logical viewport unscaled, scene.cpp:92; the GL scissor converts via
+    // mapToRenderTarget internally, itemrenderer_opengl.cpp:331). The OLD
+    // pre-M2 logical widening was right; M2's device-px version over-widened
+    // at s > 1 (benign) and LL-028 recorded the wrong rule. The ONE scale
+    // boundary is the vertex upload in paintWindow, which maps logical
+    // geometry by renderTargetScale * animation scale.
+    const int e = m_cfg.maxExtent();
     const QRect g = w->frameGeometry().toRect();
     data.paint |= g.adjusted(-e, -e, e, e);
     data.setTranslucent();
@@ -253,7 +260,11 @@ void KittyGlowEffect::paintWindow(KWin::EffectWindow *w, int mask, QRegion regio
     // stock BlurEffect uses for transformed windows (blur.cpp shouldBlur/shape).
     const qreal sx = data.xScale(), sy = data.yScale();
     const QPointF anchor(g.x(), g.y());
-    const QPointF tr(data.xTranslation() * s, data.yTranslation() * s);
+    // Translation is LOGICAL px (PaintData::toMatrix applies * deviceScale
+    // internally, kwineffects.cpp:208; blur consumes it unscaled) — re-audit
+    // 2 F3. The old * s double-scaled it at s > 1: once here, once via the
+    // geo upload below.
+    const QPointF tr(data.xTranslation(), data.yTranslation());
     const auto map = [&](const QPointF &p) {
         return QPointF(anchor.x() + (p.x() - anchor.x()) * sx,
                        anchor.y() + (p.y() - anchor.y()) * sy) + tr;
@@ -288,7 +299,7 @@ void KittyGlowEffect::paintWindow(KWin::EffectWindow *w, int mask, QRegion regio
     // damage tracking is handled by the prePaintWindow widening + the LL-019
     // stacking/activation repaint hooks.
     QRegion clip = halo.toRect();
-    clip -= occludedAbove(w, halo, s);
+    clip -= occludedAbove(w, halo);
     if (clip.isEmpty()) return;
 
     QColor color = KWin::effects->activeWindow() == w ? m_cfg.colorActive
@@ -349,8 +360,10 @@ void KittyGlowEffect::repaintAllGlowHalos() {
 }
 
 // Occluders for ONE halo paint: windows logically stacked ABOVE the PAINTED
-// window that paint fully opaque frames, as a device-px region cut out of
-// the halo. Rebuilt on EVERY halo paint — the old 120 ms stacking snapshot
+// window that paint fully opaque frames, as a LOGICAL-px region cut out of
+// the halo (re-audit 2 F2: the old device-px rects were consumed logically
+// and re-scaled at upload — double-scaled at s > 1, over-clipping the halo).
+// Rebuilt on EVERY halo paint — the old 120 ms stacking snapshot
 // lagged raise/drag transitions (LL-019): one frame drew unclipped and an
 // unfocused window never repainted it away. Anchoring to the painted window
 // (not "the topmost window") also keeps the occluder set correct with any
@@ -359,7 +372,7 @@ void KittyGlowEffect::repaintAllGlowHalos() {
 // NOTE: stackingOrder() is the logical bottom→top order and is NOT reordered
 // while a window is dragged (elevation is paint-time only).
 QRegion KittyGlowEffect::occludedAbove(KWin::EffectWindow *painted,
-                                       const QRectF &halo, qreal scale) const {
+                                       const QRectF &halo) const {
     QRegion occl;
     const auto stack = KWin::effects->stackingOrder();
     int paintedIdx = -1;
@@ -392,12 +405,12 @@ QRegion KittyGlowEffect::occludedAbove(KWin::EffectWindow *painted,
         // leak but wrong for the occluder-clipped architecture).
         const QRectF gf = w->isDock() ? w->expandedGeometry()
                                       : w->frameGeometry();
-        // Device-px rect (+1 px fatten so no halo seam shows at occluder
-        // edges), same top-left-origin space as the paint region —
-        // GLVertexBuffer::draw() flips scissor rects for GL itself.
-        occl += QRect(static_cast<int>(gf.x() * scale), static_cast<int>(gf.y() * scale),
-                      static_cast<int>(gf.width() * scale) + 1,
-                      static_cast<int>(gf.height() * scale) + 1);
+        // LOGICAL-px rect (+1 px fatten so no halo seam shows at occluder
+        // edges) — same top-left-origin space as the halo rect it is
+        // subtracted from and the paint region (see F2 note above).
+        occl += QRect(static_cast<int>(gf.x()), static_cast<int>(gf.y()),
+                      static_cast<int>(gf.width()) + 1,
+                      static_cast<int>(gf.height()) + 1);
     }
     return occl.intersected(halo.toRect());
 }
