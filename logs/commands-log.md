@@ -845,3 +845,7 @@
 ## 2026-09-11T10:47:28+05:30
 - Command: HTML regen (3 core docs) + 18e diff + git commit (build #18)
 - Reason: Rule 18/22 compliance and change record.
+
+## 2026-09-11T10:53:43+05:30
+- Command: output-history entry (JS-vs-C++ rationale)
+- Reason: Rule 8 — internal rationale ledger.

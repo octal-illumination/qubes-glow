@@ -113,3 +113,17 @@ Ask user 3 discriminating questions (front-window app + translucency; drag vs ra
     - void windowActivated(KWin::EffectWindow *w) line 1550 — correct signal for the focus-repaint hook; the earlier-planned name "activeWindowChanged" does NOT exist in 5.27.8.
     - NO EffectsHandler::movingWindow() in 5.27 (m_movingWindowsSet is WindowMotionManager-private, lines 3744-3764); EffectWindow::isUserMove() line 2456 exists for drag hardening.
 - Final decision: revised 5-item fix bundle proposed to user (all in src/kittyglow.cpp): (1) rebuild occluders every halo paint, drop 120 ms cache; (2) anchor occluders to painted kitty w; (3) stackingOrderChanged -> full-ring repaint of all kitty halos (heals placement penetration in one frame); (4) windowActivated -> repaintHalo (stale color); (5) optional isUserMove/isUserResize occluder hardening. Awaiting explicit "implement changes" (Rule 1a).
+
+## 2026-09-11T10:53:43+05:30 — Rationale: JS script vs pure C++ for borderless plumbing (build #18)
+- What was asked: why kglowsync is JavaScript instead of C/C++.
+- Reason for record: internal architecture rationale (Rule 8), no external research.
+- Findings: KWin's C++ EffectWindow API is read-mostly for compositing and
+  cannot mutate noBorder (Window/X11Client are internal, non-ABI); the JS
+  scripting API is the supported mutation surface. Alternatives rejected with
+  project evidence: kwin-rule + reconfigure (LL-016 white flash, 2026-09-09
+  write-revert fight), X11 property hacks (fragile/X11-only), Python/QML
+  (not embedded). JS side adds crash containment (script throw != kwin
+  segfault), hot-deployable KPackage, runtime API fallbacks. Cost: mirrored
+  eligibility predicate (LL-026, assertion-enforced) + DBus staging channel.
+- Decision: keep the C++/JS split as designed; documented in SPECIFICATION
+  LL-027 and HANDBOOK 6b.
