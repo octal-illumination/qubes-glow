@@ -25,6 +25,29 @@ inline bool isGlowWindow(KWin::EffectWindow *w) {
         return false;                                     // user exclusions
     if (w->isSplash() || w->isTooltip() || w->isPopupWindow() || w->isUtility())
         return false;                                     // transients
+    // Class-based chrome exclusion (LL-026): the Qubes GUI proxy does not
+    // replicate _NET_WM_WINDOW_TYPE, so every VM-proxied window looks
+    // "normal" to KWin and the type predicates above never match it.
+    // WM_CLASS is the one property that survives the proxy — use it for
+    // the chrome the user excluded 2026-09-11: plasma surfaces (panels,
+    // popups, start menu + submenus), Qubes tray-widget source windows
+    // (the 16x16 ghosts pinned at (0,0) — the "ghost square", see
+    // docs/research/2026-09-11-ghost-square-qubes-tray-ghosts.md), legacy
+    // tray embeds, and krunner.
+    const QString cls = w->windowClass().toLower();
+    if (cls.contains(QLatin1String("plasmashell"))
+        || cls.startsWith(QLatin1String("qui-"))
+        || cls.contains(QLatin1String("xembedsniproxy"))
+        || cls.contains(QLatin1String("krunner")))
+        return false;
+    // Size guard (2026-09-11, user ghost-square report): sub-48 px windows
+    // are icons, not application windows — the Qui-* tray-widget SOURCE
+    // windows are override-redirect (KWin unmanaged, invisible in
+    // clientList, no WM_CLASS the class check can see) yet their 22 px
+    // halo paints as a floating empty square at the screen corner. An
+    // icon-size window with a halo is never wanted.
+    const QRect fg = w->frameGeometry().toRect();
+    if (fg.width() < 48 || fg.height() < 48) return false;
     return true;
 }
 

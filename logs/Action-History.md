@@ -251,3 +251,18 @@ User acceptance recorded. Docs synced (SPECIFICATION LL-017 supersession, ARCHIT
 "go" (deploy #15) → "restart kwin" → (chained wrap-up directives per session plan).
 #### Verbatim Output Response
 Deployed build #15 (sha 6d8886da, gate-verified), restarted kwin (PID 56055), diagnosed the scripted-effect failure as benign loader noise (LL-024), hardened kglowsync against the --replace bus-name race (LL-025), verified all-windows glow programmatically (kitty 1287 px, dialog/notification excluded), added regression assertion, synced docs + HTML, committed.
+
+## 2026-09-11T08:4x+05:45
+#### User Request
+"implement changes" (approved plan: B=class-wide borderless, G=glow, chrome-class exclusion) → "continue".
+#### Verbatim Output Response
+Implemented build #16 source changes in 4 files (kittyglow.cpp B/G split + toggleBorderless; glowtargets.h LL-026 class exclusion; main.js appWindows/isBorderlessTarget; regression-checks.sh +4 assertions = 15 green). Fixed a self-caught JS comment syntax break. Docs synced (LL-026, HANDBOOK, PROJECT_CONTEXT, SESSION_STATE) + HTML regen (18e clean). Build pending explicit consent.
+
+## 2026-09-11T09:22:36+05:30
+#### User Request
+"restart kwin"
+#### Verbatim Output Response
+kwin 60191→60603 with build #17 (d66b9009). Verified: kittyglow loaded,
+kglowsync bootstrap applied noBorder to 14 app windows, ghost corner
+456→0, B sweep both directions, G toggle fires. Docs/ledgers synced,
+committed.

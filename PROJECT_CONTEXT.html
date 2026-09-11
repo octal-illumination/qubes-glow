@@ -303,6 +303,21 @@ halo never smears. Full design: ARCHITECTURE.md.</p>
 <p>None. Stateless effect; no persistence beyond kwinrc enable flag.</p>
 <h2 id="build-state">5. Build State</h2>
 <ul>
+<li><strong>Build #17 (v3.9.1, ghost-square fix + kglowsync watchdog,
+2026-09-11)</strong> — sha <code>d66b9009…</code>, deployed +
+sha-verified, live in kwin 60603. Size guard (sub-48 px windows never
+haloed) kills the unmanaged Qui-* tray source ghosts (corner gold 456 →
+0); bootstrap watchdog re-arms on lost replies. VERIFIED LIVE: B =
+class-wide borderless (requestApply → consumed → sweep wrote all 14 app
+windows, both directions); G = glow toggle; ghost corner 0; tray clean;
+borderless default at startup. NOTE: xdotool client geometry does NOT
+reflect titlebar changes (KWin X11 wraps the client without resizing it)
+— frame-size probes are useless for border verification; use the sweep
+journal lines / visual check.</li>
+<li><strong>Build #16 (v3.9, shortcut split + chrome-class exclusion,
+2026-09-11)</strong> — superseded by #17 within the hour (its kglowsync
+wedged on a lost bootstrap reply; size guard added for the ghost
+square).</li>
 <li><strong>Build #15 (v3.8, all-windows glow, 2026-09-11)</strong> —
 sha <code>6d8886da…</code>, deployed + sha-verified, live in kwin PID
 56055. Eligibility is window-type-based (normal app windows glow;
@@ -382,10 +397,17 @@ compositor restart.</li>
 (<code>[kitty-borderless]</code>, noborder Force=2, wmclassmatch
 RegExp=3, listed under <code>[General] rules=</code>).</li>
 <li><strong>Meta+Shift+B</strong> → effect-registered
-<code>Toggle Kitty Borderless</code>: persists the state to
-<code>kittyglowrc</code> via <code>kittyglowstate.cpp</code>; the
-kglowsync script (bootstrap + poll + sweep) applies
-<code>noBorder</code> live to all kitty windows.</li>
+<code>Toggle Kitty Borderless</code> (build #16): persists the
+borderless state to <code>kittyglowrc</code> via
+<code>kittyglowstate.cpp</code> and stages it through
+<code>KittyToggle::requestApply()</code>; the kglowsync script
+(bootstrap + poll + sweep) applies <code>noBorder</code> live to every
+eligible app window — generalized from kitty-only by user directive
+2026-09-11 (LL-026 predicate mirror).</li>
+<li><strong>Meta+Shift+G</strong> → effect-registered
+<code>Toggle Glow</code> (build #16): flips <code>kittyglowrc</code>
+<code>glowEnabled</code> + full repaint; the glow switch moved off B by
+user directive 2026-09-11.</li>
 <li><strong>Meta+Shift+T</strong> → native <code>Window No Border</code>
 (per-focused-window toggle); rebound from Meta+Shift+B, dead
 <code>kitty-toggle-border</code> entry deleted.</li>
@@ -457,10 +479,19 @@ deployment + activation target.</li>
 build env (KWin 5.27.8 devel).</li>
 </ul>
 <h2 id="last-updated">10. Last Updated</h2>
-<p>2026-09-11T08:0x — All-windows glow shipped (#15, sha 6d8886da, kwin
-56055): type-based eligibility (LL-023), kglowsync resilient bootstrap
-(LL-025), benign loader-noise documented (LL-024). Probes verify2/3/4 in
-logs/probe/. Stale v3.4 acceptance item retired (was user-accepted #10).
+<p>2026-09-11T09:2x — Build #17 SHIPPED + verified live (sha d66b9009,
+kwin 60603): ghost square eliminated (size guard; unmanaged Qui-*
+sources), kglowsync watchdog (lost-reply re-arm), B/G toggles verified
+end-to-end (14-window sweep both directions), 17 regression assertions
+green. 2026-09-11T08:4x — Build #16 implemented (shortcut split B/G +
+LL-026 chrome-class exclusion + app-wide kglowsync); ghost-square
+evidence documented
+(docs/research/2026-09-11-ghost-square-qubes-tray-ghosts.md);
+GLOBAL-TODO Step 12 registered. Build pending consent. 2026-09-11T08:0x
+— All-windows glow shipped (#15, sha 6d8886da, kwin 56055): type-based
+eligibility (LL-023), kglowsync resilient bootstrap (LL-025), benign
+loader-noise documented (LL-024). Probes verify2/3/4 in logs/probe/.
+Stale v3.4 acceptance item retired (was user-accepted #10).
 2026-09-10T21:4xZ — Seamless pass-behind shipped (#14) + user-accepted;
 deploy.sh sha-gate added (LL-022); in-repo regression-checks.sh (8
 green); Build State section restored (lost to an atomic edit rollback).

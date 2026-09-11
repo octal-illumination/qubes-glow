@@ -56,10 +56,22 @@ check_not ll016-no-noborderrule-in-src     grep -rqF 'noborderrule' src/
 
 # LL-023 (2026-09-10): all-windows glow — eligibility is a deny-list in
 # glowtargets.h (dialogs, notifications/OSD, splash, tooltip, popup, utility,
-# desktop, docks), and Meta+Shift+B is the persisted glow master switch
-# gated per paint in both paint path entry points.
+# desktop, docks), plasma/Qubes-tray/krunner chrome excluded by class
+# (LL-026), Meta+Shift+G is the persisted glow master switch, and
+# Meta+Shift+B is the class-wide borderless toggle staged via requestApply.
 check ll023-dialogs-notifications-excluded grep -qF 'isDialog() || w->isNotification()' src/glowtargets.h
 check ll023-glow-gate-paint-path        bash -c '[ $(grep -cF "if (!m_glowEnabled || !KittyGlowTargets::isGlowWindow(w)) return;" src/kittyglow.cpp) -ge 2 ]'
+
+# LL-026 (2026-09-11): qubes-gui strips _NET_WM_WINDOW_TYPE — chrome must
+# be excluded by WM_CLASS (plasma surfaces, Qubes tray-widget ghosts,
+# xembedsniproxy, krunner), and the shortcuts split: B = class-wide
+# borderless (persist + stage via requestApply), G = glow master switch.
+check ll026-chrome-class-exclusion bash -c 'grep -qF "plasmashell" src/glowtargets.h && grep -qF "qui-" src/glowtargets.h && grep -qF "xembedsniproxy" src/glowtargets.h && grep -qF "krunner" src/glowtargets.h'
+check ll026-min-frame-size-guard    bash -c 'grep -qF "fg.width() < 48 || fg.height() < 48" src/glowtargets.h && grep -qF "fg.width < 48 || fg.height < 48" src/kwin-script/kglowsync/contents/code/main.js'
+check ll025-bootstrap-watchdog      bash -c 'grep -qF "booted" src/kwin-script/kglowsync/contents/code/main.js && grep -qF "var bootWatch" src/kwin-script/kglowsync/contents/code/main.js'
+check ll026-b-stages-borderless    bash -c 'grep -qF "void KittyGlowEffect::toggleBorderless()" src/kittyglow.cpp && grep -qF "KittyToggle::requestApply(next)" src/kittyglow.cpp && grep -qF "KittyGlowState::toggleNoBorder()" src/kittyglow.cpp'
+check ll026-g-glow-master-switch   bash -c 'grep -qF "Qt::META | Qt::SHIFT | Qt::Key_G" src/kittyglow.cpp && grep -qF "connect(g, &QAction::triggered, this, &KittyGlowEffect::toggleGlow);" src/kittyglow.cpp && grep -qF "connect(b, &QAction::triggered, this, &KittyGlowEffect::toggleBorderless);" src/kittyglow.cpp'
+check ll026-script-app-windows     bash -c 'grep -qF "isBorderlessTarget" src/kwin-script/kglowsync/contents/code/main.js && grep -qF "appWindows()" src/kwin-script/kglowsync/contents/code/main.js && ! grep -qF "isKitty" src/kwin-script/kglowsync/contents/code/main.js'
 
 # LL-025 (2026-09-11): kwin --replace bus-name race — kglowsync must not die
 # at load when org.kde.kittyglow is still held by the old kwin instance.

@@ -285,11 +285,14 @@ purely AI-generated.</p>
 <p>A KWin effect that draws a soft yellow halo around every eligible
 window — all normal application windows (build #15); dialogs,
 notifications, OSD, popup menus, tooltips, splash and utility windows
-are excluded by window-type predicates. Features: automatic window
-tracking, 8-layer alpha falloff, seamless pass-behind occlusion,
-fullscreen suppression, OpenGL-compositing only, and a persisted
-Meta+Shift+B master toggle (borderless state syncs with it via the
-kglowsync script).</p>
+are excluded by window-type predicates, and plasma surfaces, Qubes
+tray-widget ghosts, xembedsniproxy and krunner are excluded by window
+class (LL-026 — qubes-gui strips <code>_NET_WM_WINDOW_TYPE</code>).
+Features: automatic window tracking, 8-layer alpha falloff, seamless
+pass-behind occlusion, fullscreen suppression, OpenGL-compositing only,
+and two persisted toggles: <strong>Meta+Shift+G</strong> = glow master
+switch, <strong>Meta+Shift+B</strong> = class-wide border
+(frame+titlebar) toggle applied live by the kglowsync script.</p>
 <h2 id="prerequisites">2. Prerequisites</h2>
 <ul>
 <li>A running <code>dom0-replica-fed37</code> Podman container (Fedora
@@ -365,23 +368,40 @@ wmclass <code>kitty</code>.</p>
 <h3 id="b.-borderless-shortcuts-v3">6b. Borderless shortcuts (v3)</h3>
 <p>Two independent toggles exist:</p>
 <ul>
-<li><strong>Meta+Shift+B — Toggle Kitty Borderless
-(effect-registered).</strong> Registered by the effect itself via
-<code>KGlobalAccel::setShortcut</code>. Flips the persistent borderless
-state in <code>~/.config/kittyglowrc</code>
-(<code>[General] noBorder</code>), which both the effect’s
-<code>getCurrentState()</code> DBus slot and the kglowsync KWin script’s
-bootstrap consume; the script applies <code>noBorder</code> live to
-every kitty window — no reconfigure, no restart. State survives reboots.
-Since the 2026-09-09 write-revert diagnosis the state lives in
-<code>kittyglowstate.cpp</code> — NOT in a kwinrulesrc forcing rule: a
-loaded rule overrides KWin scripting <code>noBorder</code> writes
-(scripting &lt; rules), so the rule file must never carry
-<code>noborderrule</code> for kitty again. The old content-based rule
-toggle (<code>kittyborderrule.cpp</code>) was retired. E2E-verified
-2026-09-09: <code>kittyglowrc</code> flips per press, each toggle is one
-stuck sweep write, zero reverts, steady-state silence after
-applying.</li>
+<li><strong>Meta+Shift+B — Toggle Window Borders (effect-registered,
+class-wide).</strong> Registered by the effect itself via
+<code>KGlobalAccel::setShortcut</code> (objectName kept as the
+historical <code>Toggle Kitty Borderless</code> id for kglobalaccel
+stability). Flips the persistent borderless state in
+<code>~/.config/kittyglowrc</code> (<code>[General] noBorder</code>) and
+stages the new value via <code>KittyToggle::requestApply()</code>; the
+kglowsync KWin script consumes it on its 60 ms poll and applies
+<code>noBorder</code> live to <strong>every eligible app window</strong>
+(build #16: generalized from kitty-only by user directive 2026-09-11) —
+no reconfigure, no restart. Eligibility mirrors the glow predicate
+(LL-026): scripting type flags where present + chrome-class exclusion
+(plasma surfaces, <code>Qui-*</code> ghosts,
+<code>xembedsniproxy</code>, <code>krunner</code>). State survives
+reboots via the script bootstrap. Since the 2026-09-09 write-revert
+diagnosis the state lives in <code>kittyglowstate.cpp</code> — NOT in a
+kwinrulesrc forcing rule: a loaded rule overrides KWin scripting
+<code>noBorder</code> writes (scripting &lt; rules), so the rule file
+must never carry <code>noborderrule</code> for kitty again. The old
+content-based rule toggle (<code>kittyborderrule.cpp</code>) was
+retired. E2E-verified 2026-09-11 (build #17): sweep wrote
+<code>noBorder</code> to all 14 eligible app windows in BOTH directions
+via <code>requestApply</code> → <code>nextSource consumed</code>; state
+bootstrap re-applies it on every kwin start (5 s watchdog re-arm, LL-026
+supplement). <strong>Verification caveat:</strong>
+<code>xdotool getwindowgeometry</code> reports the CLIENT X window, and
+KWin X11 decorations wrap the client without resizing it — frame-size
+probes can never see a titlebar appear/disappear. Verify B by the
+kglowsync journal sweep lines or visually.</li>
+<li><strong>Meta+Shift+G — Toggle Glow (effect-registered, build
+#16).</strong> Glow master switch: flips <code>kittyglowrc</code>
+<code>[General] glowEnabled</code> and repaints fully — live, no
+restart, no flash. Moved off Meta+Shift+B by user directive 2026-09-11
+(B carried the glow switch only in build #15).</li>
 <li><strong>Meta+Shift+T — Window No Border (native KWin).</strong>
 Per-focused-window titlebar/frame toggle, rebound from Meta+Shift+B when
 the effect needed B (kglobalshortcutsrc, applied via
@@ -494,8 +514,20 @@ the metadata-only effect package before the plugin loader loads the C++
 window): exclusion is verified by construction (type predicate, LL-023)
 plus observation that the toast’s dock-type strip gets no halo (band
 0).</li>
-<li>Effect is always-on for app windows (the Meta+Shift+B toggle flips
-the rule class-wide, not per-window — see ROADMAP).</li>
+<li>Effect is always-on for app windows (the Meta+Shift+G toggle flips
+the glow class-wide, not per-window — see ROADMAP).</li>
+<li>Minimum frame-size guard (build #17): windows smaller than 48 px in
+either dimension are never haloed and never borderless-toggled — this is
+the only reliable exclusion for UNMANAGED windows (Qui-* tray sources,
+override-redirect, no WM_CLASS: class checks cannot see them; the “ghost
+square” at the screen corner was a 16×16 Qui source). Mirrored in
+kglowsync’s <code>isBorderlessTarget</code> so the script and effect
+agree.</li>
+<li>Glow visibility depends on stacking: with app windows maximized or
+stacked over each other, halos are offscreen or occluded — Meta+Shift+G
+toggling changes almost nothing VISIBLE while the desktop is fully
+stacked. Minimize/resize windows to see rings (occlusion rules,
+LL-019).</li>
 <li>v3.4 renderer: one SDF quad per kitty window, mapped through the
 scene’s animation transform (scale about frame top-left + translation,
 the same affine model stock BlurEffect uses), so the glow tracks
@@ -520,8 +552,8 @@ raised above an unfocused kitty clips correctly on the very next frame
 e.g. an adaptive plasma panel) always clip; other genuinely translucent
 windows are skipped, letting the halo show through them by design
 (LL-018).</li>
-<li>Meta+Shift+B is autorepeat-gated (220 ms): one state flip per
-physical key press; a held key cannot churn the rule (v3.3).</li>
+<li>Meta+Shift+B and G are autorepeat-gated (220 ms): one state flip per
+physical key press; a held key cannot churn either state (v3.9).</li>
 <li>Meta+Shift+T and B are also affected by kglobalaccel state: if the
 daemon ever deactivates a shortcut it persists an empty active field in
 <code>kglobalshortcutsrc</code> (T’s line reads

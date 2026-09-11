@@ -8,13 +8,14 @@
 //
 // Behaviour:
 //   * on load: getCurrentState() via callDBus restores the persisted state
-//     and applies it to all existing kitty windows (covers kwin restarts);
+//     and applies it to all existing eligible app windows (covers kwin
+//     restarts);
 //   * polls nextSource() every 60 ms for staged toggle commands from the
 //     C++ effect (1 = borderless, 2 = bordered, 0 = nothing);
-//   * applies desired to every kitty window via Client.noBorder —
+//   * applies desired to every eligible app window via Client.noBorder —
 //     event-driven on clientAdded, plus a 400 ms sweep as safety net;
 //   * heartbeat: if the effect stops replying for >2 s (plugin unloaded),
-//     the sweep pauses and kitty keeps its last state.
+//     the sweep pauses and windows keep their last state.
 //
 // print() is dropped by journald on this build; JS diagnostics route
 // through the effect's scriptLog slot (one-way callDBus, no reply).
@@ -30,17 +31,40 @@ function nowMs() {
     return new Date().getTime();
 }
 
-function isKitty(c) {
-    return !c.deleted && !c.desktopWindow && !c.dock
-        && String(c.resourceClass).toLowerCase().indexOf('kitty') >= 0;
+// LL-026 (2026-09-11): qubes-gui strips _NET_WM_WINDOW_TYPE from every
+// VM-proxied window, so type flags alone never exclude chrome. Mirror the
+// C++ predicate (glowtargets.h): WM_CLASS survives the proxy — exclude
+// plasma surfaces (panels, popups, start menu + submenus), the Qubes
+// tray-widget ghosts (Qui-*, the 16x16 "ghost square" sources pinned at
+// (0,0)), legacy tray embeds and krunner; check the scripting type flags
+// defensively for dom0-native windows.
+var CHROME_CLASSES = /plasmashell|xembedsniproxy|krunner/i;
+
+function isBorderlessTarget(c) {
+    if (!c || c.deleted || c.desktopWindow || c.dock) return false;
+    // Size guard (LL-026 mirror): icons/ghosts (sub-48 px) are not windows.
+    var fg = c.frameGeometry;
+    if (fg && (fg.width < 48 || fg.height < 48)) return false;
+    var cls = String(c.resourceClass == null ? "" : c.resourceClass);
+    if (!cls) return false;
+    var full = String(c.resourceName == null ? "" : c.resourceName) + ":" + cls;
+    if (CHROME_CLASSES.test(full)) return false;
+    if (cls.toLowerCase().indexOf("qui-") === 0) return false;
+    var flags = ["dialog", "splash", "tooltip", "notification",
+                 "onScreenDisplay", "popupMenu", "comboBox", "dropdownMenu",
+                 "utility", "menu", "dockMenu"];
+    for (var i = 0; i < flags.length; i++) {
+        try { if (c[flags[i]]) return false; } catch (e) {}
+    }
+    return true;
 }
 
-function kittyWindows() {
+function appWindows() {
     var list = workspace.clientList ? workspace.clientList()
              : (workspace.windowList ? workspace.windowList() : []);
     var out = [];
     for (var i = 0; i < list.length; i++) {
-        if (isKitty(list[i])) out.push(list[i]);
+        if (isBorderlessTarget(list[i])) out.push(list[i]);
     }
     return out;
 }
@@ -80,11 +104,11 @@ function makeTimer(ms, fn) {
 var desired = null;      // last commanded noBorder value (true/false)
 var lastReplyMs = 0;     // heartbeat of the effect's service
 
-// Applies desired to every kitty window; logs each actual write. With no
-// forcing rule these writes stick, so a steady state produces no output.
+// Applies desired to every eligible app window; logs each actual write. With
+// no forcing rule these writes stick, so a steady state produces no output.
 function applyDesired(origin) {
     if (desired === null) return;
-    var ws = kittyWindows();
+    var ws = appWindows();
     for (var i = 0; i < ws.length; i++) {
         var before = ws[i].noBorder;
         if (before !== desired) {
@@ -95,31 +119,38 @@ function applyDesired(origin) {
     }
 }
 
-slog("script alive, kitty windows=" + kittyWindows().length);
+slog("script alive, app windows=" + appWindows().length);
 
 // Bootstrap with retry: at script load the C++ effect's service may not
 // own its bus name yet (see slog) — the old kwin instance holds it until it
 // exits after --replace. Retry every 500 ms up to 60 times (30 s) instead
 // of dying at load ("Could not initialize scripted effect", 2026-09-10).
 var bootTries = 0;
+var booted = false;
 function bootstrap() {
     bootTries++;
     try {
         callDBus(SERVICE, PATH, IFACE, "getCurrentState", function(st) {
+            if (booted) return;            // idempotent: first reply wins
+            booted = true;
             lastReplyMs = nowMs();
             desired = (Number(st) === 1);
             slog("bootstrap: persisted state=" + st + " -> desired=" + desired);
             applyDesired("bootstrap");
         });
-    } catch (e) {
-        if (bootTries < 60) {
-            makeTimer(500, bootstrap);
-        } else {
-            slog("FATAL: service unreachable after 30s of retries");
-        }
-    }
+    } catch (e) { /* service may not own its name yet */ }
 }
 bootstrap();
+
+// LL-025 hardening part 2 (2026-09-11): a bootstrap reply can be silently
+// LOST when the request lands on the dying kwin instance during --replace
+// overlap — no throw, no callback, and the script hangs with desired=null
+// forever (seen live on build #16's first restart). Re-arm every 5 s until
+// the first reply lands (bounded by bootTries).
+var bootWatch = makeTimer(5000, function() {
+    if (!booted && bootTries < 60) bootstrap();
+    if (booted && bootWatch) bootWatch.stop();
+});
 
 // Live toggle channel: consume staged commands from the C++ effect.
 var poll = makeTimer(60, function() {
@@ -142,10 +173,10 @@ var watch = makeTimer(400, function() {
 });
 if (watch === null) slog("FATAL watch timer not constructible");
 
-// Spawn coverage: borderless state applies the moment a kitty window maps.
+// Spawn coverage: borderless state applies the moment an eligible window maps.
 if (workspace.clientAdded) {
     workspace.clientAdded.connect(function(c) {
-        if (desired !== null && isKitty(c)) {
+        if (desired !== null && isBorderlessTarget(c)) {
             c.noBorder = desired;
             slog("clientAdded: applied desired=" + desired);
         }

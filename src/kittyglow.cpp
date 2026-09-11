@@ -1,6 +1,7 @@
-// kittyglow — v3.8: ALL-WINDOW occlusion-clipped SDF glow (per-paint
+// kittyglow — v3.9: ALL-WINDOW occlusion-clipped SDF glow (per-paint
 // occluder rebuild, CPU-subdivided halo quads — LL-020), animation-mapped
-// halo, Meta+Shift+B = glow master switch (build #15, 2026-09-10).
+// halo. Meta+Shift+G = glow master switch; Meta+Shift+B = class-wide
+// borderless toggle (build #16, 2026-09-11).
 // Note: This code is purely AI-generated.
 //
 // Render path: one hardware-blended triangle fan quad around the frame rect;
@@ -12,13 +13,17 @@
 // snapping to the destination geometry, and fades with data.opacity().
 // Eligibility: every real application window — dialogs, notifications,
 // OSDs, splashes, tooltips, popups, utility palettes, desktop and
-// docks/panels are excluded (glowtargets.h).
+// docks/panels are excluded by type (glowtargets.h); plasma surfaces,
+// Qubes tray-widget ghosts, xembedsniproxy and krunner are excluded by
+// window class because qubes-gui strips _NET_WM_WINDOW_TYPE (LL-026).
 //
-// Meta+Shift+B toggles the GLOW globally: flips kittyglowrc
+// Meta+Shift+G toggles the GLOW globally: flips kittyglowrc
 // [General] glowEnabled and addRepaintFull()s — live, no restart, no flash.
-// (Build #14 and earlier it toggled kitty's borderless rule; that
-// plumbing — kittyglowstate noBorder + kittytoggle + kglowsync — is kept
-// for state persistence but no longer bound to the shortcut. Per-window
+// Meta+Shift+B toggles class-wide BORDERLESS (frame+titlebar) for every
+// eligible app window: flips kittyglowrc [General] noBorder and stages the
+// new value for the kglowsync script (kittytoggle nextSource channel),
+// which writes Client.noBorder live. (Build #15 briefly repurposed B as
+// the glow switch — reverted by user directive 2026-09-11. Per-window
 // borderless remains on Meta+Shift+T, KWin's native action.)
 #include "glowconfig.h"
 #include "glowshader.h"
@@ -60,6 +65,7 @@ public:
                      KWin::WindowPaintData &data) override;
 
 private:
+    void toggleBorderless();
     void toggleGlow();
     void repaintHalo(const QRectF &frame);
     void repaintAllGlowHalos();
@@ -67,26 +73,39 @@ private:
                           qreal scale) const;
     KittyGlow::GlowConfig m_cfg;
     std::unique_ptr<KWin::GLShader> m_shader;
-    // Glow master switch (Meta+Shift+B); persisted in kittyglowrc.
+    // Glow master switch (Meta+Shift+G since build #16); persisted in kittyglowrc.
     bool m_glowEnabled = true;
-    // Key autorepeat made Meta+Shift+B flip the state dozens of times per hold
-    // (flicker + final parity depended on hold duration); gate per press.
+    // Key autorepeat made the toggles flip their state dozens of times per
+    // hold (flicker + final parity depended on hold duration); gate per press.
     QElapsedTimer m_toggleGate;
 };
 
 KittyGlowEffect::KittyGlowEffect() {
-    QAction *a = new QAction(this);
-    // objectName kept as the historical "Toggle Kitty Borderless": it is the
-    // kglobalaccel registration id, and re-registering a new id for the same
-    // Meta+Shift+B binding risks the daemon silently rejecting the key. The
-    // display text now tells the truth (glow master switch, build #15).
-    a->setObjectName(QStringLiteral("Toggle Kitty Borderless"));
-    a->setText(QStringLiteral("Toggle Glow"));
+    // Meta+Shift+B — class-wide border (frame+titlebar) toggle, applied
+    // live by the kglowsync script to every eligible app window (user
+    // directive 2026-09-11: "extend that for all windows"). objectName
+    // kept as the historical "Toggle Kitty Borderless": it is the
+    // kglobalaccel registration id, and re-registering a new id for the
+    // same binding risks the daemon silently rejecting the key.
+    QAction *b = new QAction(this);
+    b->setObjectName(QStringLiteral("Toggle Kitty Borderless"));
+    b->setText(QStringLiteral("Toggle Window Borders"));
     KGlobalAccel::self()->setDefaultShortcut(
-        a, QList<QKeySequence>() << (Qt::META | Qt::SHIFT | Qt::Key_B));
+        b, QList<QKeySequence>() << (Qt::META | Qt::SHIFT | Qt::Key_B));
     KGlobalAccel::self()->setShortcut(
-        a, QList<QKeySequence>() << (Qt::META | Qt::SHIFT | Qt::Key_B));
-    connect(a, &QAction::triggered, this, &KittyGlowEffect::toggleGlow);
+        b, QList<QKeySequence>() << (Qt::META | Qt::SHIFT | Qt::Key_B));
+    connect(b, &QAction::triggered, this, &KittyGlowEffect::toggleBorderless);
+
+    // Meta+Shift+G — glow master switch (user directive 2026-09-11: the
+    // glow toggle moves off B, which returns to border/titlebar duty).
+    QAction *g = new QAction(this);
+    g->setObjectName(QStringLiteral("Toggle Glow"));
+    g->setText(QStringLiteral("Toggle Glow"));
+    KGlobalAccel::self()->setDefaultShortcut(
+        g, QList<QKeySequence>() << (Qt::META | Qt::SHIFT | Qt::Key_G));
+    KGlobalAccel::self()->setShortcut(
+        g, QList<QKeySequence>() << (Qt::META | Qt::SHIFT | Qt::Key_G));
+    connect(g, &QAction::triggered, this, &KittyGlowEffect::toggleGlow);
 
     // The halo lies OUTSIDE the frame rect, so damage must be widened or the
     // ring smears during moves and lingers after minimize. Repaint the halo
@@ -328,6 +347,22 @@ QRegion KittyGlowEffect::occludedAbove(KWin::EffectWindow *painted,
     return occl.intersected(halo.toRect());
 }
 
+void KittyGlowEffect::toggleBorderless() {
+    // Same autorepeat gate as the glow toggle: one flip per physical press
+    // (repeats arrive 25-33 ms apart and keep restarting the timer).
+    if (m_toggleGate.isValid() && !m_toggleGate.hasExpired(220)) return;
+    m_toggleGate.start();
+
+    // Class-wide borderless (build #16, user directive 2026-09-11): persist
+    // in kittyglowrc so the kglowsync bootstrap restores it after kwin
+    // restarts, and stage for the script's 60 ms poll — live, no restart,
+    // no reconfigure flash. Which windows receive noBorder is the script's
+    // mirror of KittyGlowTargets (LL-026).
+    const bool next = KittyGlowState::toggleNoBorder();
+    KittyToggle::requestApply(next);
+    qWarning() << "toggle: borderless ->" << (next ? "on" : "off");
+}
+
 void KittyGlowEffect::toggleGlow() {
     // kglobalaccel re-emits triggered() for every autorepeat of a held key;
     // gate to one toggle per physical press (repeats arrive 25-33 ms apart
@@ -336,12 +371,14 @@ void KittyGlowEffect::toggleGlow() {
     if (m_toggleGate.isValid() && !m_toggleGate.hasExpired(220)) return;
     m_toggleGate.start();
 
-    // Glow master switch (build #15): persisted in kittyglowrc so it
-    // survives kwin restarts; a full repaint re-evaluates every window's
-    // halo on the very next frame — live, no restart, no flash (the
-    // LL-016 white flash came from reconfigure(), which we avoid).
-    // The borderless plumbing (kglowsync) is NOT touched: kitty keeps its
-    // persisted borderless state; per-window borderless = Meta+Shift+T.
+    // Glow master switch (Meta+Shift+G since build #16; B carried it only
+    // in build #15): persisted in kittyglowrc so it survives kwin
+    // restarts; a full repaint re-evaluates every window's halo on the
+    // very next frame — live, no restart, no flash (the LL-016 white
+    // flash came from reconfigure(), which we avoid). The borderless
+    // plumbing (kglowsync) is NOT touched here: windows keep their
+    // persisted borderless state (Meta+Shift+B); per-window borderless =
+    // Meta+Shift+T.
     m_glowEnabled = KittyGlowState::toggleGlowEnabled();
     KWin::effects->addRepaintFull();
     qWarning() << "toggle: glow ->" << (m_glowEnabled ? "on" : "off");

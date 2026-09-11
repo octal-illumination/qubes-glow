@@ -291,3 +291,24 @@
 - scripts/regression-checks.sh: +ll025-kglowsync-resilient-bootstrap (11 assertions, all green).
 - SPECIFICATION.md: LL-024 (benign two-loader metadata probe) + LL-025; HANDBOOK §1/§11 all-windows behavior + verification methods; PROJECT_CONTEXT §5/§6/§7/§10 build #15 state; SESSION_STATE.md rewritten.
 - Deploy sha-verified 6d8886da… on kwin 56055; verification: kitty 1,287 px PASS, dialog 112 PASS, notification dock-strip 0 PASS, toggle + borderless persistence live.
+
+## 2026-09-11T08:4x+05:45 — Build #16 implemented (pre-build)
+- src/kittyglow.cpp: v3.9 — new toggleBorderless() (gate + toggleNoBorder + requestApply); B action re-pointed to it (display "Toggle Window Borders"); NEW G action "Toggle Glow" (Meta+Shift+G); header/class comments synced.
+- src/glowtargets.h: LL-026 chrome-class exclusion (plasmashell, Qui-*, xembedsniproxy, krunner) — qubes-gui strips _NET_WM_WINDOW_TYPE.
+- src/kwin-script/kglowsync/contents/code/main.js: kittyWindows()/isKitty() → appWindows()/isBorderlessTarget() (class + defensive type-flag mirror); all kitty-scope wording updated.
+- scripts/regression-checks.sh: +4 LL-026 assertions (15 total, all green).
+- SPECIFICATION.md LL-026; HANDBOOK §1/§6b/§11; PROJECT_CONTEXT §5/§6/§10; SESSION_STATE refreshed.
+- STATUS: implemented, verified statically (node --check + assertions); build #16 NOT yet run — awaiting explicit build consent.
+
+## 2026-09-11T09:22:36+05:30 — Build #17 shipped + verified live (d66b9009)
+- src/glowtargets.h + kittyglow.cpp: minimum frame-size guard (sub-48 px =
+  icon, never haloed) — removes unmanaged Qui-* tray-source ghosts
+  (override-redirect, no WM_CLASS); corner gold 456 → 0 verified live.
+- src/kwin-script/kglowsync/contents/code/main.js: bootstrap watchdog —
+  re-arms every 5 s until the first service reply (lost-reply wedge seen on
+  build #16 restart).
+- scripts/regression-checks.sh: +2 assertions (17 total, all green).
+- SPECIFICATION LL-026 supplemented; HANDBOOK 6b/11 updated; PROJECT_CONTEXT
+  build state refreshed; research doc resolution appended.
+- Verified live (kwin 60603): ghost gone, tray clean, B swept 14 windows
+  both directions, G fires, borderless default at startup.

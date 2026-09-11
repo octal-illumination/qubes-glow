@@ -717,3 +717,71 @@
 ## 2026-09-11T08:02:30+05:30
 - Command: regression-checks.sh + bash -n (LL-025 assertion added)
 - Reason: Register the kglowsync resilient-bootstrap fix as a machine-verifiable invariant (Rule 20).
+
+## 2026-09-11T08:06:03+05:30
+- Command: HTML regen + 18e audit + ledgers + git commit
+- Reason: Rule 3/10/14/23 atomic wrap-up of the build #15 session.
+
+## 2026-09-11T08:17:28+05:30
+- Command: ll026_types_probe.py (window types + kicker popup + top-right hunt)
+- Reason: User reported glow on tray icons/kicker menus + mystery top-right square.
+
+## 2026-09-11T08:29:33+05:30
+- Command: ll026_ghost_hunt2.py (component attribution + supportInformation inventory)
+- Reason: Identify ghost square culprit via KWin authoritative window list.
+
+## 2026-09-11T08:47:57+05:30
+- Command: node --check main.js + regression-checks + doc edits + HTML regen + 18e audit + ledgers
+- Reason: Rule 16/14/23 — verify, document, and log build #16 implementation atomically.
+
+## 2026-09-11T08:50:04+05:30
+- Command: bash scripts/build.sh (build #16, user consented "build the app")
+- Reason: Compile the shortcut split + LL-026 chrome-class exclusion changes.
+
+## 2026-09-11T08:53:15+05:30
+- Command: build #16 deploy full output
+- Reason: Diagnose deploy failure (previous filtered run exited 1 with no output).
+
+## 2026-09-11T08:54:14+05:30
+- Command: build #16 deploy (retry after access-denied)
+- Reason: First dialog attempt was cancelled/mistyped.
+
+## 2026-09-11T08:55:20+05:30
+- Command: kwin restart loading build #16 (64f2e194) + shortcut check
+- Reason: LL-021 restart to load new .so (user consented).
+
+## 2026-09-11T08:58:30+05:30
+- Command: ll016_verify.py (G/B toggles live + ghost corner + shortcuts)
+- Reason: Behavioral verification of build #16.
+
+## 2026-09-11T09:02:31+05:30
+- Command: ll016_diag.py (kglowsync load state + corner/tray halo-vs-icon test)
+- Reason: B no-op root cause + ghost square ownership.
+
+## 2026-09-11T09:08:32+05:30
+- Command: deploy watchdog main.js + kglowdump.js via loadScript (corner window identification)
+- Reason: Identify the window painting the corner halo; fix lost-reply bootstrap hang.
+
+## 2026-09-11T09:08:59+05:30
+- Command: Scripting.start + journal DUMP read
+- Reason: Run the one-shot client dump (corner window identification).
+
+## 2026-09-11T09:14:18+05:30
+- Command: build #17 deploy (sha-gated)
+- Reason: Size guard + kglowsync watchdog onto dom0.
+
+## 2026-09-11T09:15:18+05:30
+- Command: kwin restart loading build #17 (d66b9009)
+- Reason: Load size-guard .so + revived kglowsync with watchdog (user consented).
+
+## 2026-09-11T09:16:34+05:30
+- Command: ll017_verify.py (build #17 full behavioral chain)
+- Reason: Verify ghost-square fix + live G/B toggles + watchdog bootstrap.
+
+## 2026-09-11T09:18:37+05:30
+- Command: kwinrulesrc audit (kitty noborder forcing rule suspected)
+- Reason: kitty noBorder writes revert — scripting loses to rules (2026-09-09 fight).
+
+## 2026-09-11T09:22:36+05:30
+- Command: docs/ledgers sync (SPEC/PC/HANDBOOK/research + SESSION_STATE/CHANGELOG/Action-History)
+- Reason: Rule 3/14/22 atomic documentation of build #17.

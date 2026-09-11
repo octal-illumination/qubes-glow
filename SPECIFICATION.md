@@ -222,6 +222,34 @@ Git boundary: the whole `kitty-glow/` directory. No cross-project dependencies.
   `ll025-kglowsync-resilient-bootstrap`). C++-side retry was rejected —
   script packages reload on reconfigure, so the JS-side fix needs no
   kwin restart to revive.
+- **LL-026** — the Qubes GUI proxy does NOT replicate `_NET_WM_WINDOW_TYPE`
+  to dom0: every VM-proxied window (konsole, kitty, firefox, `Qui-*` tray
+  widgets — verified 2026-09-11) reaches KWin type-less, and KWin classifies
+  type-less windows as normal. Type-based EffectWindow predicates
+  (`isDialog/isPopupWindow/…`) therefore NEVER match VM windows — they only
+  ever worked for dom0-native apps (which is why the dom0 `kdialog` test
+  passed while tray icons and the plasma start menu glowed). WM_CLASS is the
+  one property that survives the proxy: chrome is excluded by class
+  (`plasmashell`, `Qui-*`, `xembedsniproxy`, `krunner`) in both
+  glowtargets.h and the kglowsync script (mirrored predicate). The
+  "ghost square" (2026-09-11) was the 22 px halo of four stale 16×16
+  `Qui-*` windows pinned at (0,0) — full evidence in
+  docs/research/2026-09-11-ghost-square-qubes-tray-ghosts.md. Same
+  directive's shortcut split: Meta+Shift+B = class-wide borderless
+  (toggleNoBorder + requestApply), Meta+Shift+G = glow master switch
+  (Key_G = 0x47; Meta+Shift+G = 0x12000047). Residual: VM-internal dialogs
+  still glow — their type hints die in the proxy (WM_TRANSIENT_FOR
+  replication unverified).
+  **Supplement (build #17, 2026-09-11):** the corner "ghost square" itself
+  survived the class exclusion — the Qui-* tray-source windows are
+  override-redirect (KWin UNMANAGED: absent from clientList, no WM_CLASS
+  reachable), so class checks cannot see them. Fixed with a minimum
+  frame-size guard (sub-48 px = icon, never haloed) mirrored in kglowsync.
+  Corner gold 456 → 0 verified live. Same build: the kglowsync bootstrap
+  re-arms every 5 s until the first service reply (a reply can be silently
+  LOST when the request lands on the dying kwin during --replace overlap —
+  no throw, no callback, script wedged with desired=null; seen live on
+  build #16's first restart).
 - Robust ownership query on
   kglobalaccel is the NO-ARG `allShortcutInfos` on `/component/kwin`;
   keyed queries (`getGlobalShortcutsByKey`, `action()`) require exactly

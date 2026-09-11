@@ -34,6 +34,19 @@ halo never smears. Full design: ARCHITECTURE.md.
 None. Stateless effect; no persistence beyond kwinrc enable flag.
 
 ## 5. Build State
+- **Build #17 (v3.9.1, ghost-square fix + kglowsync watchdog, 2026-09-11)**
+  — sha `d66b9009…`, deployed + sha-verified, live in kwin 60603. Size
+  guard (sub-48 px windows never haloed) kills the unmanaged Qui-* tray
+  source ghosts (corner gold 456 → 0); bootstrap watchdog re-arms on lost
+  replies. VERIFIED LIVE: B = class-wide borderless (requestApply →
+  consumed → sweep wrote all 14 app windows, both directions); G = glow
+  toggle; ghost corner 0; tray clean; borderless default at startup.
+  NOTE: xdotool client geometry does NOT reflect titlebar changes (KWin X11
+  wraps the client without resizing it) — frame-size probes are useless for
+  border verification; use the sweep journal lines / visual check.
+- **Build #16 (v3.9, shortcut split + chrome-class exclusion, 2026-09-11)**
+  — superseded by #17 within the hour (its kglowsync wedged on a lost
+  bootstrap reply; size guard added for the ghost square).
 - **Build #15 (v3.8, all-windows glow, 2026-09-11)** — sha `6d8886da…`,
   deployed + sha-verified, live in kwin PID 56055. Eligibility is
   window-type-based (normal app windows glow; dialogs/notifications/OSD/
@@ -94,9 +107,15 @@ None. Stateless effect; no persistence beyond kwinrc enable flag.
 - Live activation over DBus (`/Effects` loadEffect) — no compositor restart.
 - kitty borderless window rule in `kwinrulesrc` (`[kitty-borderless]`,
   noborder Force=2, wmclassmatch RegExp=3, listed under `[General] rules=`).
-- **Meta+Shift+B** → effect-registered `Toggle Kitty Borderless`: persists
-  the state to `kittyglowrc` via `kittyglowstate.cpp`; the kglowsync script
-  (bootstrap + poll + sweep) applies `noBorder` live to all kitty windows.
+- **Meta+Shift+B** → effect-registered `Toggle Kitty Borderless` (build #16):
+  persists the borderless state to `kittyglowrc` via `kittyglowstate.cpp`
+  and stages it through `KittyToggle::requestApply()`; the kglowsync script
+  (bootstrap + poll + sweep) applies `noBorder` live to every eligible app
+  window — generalized from kitty-only by user directive 2026-09-11
+  (LL-026 predicate mirror).
+- **Meta+Shift+G** → effect-registered `Toggle Glow` (build #16): flips
+  `kittyglowrc` `glowEnabled` + full repaint; the glow switch moved off B
+  by user directive 2026-09-11.
 - **Meta+Shift+T** → native `Window No Border` (per-focused-window toggle);
   rebound from Meta+Shift+B, dead `kitty-toggle-border` entry deleted.
 - Shortcut registration self-heals whenever kwin starts after kglobalaccel
@@ -151,6 +170,14 @@ None. Stateless effect; no persistence beyond kwinrc enable flag.
 - **dom0-replica-fed37** Podman container — Fedora 37 build env (KWin 5.27.8 devel).
 
 ## 10. Last Updated
+2026-09-11T09:2x — Build #17 SHIPPED + verified live (sha d66b9009, kwin
+60603): ghost square eliminated (size guard; unmanaged Qui-* sources),
+kglowsync watchdog (lost-reply re-arm), B/G toggles verified end-to-end
+(14-window sweep both directions), 17 regression assertions green.
+2026-09-11T08:4x — Build #16 implemented (shortcut split B/G + LL-026
+chrome-class exclusion + app-wide kglowsync); ghost-square evidence
+documented (docs/research/2026-09-11-ghost-square-qubes-tray-ghosts.md);
+GLOBAL-TODO Step 12 registered. Build pending consent.
 2026-09-11T08:0x — All-windows glow shipped (#15, sha 6d8886da, kwin
 56055): type-based eligibility (LL-023), kglowsync resilient bootstrap
 (LL-025), benign loader-noise documented (LL-024). Probes verify2/3/4 in
