@@ -294,3 +294,14 @@ deployed sha-verified (07537ab5), kwin restarted — plugin loaded, kglowsync
 bootstrapped persisted state. M3 per-action-gate fix proven live: G then
 Alt+G within 80 ms both fired (old shared gate dropped the second press).
 Glow master restored on; end state clean.
+
+## 2026-09-11T12:47:01+05:30
+#### User Request
+"redo a deep comprehensive ... error check" (full-spectrum re-audit)
+#### Verbatim Output Response
+Re-audit 2 complete: every source file read, pinned KWin 5.27.8 source
+adjudicated coordinate-space semantics, full static battery green. Found:
+F1-F3 coordinate-space errors (corrects previous audit's M2; latent at
+s==1), M5 rollback gap (kglowsync not stripped), 6 minor notes, and one
+wrong lesson (LL-028) enshrined in code+docs. No critical/high; no
+build-#19 regression. Report + fix proposal delivered; consent requested.

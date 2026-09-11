@@ -893,3 +893,19 @@
 ## 2026-09-11T12:29:38+05:30
 - Command: wrap-up doc chain (PROJECT_CONTEXT/CHANGELOG/Action-History/SESSION_STATE + commit)
 - Reason: Rules 3/10/12/17 milestone recording.
+
+## 2026-09-11T12:34:34+05:30
+- Command: container header check for KWin 5.27 damage/scale semantics
+- Reason: Adjudicate M2 coordinate space against pinned source.
+
+## 2026-09-11T12:39:16+05:30
+- Command: effects.cpp projection context + slide/blur damage-space cross-check
+- Reason: Adjudicate logical-space rule for effect damage.
+
+## 2026-09-11T12:44:52+05:30
+- Command: deployed-copy identity check + doc drift grep
+- Reason: Re-audit verification battery.
+
+## 2026-09-11T12:47:01+05:30
+- Command: re-audit 2 report written + HTML generated + 18e diff
+- Reason: User-requested comprehensive audit deliverable.

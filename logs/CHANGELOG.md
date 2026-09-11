@@ -369,3 +369,13 @@
   "toggle: glow (focused …)" and "toggle: glow (global)" — the shared
   gate would have dropped the second press. Glow master restored on.
 - Full fix batch contents: see previous entry + commit 10db577.
+
+## 2026-09-11T12:47:01+05:30 — Re-audit 2 complete (post build #19)
+- Full-spectrum re-audit; report: docs/research/2026-09-11-reaudit-2.md.
+- Verdict: no critical/high, no build-#19 regression. Pinned-source
+  adjudication (kwin 5.27.8) proved the previous audit's M2 wrong:
+  effect-facing regions are LOGICAL; one scale boundary at the vertex
+  upload. F1 damage widening, F2 occluder space, F3 translation space —
+  all latent (s==1 system). M5: rollback misses kglowsync. Six minor notes.
+- Drift corrections proposed (SPEC LL-028, assertion ll028,
+  PROJECT_CONTEXT, kittyglow.cpp comments) — awaiting consent.

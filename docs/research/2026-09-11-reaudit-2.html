@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>2026-09-11-reaudit-2</title>
+  <style>
+    html {
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <style>
+  html{margin:0!important}body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;max-width:960px;margin:0;padding:2em;line-height:1.6;color:#1a1a1a;background:#fff}
+  h1,h2,h3,h4{margin-top:1.5em;margin-bottom:0.5em}
+  code{background:#f0f0f0;padding:.2em .4em;border-radius:3px;font-size:.9em}
+  pre code{background:none;padding:0}
+  pre{background:#f5f5f5;padding:1em;border-radius:5px;overflow-x:auto}
+  table{border-collapse:collapse;width:100%}
+  th,td{border:1px solid #ddd;padding:.5em;text-align:left}
+  th{background:#f0f0f0}
+  a{color:#0366d6}
+  blockquote{border-left:4px solid #ddd;padding-left:1em;color:#666}
+  @media(prefers-color-scheme:dark){
+  body{color:#e1e1e1;background:#1a1a1a}
+  code{background:#2d2d2d}
+  pre{background:#2d2d2d}
+  th{background:#2d2d2d}
+  th,td{border-color:#444}
+  a{color:#58a6ff}
+  blockquote{border-left-color:#555;color:#aaa}
+  }
+  </style>
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+    document.addEventListener('DOMContentLoaded', () => {
+      // Pandoc outputs <pre class="mermaid"><code>...</code></pre>. 
+      // Mermaid expects the text directly inside the element.
+      document.querySelectorAll('pre.mermaid code').forEach((el) => {
+        const pre = el.parentElement;
+        pre.textContent = el.textContent; // Strip the code tag
+      });
+      mermaid.initialize({ 
+        startOnLoad: true,
+        theme: window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'default'
+      });
+    });
+  </script>
+</head>
+<body>
+<div style="background-color: #fff3cd; color: #856404; padding: 10px 15px; margin-bottom: 20px; border-radius: 4px; border: 1px solid #ffeeba; text-align: center; font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+    ⚠️ Note: All documentation and code in this project are purely AI-generated.
+</div>
+<header id="title-block-header">
+<h1 class="title">2026-09-11-reaudit-2</h1>
+</header>
+<!-- HTML sibling: regenerate ONLY via bash ~/Projects/scripts/generate-docs-html.sh <this-file> — Rule 18c left-aligned CSS. Never hand-roll pandoc. -->
+<h1 id="re-audit-2-kitty-glow-post-build-19-2026-09-11">Re-audit 2 —
+kitty-glow post-build-#19 (2026-09-11)</h1>
+<blockquote>
+<p><strong>Note:</strong> All documentation and code in this project are
+purely AI-generated.</p>
+</blockquote>
+<p>Full-spectrum re-audit requested after build #19 (per-action gates,
+HiDPI widening, clamps, sanitize, purge). Scope: structural, functional,
+logical, operational, executional, programmatic, syntactical, idiomatic,
+integration, process-flow; lint, security, memory leaks, zero-day
+surface, buffer overflow, hardcodes, edge cases, races, heuristic
+errors, AI hallucination/drift/misses/ misedits, efficiency,
+mathematical correctness.</p>
+<p>Method: complete read of every source file (1668 lines),
+pinned-source adjudication in the build container
+(<code>/tmp/kwinsrc/kwin-5.27.8</code>), full static battery,
+deployed-copy identity check, doc-vs-code drift grep.</p>
+<h2 id="verdict">Verdict</h2>
+<p><strong>No critical or high findings. No regression from build #19’s
+fixes.</strong> One wrong lesson from the previous audit was caught and
+adjudicated (F1-F3, all benign at renderTargetScale == 1, i.e. invisible
+on this system), one functional gap in the rollback escape hatch (M5),
+six minor notes.</p>
+<h2 id="f1-f3-coordinate-space-errors-corrects-previous-audits-m2">F1-F3
+— coordinate-space errors (corrects previous audit’s M2)</h2>
+<p>Evidence chain from the pinned KWin 5.27.8 source:</p>
+<ul>
+<li><code>createProjectionMatrix(rect, scale)</code> =
+<code>ortho(rect.left()*scale, ...)</code> (itemrenderer.cpp:45-50) —
+the <strong>vertex/projection layer is device px</strong>;
+pre-multiplying frame/extents/clip-rects by
+<code>renderTargetScale()</code> at upload is CORRECT (kittyglow.cpp
+already does this).</li>
+<li><code>Scene::addRepaint</code> intersects with the logical viewport,
+no scaling (scene.cpp:92-101); the GL scissor maps
+logical-&gt;render-target internally via <code>mapToRenderTarget</code>
+(itemrenderer_opengl.cpp:328-331);
+<code>PaintData::toMatrix(deviceScale)</code> stores translation in
+LOGICAL px and applies <code>* deviceScale</code> only when building the
+matrix (kwineffects.cpp:204-208); blur consumes
+<code>xTranslation()</code> unscaled in shape math (blur.cpp:628-629).
+<strong>All effect-facing regions (damage, repaints, occluders, halo
+rect, translations) are LOGICAL.</strong></li>
+</ul>
+<p>Therefore the rule is: <strong>one scale boundary — at the vertex
+upload.</strong> The previous audit’s M2 (“damage must widen in device
+px”) confused the two layers. F1/F2/F3 apply the rule:</p>
+<ul>
+<li><strong>F1</strong> — <code>prePaintWindow</code> and
+<code>repaintHalo</code> widen damage by
+<code>maxExtent() * renderTargetScale()</code> (the M2 “fix”): wrong
+space. Over-widens at s&gt;1 (benign direction; identical at s=1).
+LL-028 as recorded is WRONG.</li>
+<li><strong>F2</strong> — <code>occludedAbove()</code> builds occluder
+rects <code>* scale</code> but they are intersected/subtracted in
+LOGICAL space and re-scaled at upload: double-scale at s&gt;1 -&gt;
+over-clip (halo hidden). Benign at s=1. Real latent bug, opposite
+direction of the M2 claim.</li>
+<li><strong>F3</strong> —
+<code>tr = (data.xTranslation() * s, ...)</code>: translation is
+logical; the <code>* s</code> double-scales it at s&gt;1 (once here,
+once via geo upload) and pollutes the logical halo rect. Benign at
+s=1.</li>
+</ul>
+<h2 id="m5-rollback-leaves-kglowsync-alive-functional-gap">M5 — rollback
+leaves kglowsync alive (functional gap)</h2>
+<p><code>scripts/kittyglow-rollback.sh</code> unloads/removes the
+RETIRED <code>kitty-toggle-border</code> script (purged in audit M1) but
+never touches <code>kglowsync</code>: no <code>unloadScript</code>, no
+<code>kglowsyncEnabled</code> deletion, no script-dir removal. After a
+rollback the poller stays loaded, keeps its last <code>desired</code>
+(borderless) and <code>clientAdded</code> keeps stripping borders from
+NEW windows — breaking the script’s “working desktop” promise. Fix:
+rollback must strip kglowsync exactly as it strips kittyglow.</p>
+<h2 id="minor-notes">Minor notes</h2>
+<ul>
+<li>m1 — <code>GROUP_NAME</code> constexpr in kittyglowstate.cpp is dead
+(literal inlined for the moc comment); delete or use.</li>
+<li>m2 — <code>maxExtent()</code> truncates float widths
+(<code>static_cast&lt;int&gt;</code>); draw path uses the float -&gt;
+&lt;= 1 logical px under-widening. <code>qCeil</code> if ever
+visible.</li>
+<li>m3 — <code>bootWatch</code> timer keeps ticking after
+<code>bootTries</code> exhausts (5 s no-op forever); harmless.</li>
+<li>m4 — version schemes are three disjoint sets: kittyglow.json “0.3”,
+kglowsync “1.1”, docs “v3.10.x”. Pick one scheme and de-drift.</li>
+<li>m5 — <code>clientAdded</code> applies <code>desired</code> without
+the heartbeat check the sweep uses; arguably intended (desired =
+last-known-good), but document it.</li>
+<li>m6 — <code>overrides</code> map is never pruned; ids are never
+reused in-session and the map dies with the script, so entries are inert
+(already documented).</li>
+</ul>
+<h2 id="clean-bills">Clean bills</h2>
+<ul>
+<li><strong>Races:</strong> none new. JS is single-threaded; staging
+slots are consume-on-read; bootstrap is idempotent (first reply wins);
+heartbeat pause verified; gates are main-thread
+<code>QElapsedTimer</code>s.</li>
+<li><strong>Memory leaks:</strong> shader <code>unique_ptr</code>
+rebuild-safe; <code>SyncService</code> parented to QCoreApplication;
+streaming VB reused; GL state balanced (blend/shader push+pop); glow set
+pruned on windowDeleted.</li>
+<li><strong>Security:</strong> journal injection flattened (CR+LF);
+deploy transfer sha-gated (LL-022); no eval of untrusted input
+(rollback’s /proc environ eval is anchored-grep safe); DBus surface is
+same-user trust, documented; no secrets, no hardcoded credentials.</li>
+<li><strong>Buffer overflow:</strong> none — no raw C buffers;
+<code>vb-&gt;setData(6, 2, v)</code> matches the 12-float array; config
+values clamped 0..255 / 0..200 / 0..64.</li>
+<li><strong>Math correctness (SDF):</strong> IQ rounded-box distance,
+quadratic falloff, per-side extents, corner normal via clamp-to-box,
+alpha cutoff 0.004 — all verified correct for both GLSL variants
+(byte-equal logic).</li>
+<li><strong>Static battery:</strong> shellcheck clean
+(build/deploy/rollback), JS syntax OK, JSON valid, 23/23 assertions,
+deployed main.js/metadata byte-identical to repo.</li>
+<li><strong>Efficiency:</strong> O(n^2) worst-case occluder walk
+documented negligible (14 windows); zero allocations in the paint path;
+polls 16.7 Hz x2 trivial.</li>
+<li><strong>Idiom/style:</strong> idiomatic Qt throughout; Rule 19
+checks clean; no unwanted hardcodes (dom0 paths in deploy/rollback are
+documented reality).</li>
+</ul>
+<h2 id="drift-corrections-needed-with-consent">Drift corrections needed
+(with consent)</h2>
+<p>SPECIFICATION LL-028 (rewrite), assertion
+<code>ll028-device-px-widening</code> (invert), PROJECT_CONTEXT
+build-#19 wording, kittyglow.cpp F1/F3 comments + file header (“build
+#18” -&gt; #19), HANDBOOK if it repeats the device-px claim (it does
+not).</p>
+</body>
+</html>
