@@ -949,3 +949,7 @@
 ## 2026-09-11T13:33:11+05:30
 - Command: distributability assessment logged (researched-ideas)
 - Reason: Rule 8 research documentation.
+
+## 2026-09-11T14:06:54+05:30
+- Command: researched-ideas decision update
+- Reason: Rule 8 close-out of the distributability proposal.

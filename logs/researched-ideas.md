@@ -68,7 +68,7 @@ Status: [Complete]
 - **Final Decision & Rationale:** Fix = class-based chrome exclusion (`plasmashell`, `Qui-*`, `xembedsniproxy`, `krunner`) in glowtargets.h + main.js, because WM_CLASS is the only window property that reliably survives the Qubes GUI proxy; type predicates remain for dom0-native windows. Implementation proposed 2026-09-11, awaiting user "implement changes"; follow-up questions (top-right vs top-left discrepancy, Qube Manager halo, VM-internal dialogs, working supportInformation method) recorded as the Global-TODO Step 12 task.
 
 ## Distributability of kitty-glow beyond dom0 (2026-09-11T13:33:11+05:30)
-Status: [Not Completed]
+Status: [Not Completed] -> DECIDED AGAINST (2026-09-11T14:06:54+05:30)
 1. **What was asked / The Problem** — User: if uploaded to GitHub for the
    world, shouldn't it work on any system this KDE Plasma version works?
 2. **Why the search was done** — Assess dom0/Qubes coupling vs portable
@@ -83,7 +83,11 @@ Status: [Not Completed]
    5.27 Wayland = API-compatible + F1-F3 fixes make space handling right,
    but untested -> experimental. dom0 flow must be preserved alongside
    (Rule 21).
-4. **Final Decision & Rationale** — Proposed Phase A (CMake install,
-   config-ify Qubes heuristics, LICENSE, README), Phase B (multi-distro
-   CI, releases), Phase C (Wayland verification, Plasma 6 port later).
-   Awaiting user decision on Phase A.
+4. **Final Decision & Rationale** — User decision (2026-09-11T14:06:54+05:30): STICK WITH THE
+   QUBES IMPLEMENTATION — the project was developed for Qubes use and
+   stays Qubes-first. Phase A rejected: no config-ification, the qui-
+   exclusion and 48px ghost-square guard remain hardcoded, no auto-preset.
+   Effect behavior stays byte-identical. Note for the future: publishing
+   to GitHub as-is requires zero code changes (Qubes heuristics are inert
+   no-ops on non-Qubes systems); a world-facing README + LICENSE are the
+   only honest-framing items if that ever becomes wanted.

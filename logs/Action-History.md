@@ -352,3 +352,12 @@ packaging/process (CMake install rules, dom0 deploy machinery, Qubes
 heuristics as config options, LICENSE, README) + Plasma 6 API break.
 Phased distribution plan proposed (A: portability, B: CI/releases,
 C: Wayland/Plasma 6). dom0 flow preserved. Awaiting decision.
+
+## 2026-09-11T14:06:54+05:30
+#### User Request
+"i think let's stick with qubes implementation, cause this was developed for qubes use"
+#### Verbatim Output Response
+Phase A (portability rework) declined and recorded. Project remains
+Qubes-first: qui-/48px heuristics stay hardcoded, behavior byte-identical,
+no config-ification. Future note: GitHub publishing would need only
+README/LICENSE framing, zero code changes.
