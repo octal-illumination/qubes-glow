@@ -865,3 +865,7 @@
 ## 2026-09-11T11:20:41+05:30
 - Command: PROJECT_CONTEXT build #19 state note
 - Reason: Rule 12c state snapshot of pending build.
+
+## 2026-09-11T11:22:16+05:30
+- Command: 18e self-check caught stale ROADMAP.html; pointer restored + regenerated
+- Reason: Rule 18e mandatory equality diff.
