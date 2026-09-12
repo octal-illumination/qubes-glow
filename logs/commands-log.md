@@ -961,3 +961,7 @@
 ## 2026-09-11T14:40:31+05:30
 - Command: dom0-distro hypothetical Q&A logged
 - Reason: Rule 10 audit trail.
+
+## 2026-09-12T08:02:56+05:30
+- Command: VM-scope Q&A logged
+- Reason: Rule 10 audit trail.

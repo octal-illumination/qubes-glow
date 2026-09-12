@@ -386,3 +386,14 @@ Gentoo (5.27) work, Arch (Plasma 6) is an API break. Qubes-first decision
 doubly safe: dom0 stays Fedora in every supported release; only trigger
 is a dom0 Fedora version bump = tracked L11 rebase. (Web search/browser
 timed out; 4.3 dom0 Fedora version to confirm at rebase time.)
+
+## 2026-09-12T08:02:56+05:30
+#### User Request
+"Does this glow and window-titlebar shortcut work only with Dev-General or all VMs in the system?"
+#### Verbatim Output Response
+All VMs plus dom0-native windows: the effect runs in dom0's KWin and
+composites every qubes-gui-proxied window; focused shortcuts act on
+whatever window is focused (any VM), global masters span the whole
+session, kglowsync sweeps workspace.clientList(). Uniform eligibility
+rules (chrome/transients/class/48px) — no per-VM discrimination.
+Dev-General is only the build/deploy helper VM. Live proof offered.
