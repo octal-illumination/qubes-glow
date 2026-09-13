@@ -435,3 +435,13 @@
   PROJECT_CONTEXT #21 pending. Assertion ll032 (26 total).
 - Battery: 26/26, JSON OK, C++ syntax-clean in container (moc +
   -fsyntax-only). Build consent requested.
+
+## 2026-09-13T22:03:44+05:30 — Build #21 shipped: per-VM label hue live
+- kwin restarted (pid 81141), plugin loaded, label hues resolving on
+  first paint: every dev-general window => #edd400 (yellow), one journal
+  trace per window then cached. Dom0-native windows confirmed
+  atom-less (Qube Manager, dom0 konsole, plasmashell, Qui-*) -> white
+  fallback (GlowColor=255,255,255 persisted earlier).
+- reconfigureEffect returns bare method-return (no boolean) — retry
+  pattern corrected (was "boolean true", never matches).
+- Cross-VM proof pending: no non-yellow VM window open at verify time.

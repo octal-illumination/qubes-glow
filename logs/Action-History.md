@@ -408,3 +408,13 @@ labels via qvm-ls), then implemented build #21: new glowlabel module
 config key (default true), versions 3.11.0, LL-032, HANDBOOK/PROJECT_CONTEXT
 updated, assertion ll032. 26/26 green, syntax-verified. Build consent
 requested (then deploy + restart + live hue verification on a red/blue VM).
+
+## 2026-09-13T22:03:44+05:30
+#### User Request
+"build the app" -> "deploy" -> "Ys apply white" -> "restart kwin"
+#### Verbatim Output Response
+Build #21 compiled (2b43c24f, 0 warnings), deployed sha-verified,
+kwin restarted pid 81141. Label hues live: dev-general windows =>
+#edd400, cached per window. Dom0 halo switched to white (config
+persisted + reconfigureEffect; note: returns bare method-return, no
+boolean). Cross-VM red/blue proof pending a non-yellow VM window.

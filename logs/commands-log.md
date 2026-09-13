@@ -977,3 +977,35 @@
 ## 2026-09-13T14:57:46+05:30
 - Command: build #21 label-hue implementation + verification battery
 - Reason: User-approved per-VM label color change.
+
+## 2026-09-13T15:23:54+05:30
+- Command: build #21 compile (per-VM label hue)
+- Reason: User-authorized build.
+
+## 2026-09-13T15:24:54+05:30
+- Command: build #21 deploy (sha-gated, .so + metadata v3.11.0)
+- Reason: Ship per-VM label hue to dom0.
+
+## 2026-09-13T15:28:26+05:30
+- Command: build #21 deploy retry loop (5x per user rule)
+- Reason: Previous password dialog was cancelled; user-authorized retry.
+
+## 2026-09-13T21:59:08+05:30
+- Command: white dom0 halo config (GlowColor/Inactive=255,255,255 + reconfigureEffect)
+- Reason: User-approved white for dom0-native windows.
+
+## 2026-09-13T22:00:25+05:30
+- Command: reconfigureEffect with full env (XDG_RUNTIME_DIR fix)
+- Reason: First live-reload call lacked XDG_RUNTIME_DIR per HANDBOOK §6c.
+
+## 2026-09-13T22:02:37+05:30
+- Command: kwin restart loading build #21 (2b43c24f, per-VM label hue)
+- Reason: User consented restart for label colors.
+
+## 2026-09-13T22:03:15+05:30
+- Command: cross-VM label hue verification (window classes + journal)
+- Reason: Verify per-VM colors beyond yellow.
+
+## 2026-09-13T22:03:44+05:30
+- Command: build #21 wrap-up docs
+- Reason: Rules 3/10/12 milestone recording.
