@@ -303,12 +303,22 @@ halo never smears. Full design: ARCHITECTURE.md.</p>
 <p>None. Stateless effect; no persistence beyond kwinrc enable flag.</p>
 <h2 id="build-state">5. Build State</h2>
 <ul>
-<li><strong>Build #20 (v3.10.1, re-audit-2 fix batch) — IMPLEMENTED,
-BUILD PENDING CONSENT.</strong> F1/F2/F3 coordinate-space corrections
-(LL-028 rewritten: effect-facing regions are LOGICAL; one scale boundary
-at the vertex upload — corrected audit M2’s wrong rule), M5 rollback
-completeness (kglowsync stripped), qRound ambiguity fix, maxExtent ceil,
-dead constants removed, bootWatch stop, versions unified to 3.10.1. 25
+<li><strong>Build #21 (v3.11.0, per-VM label hue) — IMPLEMENTED, BUILD
+PENDING CONSENT.</strong> Halo color now follows each VM’s Qubes label
+(_QUBES_LABEL_COLOR, xprop-verified 0x00EDD400 on Dev-General) — new
+src/glowlabel.{h,cpp}, cached one read per window lifetime, pruned on
+windowDeleted, active/inactive = opacity over the hue, LabelColor config
+key (default true; false = configured gold), dom0-native windows fall
+back to gold. 26 assertions; C++ syntax-verified in container.</li>
+<li><strong>Build #20 (v3.10.1, re-audit-2 fix batch) — SHIPPED
+2026-09-11, sha f9389aec, kwin pid 65324.</strong> Functional probe
+identical to #19 (G+Alt+G 80 ms both fired; master restored on) —
+behavior-neutral at s=1 as predicted; space correctness restored for
+HiDPI. Batch: F1/F2/F3 coordinate-space corrections (LL-028 rewritten:
+effect-facing regions are LOGICAL; one scale boundary at the vertex
+upload — corrected audit M2’s wrong rule), M5 rollback completeness
+(kglowsync stripped), qRound ambiguity fix, maxExtent ceil, dead
+constants removed, bootWatch stop, versions unified to 3.10.1. 25
 assertions green; C++ syntax-verified in container (moc +
 -fsyntax-only). Report: docs/research/2026-09-11-reaudit-2.md.</li>
 <li><strong>Build #19 (audit-fix batch) — SHIPPED 2026-09-11, sha

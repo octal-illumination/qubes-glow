@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.16)
-project(kittyglow VERSION 3.10.1 LANGUAGES CXX)
+project(kittyglow VERSION 3.11.0 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -20,7 +20,7 @@ add_definitions(-DQT_NO_KEYWORDS)
 find_library(KWINEFFECTS_LIB NAMES kwineffects REQUIRED)
 find_library(KWINGLUTILS_LIB NAMES kwinglutils)
 
-add_library(kittyglow MODULE kittyglow.cpp kittytoggle.cpp kittyglowstate.cpp glowshader.cpp glowfocus.cpp)
+add_library(kittyglow MODULE kittyglow.cpp kittytoggle.cpp kittyglowstate.cpp glowshader.cpp glowfocus.cpp glowlabel.cpp)
 set_target_properties(kittyglow PROPERTIES PREFIX "" OUTPUT_NAME "kittyglow")
 
 target_link_libraries(kittyglow

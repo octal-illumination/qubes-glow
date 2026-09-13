@@ -422,3 +422,16 @@
   reads kittyglow.json; no rebuild required, artifact unchanged).
 - kittyglow-rollback.sh [1/4] label -> "unload effect + sync scripts"
   (m5b). shellcheck + bash -n clean; 25/25 assertions.
+
+## 2026-09-13T14:57:46+05:30 — Build #21 implemented: per-VM Qubes label hue (pending build)
+- New src/glowlabel.{h,cpp}: _QUBES_LABEL_COLOR (0x00RRGGBB) read via
+  xcb (EffectsHandler::xcbConnection kwineffects.h:1280; windowId()
+  :2684), one read per window LIFETIME, cached incl. misses, pruned on
+  windowDeleted. Journal trace per window ("kittyglow: label hue").
+- kittyglow.cpp: label hue + configured active/inactive OPACITY;
+  LabelColor=true default; invalid/absent -> configured gold.
+- glowconfig.h: LabelColor key. CMakeLists: glowlabel.cpp + VERSION
+  3.11.0. Metadata versions 3.11.0. SPEC LL-032; HANDBOOK §6c/§6d key;
+  PROJECT_CONTEXT #21 pending. Assertion ll032 (26 total).
+- Battery: 26/26, JSON OK, C++ syntax-clean in container (moc +
+  -fsyntax-only). Build consent requested.

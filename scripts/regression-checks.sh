@@ -77,6 +77,7 @@ check ll027-override-protection     bash -c 'grep -qF "var overrides = {}" src/k
 # Widening, occluders, and translation must NOT carry renderTargetScale,
 # and the vertex upload must keep its * s mapping.
 check ll028-logical-space-rule      bash -c 'grep -qF "const int e = m_cfg.maxExtent();" src/kittyglow.cpp && ! grep -qF "maxExtent() * KWin::effects->renderTargetScale()" src/kittyglow.cpp && ! grep -qF "gf.x() * scale" src/kittyglow.cpp && ! grep -qF "data.xTranslation() * s" src/kittyglow.cpp && grep -qF "static_cast<float>(cr.x() * s)" src/kittyglow.cpp'
+check ll032-label-hue                bash -c 'grep -qF "_QUBES_LABEL_COLOR" src/glowlabel.cpp && grep -qF "GlowLabel::colorFor(w)" src/kittyglow.cpp && grep -qF "m_cfg.labelColor" src/kittyglow.cpp && grep -qF "GlowLabel::pruneWindow(w)" src/kittyglow.cpp && grep -qF "labelColor = g.readEntry(\"LabelColor\", true)" src/glowconfig.h && grep -qF "glowlabel.cpp" src/CMakeLists.txt'
 check ll029-per-action-gates        bash -c 'grep -qF "m_gateBorderFocused" src/kittyglow.cpp && grep -qF "m_gateGlowFocused" src/kittyglow.cpp && grep -qF "m_gateBorderGlobal" src/kittyglow.cpp && grep -qF "m_gateGlowGlobal" src/kittyglow.cpp && ! grep -qF "m_toggleGate" src/kittyglow.cpp'
 check audit-m1-v2-script-purged     bash -c '[ ! -f scripts/v2-rollout-round.sh ]'
 check m5-rollback-strips-kglowsync  bash -c 'grep -qF "unloadScript string:kglowsync" scripts/kittyglow-rollback.sh && grep -qF "kglowsyncEnabled" scripts/kittyglow-rollback.sh && grep -qF "scripts/kglowsync" scripts/kittyglow-rollback.sh'

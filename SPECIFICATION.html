@@ -634,6 +634,18 @@ AND enshrined as a regression assertion — and was wrong; only
 re-derivation from the pinned KWin source caught it. Rule: every “the
 framework does X” claim gets a file:line citation from the pinned source
 before it becomes code, lesson, or assertion.</li>
+<li><strong>LL-032</strong> — per-VM Qubes label hue (build #21,
+2026-09-11): qubes-guid sets _QUBES_LABEL_COLOR (CARDINAL, plain
+0x00RRGGBB) on every VM-proxied window — xprop evidence on Dev-General:
+15586304 = 0x00EDD400 = its yellow qvm-ls label. The effect reads it via
+EffectsHandler::xcbConnection() (kwineffects.h:1280) +
+EffectWindow::windowId() (kwineffects.h:2684), ONE synchronous read per
+window LIFETIME, cached (misses cached too — dom0-native windows never
+re-read), pruned on windowDeleted. Active/inactive stays an OPACITY
+distinction (60%/30%) applied over the label hue; a relabeled VM keeps
+its cached hue until its windows reopen. LabelColor=false (kwinrc
+[Effect-kittyglow]) restores the configured gold. Dom0-native windows
+always use the configured colors — they carry no such atom.</li>
 <li><strong>LL-029</strong> — per-action autorepeat gates (audit M3,
 2026-09-11): a single shared <code>QElapsedTimer</code> gate across all
 toggle actions silently dropped CROSS-toggle presses (B then G within

@@ -397,3 +397,14 @@ whatever window is focused (any VM), global masters span the whole
 session, kglowsync sweeps workspace.clientList(). Uniform eligibility
 rules (chrome/transients/class/48px) — no per-VM discrimination.
 Dev-General is only the build/deploy helper VM. Live proof offered.
+
+## 2026-09-13T14:57:46+05:30
+#### User Request
+"Right now the color is fixed to yellow, but that needs to be changed to whatever the color the VM has been set to. Investigate" + "implement changes"
+#### Verbatim Output Response
+Investigated (xprop: _QUBES_LABEL_COLOR=0x00EDD400 on Dev-General;
+labels via qvm-ls), then implemented build #21: new glowlabel module
+(cached xcb read, pruned), paint-path hue + opacity semantics, LabelColor
+config key (default true), versions 3.11.0, LL-032, HANDBOOK/PROJECT_CONTEXT
+updated, assertion ll032. 26/26 green, syntax-verified. Build consent
+requested (then deploy + restart + live hue verification on a red/blue VM).

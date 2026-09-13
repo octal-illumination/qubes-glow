@@ -1,5 +1,6 @@
-// kittyglow — v3.10.1: per-window toggles + global masters (build #20,
-// 2026-09-11, re-audit 2 space corrections). ALL-WINDOW occlusion-clipped
+// kittyglow — v3.11: per-VM Qubes label hue (build #21, 2026-09-11).
+// v3.10.1: per-window toggles + global masters (build #20, re-audit 2
+// space corrections). ALL-WINDOW occlusion-clipped
 // SDF glow (per-paint occluder
 // rebuild, CPU-subdivided halo quads — LL-020), animation-mapped halo.
 // Note: This code is purely AI-generated.
@@ -30,8 +31,15 @@
 // briefly repurposed B as the glow switch — reverted by user directive
 // 2026-09-11. Per-window borderless on Meta+Shift+T remains KWin's native
 // per-window action.)
+//
+// COLOR (build #21, v3.11): with LabelColor=true (default) the halo hue of
+// each VM window comes from its Qubes label — _QUBES_LABEL_COLOR
+// (0x00RRGGBB) set by qubes-guid on every proxied window; active/inactive
+// remains an opacity distinction on that hue. Dom0-native windows and
+// LabelColor=false windows keep the configured gold (LL-032).
 #include "glowconfig.h"
 #include "glowfocus.h"
+#include "glowlabel.h"
 #include "glowshader.h"
 #include "glowtargets.h"
 
@@ -185,9 +193,13 @@ KittyGlowEffect::KittyGlowEffect() {
 
     // Build #18: per-window glow overrides hold EffectWindow pointers —
     // prune the destroyed window's entry or the paint path dereferences a
-    // dangling pointer on the next frame (glowfocus.h).
+    // dangling pointer on the next frame (glowfocus.h). The label-hue cache
+    // holds the same pointers — same pruning contract (glowlabel.h).
     connect(KWin::effects, &KWin::EffectsHandler::windowDeleted, this,
-            [](KWin::EffectWindow *w) { GlowFocus::pruneWindow(w); });
+            [](KWin::EffectWindow *w) {
+                GlowFocus::pruneWindow(w);
+                GlowLabel::pruneWindow(w);
+            });
 
     // Seamless toggle channel: DBus pull-service + kglowsync poller script
     // (see kittytoggle.h). The script applies noBorder live so the toggle
@@ -304,6 +316,20 @@ void KittyGlowEffect::paintWindow(KWin::EffectWindow *w, int mask, QRegion regio
 
     QColor color = KWin::effects->activeWindow() == w ? m_cfg.colorActive
                                                       : m_cfg.colorInactive;
+    // Per-VM label hue (build #21, v3.11): resolve the Qubes label color
+    // and re-apply the active/inactive OPACITY on top, so the distinction
+    // stays an alpha one regardless of hue (LL-032). Cached one read per
+    // window lifetime — never a per-frame property round trip.
+    if (m_cfg.labelColor) {
+        const QColor label = GlowLabel::colorFor(w);
+        if (label.isValid()) {
+            const float op = (KWin::effects->activeWindow() == w)
+                                 ? static_cast<float>(m_cfg.colorActive.alphaF())
+                                 : static_cast<float>(m_cfg.colorInactive.alphaF());
+            color = label;
+            color.setAlphaF(op);
+        }
+    }
     color.setAlphaF(color.alphaF() * alpha);
 
     KittyGlow::GlowGeometry geo;

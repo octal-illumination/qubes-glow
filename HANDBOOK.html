@@ -451,7 +451,8 @@ class="sourceCode ini"><code class="sourceCode ini"><span id="cb6-1"><a href="#c
 <span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="dt">GlowColor</span><span class="ot">=</span><span class="st">255,215,0     # active window halo color (RGB)</span></span>
 <span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a><span class="dt">GlowColorInactive</span><span class="ot">=</span><span class="st">255,215,0</span></span>
 <span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a><span class="dt">GlowOpacity</span><span class="ot">=</span><span class="st">60       # 0..100, active</span></span>
-<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a><span class="dt">GlowOpacityInactive</span><span class="ot">=</span><span class="dv">30</span></span></code></pre></div>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a><span class="dt">GlowOpacityInactive</span><span class="ot">=</span><span class="dv">30</span></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a><span class="dt">LabelColor</span><span class="ot">=</span><span class="st">true     # v3.11: per-VM Qubes label hue (false = configured gold)</span></span></code></pre></div>
 <div class="sourceCode" id="cb7"><pre
 class="sourceCode bash"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># apply after editing (no rebuild, no restart):</span></span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="ex">dom0</span> <span class="st">&quot;sudo -u chenpan env DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1000/bus </span><span class="dt">\</span></span>
@@ -510,14 +511,20 @@ rebuild — kwinrc <code>[Effect-kittyglow]</code>, see §6c)</h2>
 <tr class="even">
 <td><code>GlowColor</code> / <code>GlowColorInactive</code></td>
 <td>255,215,0 (gold)</td>
-<td>halo RGB</td>
+<td>halo RGB (fallback when <code>LabelColor=false</code>)</td>
 </tr>
 <tr class="odd">
 <td><code>GlowOpacity</code> / <code>GlowOpacityInactive</code></td>
 <td>60 / 30</td>
-<td>peak opacity %</td>
+<td>peak opacity % (applied over the label hue too)</td>
 </tr>
 <tr class="even">
+<td><code>LabelColor</code> (v3.11)</td>
+<td>true</td>
+<td>per-VM Qubes label hue (<code>_QUBES_LABEL_COLOR</code>); false =
+configured gold</td>
+</tr>
+<tr class="odd">
 <td><code>Enabled</code></td>
 <td>true</td>
 <td>master switch</td>

@@ -20,6 +20,10 @@ struct GlowConfig {
     QColor colorActive = QColor(255, 215, 0, 153);    // gold @ 60%
     QColor colorInactive = QColor(255, 215, 0, 77);   // gold @ 30%
     bool enabled = true;
+    // Build #21 (v3.11, LL-032): take each VM window's hue from its Qubes
+    // label (_QUBES_LABEL_COLOR) instead of the configured colors;
+    // dom0-native windows always fall back to the configured gold.
+    bool labelColor = true;
 
     int maxExtent() const {
         // Ceil, not truncate (re-audit 2 m2): the draw path uses the float
@@ -80,6 +84,7 @@ inline GlowConfig loadGlowConfig(const KSharedConfigPtr &cfg)
     c.colorActive = active;
     c.colorInactive = inactive;
     c.enabled = g.readEntry("Enabled", true);
+    c.labelColor = g.readEntry("LabelColor", true);
     return c;
 }
 

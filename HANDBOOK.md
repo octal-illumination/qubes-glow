@@ -171,6 +171,7 @@ GlowColor=255,215,0     # active window halo color (RGB)
 GlowColorInactive=255,215,0
 GlowOpacity=60       # 0..100, active
 GlowOpacityInactive=30
+LabelColor=true     # v3.11: per-VM Qubes label hue (false = configured gold)
 ```
 
 ```bash
@@ -204,8 +205,9 @@ borderless after a "clean" rollback (re-audit 2 M5).
 | `GlowRadius` | 32 | halo thickness on all sides (px) |
 | `GlowLeft/Top/Right/Bottom` | = GlowRadius | per-side thickness overrides |
 | `GlowCornerRadius` | 8 | corner rounding (0–64 px) |
-| `GlowColor` / `GlowColorInactive` | 255,215,0 (gold) | halo RGB |
-| `GlowOpacity` / `GlowOpacityInactive` | 60 / 30 | peak opacity % |
+| `GlowColor` / `GlowColorInactive` | 255,215,0 (gold) | halo RGB (fallback when `LabelColor=false`) |
+| `GlowOpacity` / `GlowOpacityInactive` | 60 / 30 | peak opacity % (applied over the label hue too) |
+| `LabelColor` (v3.11) | true | per-VM Qubes label hue (`_QUBES_LABEL_COLOR`); false = configured gold |
 | `Enabled` | true | master switch |
 
 Edit kwinrc in dom0, then apply live with the `reconfigureEffect` command in

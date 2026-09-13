@@ -34,6 +34,13 @@ halo never smears. Full design: ARCHITECTURE.md.
 None. Stateless effect; no persistence beyond kwinrc enable flag.
 
 ## 5. Build State
+- **Build #21 (v3.11.0, per-VM label hue) — IMPLEMENTED, BUILD PENDING
+  CONSENT.** Halo color now follows each VM's Qubes label
+  (_QUBES_LABEL_COLOR, xprop-verified 0x00EDD400 on Dev-General) —
+  new src/glowlabel.{h,cpp}, cached one read per window lifetime, pruned
+  on windowDeleted, active/inactive = opacity over the hue, LabelColor
+  config key (default true; false = configured gold), dom0-native windows
+  fall back to gold. 26 assertions; C++ syntax-verified in container.
 - **Build #20 (v3.10.1, re-audit-2 fix batch) — SHIPPED 2026-09-11,
   sha f9389aec, kwin pid 65324.** Functional probe identical to #19
   (G+Alt+G 80 ms both fired; master restored on) — behavior-neutral at

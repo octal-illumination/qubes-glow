@@ -965,3 +965,15 @@
 ## 2026-09-12T08:02:56+05:30
 - Command: VM-scope Q&A logged
 - Reason: Rule 10 audit trail.
+
+## 2026-09-12T08:25:27+05:30
+- Command: VM-label color investigation (xprop, labels dir, kwin scripts, qvm-ls)
+- Reason: User-requested per-VM glow color feasibility.
+
+## 2026-09-12T08:29:35+05:30
+- Command: VM-label probe with 5-attempt retry loop (xprop atoms, labels svg, qvm-ls)
+- Reason: User instruction: retry password dialog up to 5x; per-VM glow color investigation.
+
+## 2026-09-13T14:57:46+05:30
+- Command: build #21 label-hue implementation + verification battery
+- Reason: User-approved per-VM label color change.
