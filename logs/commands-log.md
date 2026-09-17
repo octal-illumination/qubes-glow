@@ -1302,3 +1302,15 @@ Reason: locate the credential central-security-ops used for its GitHub push; all
 ## 2026-09-17T11:30:10.912685+05:30
 Commands: pgrep git-credential-cache + socket existence checks; credential lines in /etc/gitconfig + ~/.gitconfig; read cso .git/logs/refs/remotes/origin/master (timestamps); git log -1 + reflog on central-security-ops (read-only).
 Reason: final determination of how the cso GitHub push authenticated — cache daemon, system config, and push timestamps are the last unexamined stores.
+
+## 2026-09-17T11:31:26.632325+05:30
+Commands: ssh-keygen ed25519 dedicated deploy key ~/.ssh/qubes-glow_ed25519 (no passphrase, chmod 600); idempotent ~/.ssh/config Host github-qubesglow block; git add -A; git commit.
+Reason: user-requested private GitHub push — keypair + local snapshot prepared; push itself waits on user-side repo creation + key authorization.
+
+## 2026-09-17T11:46:13.753179+05:30
+Commands: curl api.github.com /user, /user/orgs, /repos/{owner}/qubes-glow, /user/repos (PAT via stdin config; token never echoed/written to disk).
+Reason: user-supplied GitHub PAT verification — identity, scopes, target-repo existence. Token value handled in-memory only; explicit REDACTED in this log per Rule 9.
+
+## 2026-09-17T11:47:39.328182+05:30
+Commands: stat/read-first-line of ~/.keys/github (type classification only); then either ssh-keygen -lf + git ls-remote (ssh URL) or curl api.github.com /user + /repos/octal-illumination/qubes-glow with the key loaded in-memory (never echoed, never written to disk/config).
+Reason: user directed that the existing key at ~/.keys/github be used READ-ONLY — verify identity, repo existence/privacy, and push-permission flag without performing any write and without echoing the secret.
