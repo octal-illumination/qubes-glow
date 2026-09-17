@@ -212,7 +212,7 @@
 <h1 class="title">ROADMAP</h1>
 </header>
 <!-- HTML sibling: regenerate ONLY via bash ~/Projects/scripts/generate-docs-html.sh <this-file> — Rule 18c left-aligned CSS. Never hand-roll pandoc. -->
-<h1 id="roadmap-kitty-glow">ROADMAP — kitty-glow</h1>
+<h1 id="roadmap-qubes-glow">ROADMAP — Qubes Glow</h1>
 <blockquote>
 <p><strong>Note:</strong> All documentation and code in this project are
 purely AI-generated.</p>
@@ -222,28 +222,40 @@ LL-ID); state snapshot lives in PROJECT_CONTEXT.md. Refreshed 2026-09-11
 (was stale at build #7 — audit finding M4).</p>
 <h2 id="completed-phases">Completed phases</h2>
 <ul class="task-list">
-<li><label><input type="checkbox" checked="" />Phase 1 — kitty halo PoC
-→ v3: SDF shader, occlusion clipping (LL-017/018/019/020), seamless
-minimize tracking, shortcut rework (builds #1–#14).</label></li>
-<li><label><input type="checkbox" checked="" />Phase 2 — activation
+<li><p><label><input type="checkbox" checked="" />Phase 1 — kitty halo
+PoC → v3: SDF shader, occlusion clipping (LL-017/018/019/020), seamless
+minimize tracking, shortcut rework (builds #1–#14).</label></p></li>
+<li><p><label><input type="checkbox" checked="" />Phase 2 — activation
 pipeline: build.sh (container), deploy.sh (sha-gated, LL-022),
-kglobalaccel registration healing (LL-011).</label></li>
-<li><label><input type="checkbox" checked="" />Phase 3 — persistence
+kglobalaccel registration healing (LL-011).</label></p></li>
+<li><p><label><input type="checkbox" checked="" />Phase 3 — persistence
 without rules: kittyglowrc state store, kwinrulesrc retired
 (write-revert fight, LL-016), kglowsync script owns noBorder writes
-(builds #5–#7).</label></li>
-<li><label><input type="checkbox" checked="" />Phase 4 — all-windows
+(builds #5–#7).</label></p></li>
+<li><p><label><input type="checkbox" checked="" />Phase 4 — all-windows
 glow: chrome exclusion by class (LL-026 — qubes-gui strips
 _NET_WM_WINDOW_TYPE), ghost-square size guard, kglowsync bootstrap
-watchdog (builds #15–#17).</label></li>
-<li><label><input type="checkbox" checked="" />Phase 5 — per-window
+watchdog (builds #15–#17).</label></p></li>
+<li><p><label><input type="checkbox" checked="" />Phase 5 — per-window
 toggles + global masters (build #18, v3.10): Meta+Shift+B/G = focused
 window (runtime-only overrides, sweep-safe via the script’s overrides
 map); Meta+Shift+Alt+B/G = persisted global masters (LL-027).
-User-accepted live.</label></li>
-<li><label><input type="checkbox" checked="" />Phase 6 — deep audit
+User-accepted live.</label></p></li>
+<li><p><label><input type="checkbox" checked="" />Phase 6 — deep audit
 (2026-09-11): 0 critical/high; M1–M4 + L1–L11 fixed same day (this
-refresh is M4; see SPECIFICATION LL-028/029).</label></li>
+refresh is M4; see SPECIFICATION LL-028/029).</label></p></li>
+<li><p><label><input type="checkbox" checked="" />Build #22 popup
+exclusion — user accepted menus and notifications.</label></p></li>
+<li><p><label><input type="checkbox" checked="" />Branding — Qubes Glow;
+project directory <code>qubes-glow</code>; runtime IDs
+retained.</label></p></li>
+<li><p><label><input type="checkbox" checked="" />Build #23 — Qubes Glow
+display metadata shipped + activated (KWin 102464); container recreated
+on qubes-glow mount (LL-034: kf5-kglobalaccel-devel added to setup list,
+image re-committed 657fec9e…); exec-bit fix on setup script.
+Display-name change is DONE — no further build needed.</label></p></li>
+<li><p><label><input type="checkbox" />Recreate the old-path container
+mount with that build (HANDBOOK Section 2).</label></p></li>
 </ul>
 <h2 id="current-phase">Current phase</h2>
 <ul class="task-list">

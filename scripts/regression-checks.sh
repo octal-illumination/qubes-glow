@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Note: This code is purely AI-generated.
 #
-# kitty-glow regression assertion registry (QubesOS AGENTS Rule 20; kept
+# Qubes Glow (qubes-glow) regression assertion registry (QubesOS AGENTS Rule 20; kept
 # in-repo per Rule 21 isolation, user decision 2026-09-10 — option (a)).
 # Every fix records one machine-verifiable invariant. Run before marking any
 # task complete:  bash scripts/regression-checks.sh
@@ -78,6 +78,13 @@ check ll027-override-protection     bash -c 'grep -qF "var overrides = {}" src/k
 # and the vertex upload must keep its * s mapping.
 check ll028-logical-space-rule      bash -c 'grep -qF "const int e = m_cfg.maxExtent();" src/kittyglow.cpp && ! grep -qF "maxExtent() * KWin::effects->renderTargetScale()" src/kittyglow.cpp && ! grep -qF "gf.x() * scale" src/kittyglow.cpp && ! grep -qF "data.xTranslation() * s" src/kittyglow.cpp && grep -qF "static_cast<float>(cr.x() * s)" src/kittyglow.cpp'
 check ll032-label-hue                bash -c 'grep -qF "_QUBES_LABEL_COLOR" src/glowlabel.cpp && grep -qF "GlowLabel::colorFor(w)" src/kittyglow.cpp && grep -qF "m_cfg.labelColor" src/kittyglow.cpp && grep -qF "GlowLabel::pruneWindow(w)" src/kittyglow.cpp && grep -qF "labelColor = g.readEntry(\"LabelColor\", true)" src/glowconfig.h && grep -qF "glowlabel.cpp" src/CMakeLists.txt'
+# LL-033 (2026-09-15): override-redirect chrome (Qt QMenu popups, combo
+# popups, tooltips) must be rejected before any type/class/size predicate —
+# they are unmanaged, set no _NET_WM_WINDOW_TYPE, and inherit the parent's
+# WM_CLASS, so every prior denial missed them (user report: menu drop-down
+# glow + flickering bottom-edge outline). EffectWindow has no isUnmanaged();
+# isManaged() is the correct gate (managed = window->isClient, effects.cpp:2003).
+check ll033-unmanaged-popup-excluded  bash -c 'grep -qF "if (!w->isManaged()) return false;" src/glowtargets.h'
 check ll029-per-action-gates        bash -c 'grep -qF "m_gateBorderFocused" src/kittyglow.cpp && grep -qF "m_gateGlowFocused" src/kittyglow.cpp && grep -qF "m_gateBorderGlobal" src/kittyglow.cpp && grep -qF "m_gateGlowGlobal" src/kittyglow.cpp && ! grep -qF "m_toggleGate" src/kittyglow.cpp'
 check audit-m1-v2-script-purged     bash -c '[ ! -f scripts/v2-rollout-round.sh ]'
 check m5-rollback-strips-kglowsync  bash -c 'grep -qF "unloadScript string:kglowsync" scripts/kittyglow-rollback.sh && grep -qF "kglowsyncEnabled" scripts/kittyglow-rollback.sh && grep -qF "scripts/kglowsync" scripts/kittyglow-rollback.sh'

@@ -127,3 +127,34 @@ Ask user 3 discriminating questions (front-window app + translucency; drag vs ra
   eligibility predicate (LL-026, assertion-enforced) + DBus staging channel.
 - Decision: keep the C++/JS split as designed; documented in SPECIFICATION
   LL-027 and HANDBOOK 6b.
+
+## 2026-09-17T10:46:32.238839+05:30 — Rename conformance audit
+User request: verify every bit of info, line by line to check if the new naming is implemented as per plan.
+Scope: repository-wide textual name/path scan (166 text files; 100 binary/non-UTF8 files excluded from text interpretation); targeted source/document semantic review, local validation and read-only container inspection. Not a proof of every unrelated code path or live dom0 state.
+### Passed
+- Directory qubes-glow exists with .git; old kitty-glow path absent.
+- Source effect Name Qubes Glow; script Name Qubes Glow Border Sync.
+- Legacy plugin/script IDs, config/DBus/shortcut identities retained.
+- Root documentation names and HTML branding match; generator check passes.
+- Build/deploy paths resolve relative to project root; no active absolute old path found.
+- git diff --check and all 26 regression assertions pass.
+- dist plugin SHA remains 25169edd63f783f547603902f88d6323c3ba6fafe117ef71f7fa28f450d1615e.
+### Gaps
+1. logs/SESSION_STATE.md: old kitty-glow title and obsolete pending-fix objective/handoff; not a historical ledger, must be refreshed before handoff.
+2. ARCHITECTURE.md:28,31,33,47,103,109 refer to nonexistent toggleKittyBorderless/repaintAllKittyHalos/occludedAboveKitty; actual methods are focused/global toggles, repaintAllGlowHalos, occludedAbove. Kitty-only current-flow wording remains.
+3. PROJECT_CONTEXT.md:48 reports 27 assertions, actual suite has 26; :141 stale PID; :150 old eight-layer halo; :153-165 outdated border-rule/global-toggle description; :173 pending acceptance and :204 no-per-window-toggle contradict current state.
+4. SPECIFICATION.md:23 still selects eight stacked rects, contradicting SDF rendering; additional old packaging/activation statements need reconciliation against current scripts.
+5. scripts/regression-checks.sh:4 still uses old project branding in a comment (not a compatibility ID).
+6. docs/research/2026-09-15-ll033-capture-plan.md:26,35 runnable old-path commands; preserve historical record but add archival/superseded notice or current equivalent if reused.
+7. logs/build.log and logs/build9.log are broken symlinks; cause not established; do not attribute to rename without evidence.
+### Expected deferred items
+- Container bind source remains Kwin/kitty-glow/src. Recreate with the next explicitly authorized build; do not invoke old container directly.
+- dist metadata and deployed display branding remain old until build/deploy; intentional, not failed source rename.
+- Historical logs, backup names, class names and runtime kittyglow identifiers are retained intentionally.
+### Decision
+Core rename passes; full documentation/handoff conformance does not. No implementation corrections, builds, deployments or restarts performed by this audit. Propose documentation cleanup separately, including modularization of oversized core documents rather than another append-only patch.
+Evidence inventory: logs/output/rename-token-inventory.tsv.
+
+## 2026-09-17T10:46:57.590651+05:30
+Command/check: Python Path("logs/build/2026-09-09T18xxZ-build9.log").is_file().
+Reason: adjudicate broken-link cause. Confirmed: logs/build.log and logs/build9.log point to the removed kitty-glow directory; their target file exists at the same relative path under qubes-glow. These are rename-broken monitoring symlinks, not an unexplained pre-existing failure.

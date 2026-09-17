@@ -418,3 +418,58 @@ kwin restarted pid 81141. Label hues live: dev-general windows =>
 #edd400, cached per window. Dom0 halo switched to white (config
 persisted + reconfigureEffect; note: returns bare method-return, no
 boolean). Cross-VM red/blue proof pending a non-yellow VM window.
+
+## 2026-09-15T—LL-033 surface-eligibility diagnosis
+#### User Request
+"prepare the exact diagnostic command" → "run the diagnostic" (resumed closed session's last task: fix glow around menu drop-downs, flickering bottom-edge outline, and occasional notification glow).
+#### Verbatim Output Response
+Ran dom0 diagnostic probes (ll033_surface_diag v1–v7) and pinned-source adjudication. Confirmed: EffectWindow has no isUnmanaged(); the API is isManaged() (managed = window->isClient()), and unmanaged override-redirect windows (Qt QMenu popups) reach the effect but carry no type atom + the parent's WM_CLASS, so glowtargets.h's type+class predicates miss them and there is no isManaged() gate. Live census: only Qui-*/Nm-applet unmanaged (16px icons); dom0 Konsole 71303181 managed. Direct per-window capture not achieved (konsole on non-current desktop; pixel probes misused since dom0 halo is white, not gold). Delivered docs/research/2026-09-15-ll033-surface-eligibility.md + capture-plan.md + logs/probe/ll033_capture.py (smoke-tested --map-only). No source change made; awaiting consent/capture.
+
+## 2026-09-15 — LL-033 implemented (build #22)
+#### User Request
+"implement changes"
+#### Verbatim Output Response
+Added `if (!w->isManaged()) return false;` as the first denial in
+glowtargets.h::isGlowWindow (reject override-redirect chrome: Qt QMenu
+drop-downs, combo popups, tooltips). Version → 3.12.0. Added regression
+assertion ll033. Regression battery 27/27. Container compile zero-warning;
+dist sha 25169edd (built, NOT deployed). SPEC LL-033; HANDBOOK §1/§11;
+PROJECT_CONTEXT build-state rewritten. Notification artifact shares the
+same gate. Deploy + kwin restart still await explicit consent.
+
+## 2026-09-17T09:02:21.377491+05:30
+#### User Request
+deploy and restart
+
+#### Verbatim Output Response
+Continuing authorized deployment after partial authorization failure; no further source changes planned.
+
+## 2026-09-17T10:26:47.147784+05:30
+Build #22 activation verified: four artifact hashes match; both desktop-user enable flags true; KWin PID 100860 replaced by 101201; effect loaded and plugin mapped. Updated PROJECT_CONTEXT.md; visual acceptance pending. User request: "rettry". Regenerate HTML with `bash /home/user/Projects/scripts/generate-docs-html.sh PROJECT_CONTEXT.md` and verify resulting sibling.
+
+## 2026-09-17T10:41:07.669837+05:30
+Approved branding: Qubes Glow display name; qubes-glow directory. Updated effect/script source metadata, SPECIFICATION.md, HANDBOOK.md, ARCHITECTURE.md, ROADMAP.md and PROJECT_CONTEXT.md; runtime IDs unchanged. Build #22 user acceptance recorded. No build/deploy/restart.
+
+## 2026-09-17T10:42:04.760106+05:30
+#### User Request
+okay fine, impleent changes
+
+#### Verbatim Output Response
+Implemented approved Qubes Glow branding and qubes-glow directory rename; runtime identities preserved, container recreation/build/deployment deferred. Naming research recorded.
+
+## 2026-09-17T10:46:32.238839+05:30
+#### User Request
+verify every bit of info, line by line to check if the new naming is implemented as per plan.
+
+#### Verbatim Output Response
+Core rename verified, but stale documentation and handoff, incorrect assertion count, old executable research paths and broken monitoring links reported. Container remount/build/deployment intentionally pending. No implementation corrections applied.
+
+## 2026-09-17T10:50:02.449832+05:30
+#### User Request
+verify every bit of info, line by line to check if the new naming is implemented as per plan.
+
+#### Verbatim Output Response
+Applied audit corrections: PROJECT_CONTEXT assertion-count/PID/halo/rule/toggle/acceptance fixes + 26-assertion count; SPECIFICATION decision matrix reflects SDF; LL-033 capture plan archived with rename notice; regression registry header rebranded. Validation green; broken monitoring links repaired. Architecture/source runtime identifiers intentionally unchanged; build/deploy/restart still pending approval.
+
+## 2026-09-17T11:17:05
+Build #23 SHIPPED + activated (Qubes Glow branding, KWin 102464, sha d899970d…). LL-034 recorded (container package drift; setup script fixed; image re-committed). Architecture method-name corrections applied (item 2). All ledgers updated.

@@ -1,27 +1,37 @@
-<!-- HTML sibling: regenerate ONLY via bash ~/Projects/scripts/generate-docs-html.sh QubesOS/UI-Enhancements/Kwin/kitty-glow/HANDBOOK.md — Rule 18c left-aligned CSS. Never hand-roll pandoc. -->
-# kitty-glow — Handbook
+<!-- HTML sibling: regenerate ONLY via bash ~/Projects/scripts/generate-docs-html.sh QubesOS/UI-Enhancements/Kwin/qubes-glow/HANDBOOK.md — Rule 18c left-aligned CSS. Never hand-roll pandoc. -->
+# Qubes Glow — Handbook
 
 > **Note:** All documentation and code in this project are purely AI-generated.
 
 ## 1. Purpose & Features
 
-A KWin effect that draws a soft yellow halo around every eligible window —
-all normal application windows (build #15); dialogs, notifications, OSD,
-popup menus, tooltips, splash and utility windows are excluded by
-window-type predicates, and plasma surfaces, Qubes tray-widget ghosts,
+A KWin effect that draws a VM-label-colored halo around eligible windows —
+all normal application windows (build #15); override-redirect chrome and
+popups (Qt menus, combos, tooltips — LL-033), dialogs, notifications, OSD,
+popup menus, splash and utility windows are excluded (deny-list), and
+plasma surfaces, Qubes tray-widget ghosts,
 xembedsniproxy and krunner are excluded by window class (LL-026 — qubes-gui
-strips `_NET_WM_WINDOW_TYPE`). Features: automatic window tracking, 8-layer
-alpha falloff, seamless pass-behind occlusion, fullscreen suppression,
+strips `_NET_WM_WINDOW_TYPE`). Features: automatic window tracking, SDF
+soft falloff, seamless pass-behind occlusion, fullscreen suppression,
 OpenGL-compositing only, and four toggle shortcuts: **Meta+Shift+G** =
 glow toggle for the FOCUSED window, **Meta+Shift+B** = border/titlebar
 toggle for the FOCUSED window (both runtime-only, build #18), and the
 global masters **Meta+Shift+Alt+G** / **Meta+Shift+Alt+B** (persisted,
 sweep all eligible windows via the kglowsync script).
 
+Project directory: `qubes-glow/`. The effect's display name is **Qubes Glow**;
+installed artifacts and commands retain `kittyglow`/`kglowsync` for compatibility.
+Existing settings and shortcuts do not need renaming. Source display metadata
+requires a later approved build/deployment before the installed label changes.
+
 ## 2. Prerequisites
 
 - A running `dom0-replica-fed37` Podman container (Fedora 37, KWin 5.27.8 devel).
   Create/recreate it with `container/setup-build-container.sh` if absent.
+  After the project-directory rename, its old bind source must be refreshed.
+  `scripts/build.sh` detects the mismatch and invokes setup (replaces the
+  container); authorize that container recreation with the next build.
+  Do not use the old container directly or create an old-path symlink.
 - `dom0` helper on the Dev-General host (`~/.local/bin/dom0`).
 - `qvm-run` access from dom0 back to Dev-General (for the file transfer).
 
@@ -232,10 +242,10 @@ dom0 "kwriteconfig5 --file kwinrc --group Plugins --key kittyglowEnabled false"
 - Effect is always-on for app windows (the Meta+Shift+G toggle flips the
   glow class-wide, not per-window — see ROADMAP).
 - Minimum frame-size guard (build #17): windows smaller than 48 px in
-  either dimension are never haloed and never borderless-toggled — this is
-  the only reliable exclusion for UNMANAGED windows (Qui-* tray sources,
-  override-redirect, no WM_CLASS: class checks cannot see them; the
-  "ghost square" at the screen corner was a 16×16 Qui source). Mirrored
+  either dimension are never haloed and never borderless-toggled. Since
+  build #22 the principled first-order exclusion for UNMANAGED
+  (override-redirect) windows is `isManaged()` (LL-033); the size guard
+  remains as belt-and-braces for any sub-icon managed widget. Mirrored
   in kglowsync's `isBorderlessTarget` so the script and effect agree.
 - Glow visibility depends on stacking: with app windows maximized or
   stacked over each other, halos are offscreen or occluded — Meta+Shift+G

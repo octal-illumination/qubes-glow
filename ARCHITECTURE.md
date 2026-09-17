@@ -1,7 +1,11 @@
-<!-- HTML sibling: regenerate ONLY via bash ~/Projects/scripts/generate-docs-html.sh QubesOS/UI-Enhancements/Kwin/kitty-glow/ARCHITECTURE.md — Rule 18c left-aligned CSS. Never hand-roll pandoc. -->
-# kitty-glow — Architecture
+<!-- HTML sibling: regenerate ONLY via bash ~/Projects/scripts/generate-docs-html.sh QubesOS/UI-Enhancements/Kwin/qubes-glow/ARCHITECTURE.md — Rule 18c left-aligned CSS. Never hand-roll pandoc. -->
+# Qubes Glow — Architecture
 
 > **Note:** All documentation and code in this project are purely AI-generated.
+
+Names such as `KittyGlowEffect`, `kittyglow` and `kglowsync` remain internal
+compatibility identifiers. The effect covers eligible application windows,
+not just kitty. Naming requirements live in SPECIFICATION.md Section 4.
 
 ## 1. High-Level Architecture
 
@@ -20,36 +24,42 @@
 ## 2. Component Details
 
 ### 2.1 `KittyGlowEffect` (src/kittyglow.cpp)
-`KWin::Effect` subclass. Constructor wires the shortcut (Meta+Shift+B →
-`toggleKittyBorderless()`, autorepeat-gated 220 ms) and the repaint hooks:
+`KWin::Effect` subclass. Constructor wires four shortcuts, each with its own
+220 ms autorepeat gate (LL-029): Meta+Shift+B → `toggleBorderlessFocused()`
+and Meta+Shift+G → `toggleGlowFocused()` (FOCUSED window, runtime-only,
+build #18); Meta+Shift+Alt+B → `toggleBorderlessGlobal()` and
+Meta+Shift+Alt+G → `toggleGlowGlobal()` (persisted global masters) — plus
+the repaint hooks:
 - `windowFrameGeometryChanged` / `windowMinimized` / `windowUnminimized` →
   repaint the halo ring (old + new geometry) so the halo never smears;
-- `stackingOrderChanged` → `repaintAllKittyHalos()` — a window raised above
-  kitty re-clips the halo on the very next frame (LL-019);
-- `windowActivated` → `repaintAllKittyHalos()` — halo recolors
+- `stackingOrderChanged` → `repaintAllGlowHalos()` — a window raised above
+  a glow window re-clips its halo on the very next frame (LL-019);
+- `windowActivated` → `repaintAllGlowHalos()` — halos recolor
   ACTIVE/inactive on focus changes (LL-019);
 - `KittyToggle::init()` — DBus apply channel for the borderless state
   (`kittyglowrc` via `kittyglowstate.cpp`; kwinrulesrc retired, LL-016).
+- Eligibility (`glowtargets.h::isGlowWindow`): `isManaged()` first (LL-033 —
+  override-redirect menus/popups), then type/class/size denials (LL-023/026).
 
 ### 2.2 Render path (v3.4, one SDF quad)
-`prePaintWindow()` widens kitty's repaint to the halo ring and marks the
-window translucent. `paintWindow()` paints kitty normally, then draws ONE
+`prePaintWindow()` widens the window's repaint to the halo ring and marks
+the window translucent. `paintWindow()` paints the window normally, then draws ONE
 hardware-blended triangle-fan quad around the frame rect with the GLSL SDF
 shader (`glowshader.cpp`): per-side soft falloff from `u_extents`, corner
 radius, active/inactive color. The quad is mapped through the scene's
 animation transform (scale about frame top-left + translation) so the halo
 tracks minimize/restore mid-flight, and fades with `data.opacity()`.
 
-### 2.3 Occlusion clip + CPU subdivision (`occludedAboveKitty`, per paint)
+### 2.3 Occlusion clip + CPU subdivision (`occludedAbove`, per paint)
 ```
 clip = haloRect                                  // scene region NOT a clip source
-clip -= union of occluder rect per opaque wi logically ABOVE
-        the painted kitty: DOCKS use expandedGeometry() (frame + shadow
+clip -= union of occluder rect per opaque window logically ABOVE
+        the painted window: DOCKS use expandedGeometry() (frame + shadow
         margin; LL-018 always-clip); NORMAL windows use frameGeometry()
         ONLY — the halo paints beneath them, so their translucent shadow
         gradient dims it progressively right up to the border (seamless
         pass-behind, LL-017 superseded; no wallpaper gap)
-        the painted kitty in stackingOrder() (same desktop/activity, not
+        the painted window in stackingOrder() (same desktop/activity, not
         minimized; desktop windows skipped; docks/panels always count —
         LL-018; other translucent windows are skipped → bloom-through)
 for each clip rect: upload 2-triangle sub-quad of the halo quad and draw
@@ -62,8 +72,8 @@ WAS the LL-020 leak. The SDF is fragment-position-based, so sub-rects are
 pixel-identical to the full quad (LL-020 for the full three-part lesson).
 Rebuilt on EVERY halo paint — no cache: the old 120 ms stacking snapshot
 lagged raise/drag transitions and one unclipped frame then persisted forever
-(an unfocused kitty never repaints; LL-019). Anchored to the PAINTED kitty
-window, not "the topmost kitty", so multi-kitty stacks clip correctly.
+(an unfocused window never repaints; LL-019). Anchored to the PAINTED
+window, not "the topmost window", so multi-window stacks clip correctly.
 
 ### 2.4 `GlowConfig` (glowconfig.h)
 Reads kwinrc `[Effect-kittyglow]` (thickness per side, corner radius,
@@ -78,7 +88,7 @@ compositor restart for tuning.
         ▼
 addRepaint(halo ring) ──▶ KWin repaints the damaged region
         │
-[kitty's paintWindow]
+[glow window's paintWindow]
         ├─ effects->paintWindow(w, …)           // real window first
         └─ clip = halo − occluders              // occluders built THIS frame
                  └─ per clip rect: unclipped sub-quad draw (1-arg render)
@@ -96,13 +106,13 @@ occluder subtraction keeps it off front applications and the desktop.
   overload is BANNED in this effect (LL-020: caller-must-enable scissor +
   degenerate KWin boxes).
 - `stackingOrder()` — logical bottom→top order; NOT reordered during a drag
-  (elevation is paint-time only) — see the note in `occludedAboveKitty`.
+  (elevation is paint-time only) — see the note in `occludedAbove`.
 
 ## 5. Error Handling Strategy
 
 - **Non-OpenGL compositing:** `paintWindow` returns before any GL call
   (QPainter-fallback safety).
-- **Window not in stacking order:** `occludedAboveKitty` fails OPEN (draws
+- **Window not in stacking order:** `occludedAbove` fails OPEN (draws
   unclipped) rather than clipping the halo against the whole stack.
 - **Empty clip / alpha ≤ 0.01:** early return before shader/vertex setup.
 - **Missing/invalid plugin:** KWin logs the load failure and continues; it

@@ -1,4 +1,5 @@
-// kittyglow — v3.11: per-VM Qubes label hue (build #21, 2026-09-11).
+// kittyglow — v3.12: unmanaged-popup exclusion (build #22, 2026-09-15,
+// LL-033). v3.11: per-VM Qubes label hue (build #21, 2026-09-11).
 // v3.10.1: per-window toggles + global masters (build #20, re-audit 2
 // space corrections). ALL-WINDOW occlusion-clipped
 // SDF glow (per-paint occluder

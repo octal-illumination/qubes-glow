@@ -20,6 +20,15 @@ namespace KittyGlowTargets {
 // must never carry persistent screen furniture.
 inline bool isGlowWindow(KWin::EffectWindow *w) {
     if (!w || w->isDeleted()) return false;
+    // LL-033 (2026-09-15): reject override-redirect chrome first. EffectWindow
+    // has no isUnmanaged(); the managed flag = window->isClient(), captured at
+    // construction so effects can still classify popups after Deleted-reparent
+    // (kwineffects.h:2588, effects.cpp:2003). Qt QMenu drop-downs, combo popups
+    // and tooltips are override-redirect and set no _NET_WM_WINDOW_TYPE, so the
+    // type predicates below cannot see them and they inherit the parent's
+    // WM_CLASS — without this gate every open menu got its own halo (report:
+    // drop-down glow + flickering bottom-edge outline).
+    if (!w->isManaged()) return false;
     if (w->isDesktop() || w->isDock()) return false;      // chrome
     if (w->isDialog() || w->isNotification() || w->isOnScreenDisplay())
         return false;                                     // user exclusions

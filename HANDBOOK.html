@@ -275,32 +275,43 @@
 <header id="title-block-header">
 <h1 class="title">HANDBOOK</h1>
 </header>
-<!-- HTML sibling: regenerate ONLY via bash ~/Projects/scripts/generate-docs-html.sh QubesOS/UI-Enhancements/Kwin/kitty-glow/HANDBOOK.md — Rule 18c left-aligned CSS. Never hand-roll pandoc. -->
-<h1 id="kitty-glow-handbook">kitty-glow — Handbook</h1>
+<!-- HTML sibling: regenerate ONLY via bash ~/Projects/scripts/generate-docs-html.sh QubesOS/UI-Enhancements/Kwin/qubes-glow/HANDBOOK.md — Rule 18c left-aligned CSS. Never hand-roll pandoc. -->
+<h1 id="qubes-glow-handbook">Qubes Glow — Handbook</h1>
 <blockquote>
 <p><strong>Note:</strong> All documentation and code in this project are
 purely AI-generated.</p>
 </blockquote>
 <h2 id="purpose-features">1. Purpose &amp; Features</h2>
-<p>A KWin effect that draws a soft yellow halo around every eligible
-window — all normal application windows (build #15); dialogs,
-notifications, OSD, popup menus, tooltips, splash and utility windows
-are excluded by window-type predicates, and plasma surfaces, Qubes
-tray-widget ghosts, xembedsniproxy and krunner are excluded by window
-class (LL-026 — qubes-gui strips <code>_NET_WM_WINDOW_TYPE</code>).
-Features: automatic window tracking, 8-layer alpha falloff, seamless
-pass-behind occlusion, fullscreen suppression, OpenGL-compositing only,
-and four toggle shortcuts: <strong>Meta+Shift+G</strong> = glow toggle
-for the FOCUSED window, <strong>Meta+Shift+B</strong> = border/titlebar
-toggle for the FOCUSED window (both runtime-only, build #18), and the
-global masters <strong>Meta+Shift+Alt+G</strong> /
-<strong>Meta+Shift+Alt+B</strong> (persisted, sweep all eligible windows
-via the kglowsync script).</p>
+<p>A KWin effect that draws a VM-label-colored halo around eligible
+windows — all normal application windows (build #15); override-redirect
+chrome and popups (Qt menus, combos, tooltips — LL-033), dialogs,
+notifications, OSD, popup menus, splash and utility windows are excluded
+(deny-list), and plasma surfaces, Qubes tray-widget ghosts,
+xembedsniproxy and krunner are excluded by window class (LL-026 —
+qubes-gui strips <code>_NET_WM_WINDOW_TYPE</code>). Features: automatic
+window tracking, SDF soft falloff, seamless pass-behind occlusion,
+fullscreen suppression, OpenGL-compositing only, and four toggle
+shortcuts: <strong>Meta+Shift+G</strong> = glow toggle for the FOCUSED
+window, <strong>Meta+Shift+B</strong> = border/titlebar toggle for the
+FOCUSED window (both runtime-only, build #18), and the global masters
+<strong>Meta+Shift+Alt+G</strong> / <strong>Meta+Shift+Alt+B</strong>
+(persisted, sweep all eligible windows via the kglowsync script).</p>
+<p>Project directory: <code>qubes-glow/</code>. The effect’s display
+name is <strong>Qubes Glow</strong>; installed artifacts and commands
+retain <code>kittyglow</code>/<code>kglowsync</code> for compatibility.
+Existing settings and shortcuts do not need renaming. Source display
+metadata requires a later approved build/deployment before the installed
+label changes.</p>
 <h2 id="prerequisites">2. Prerequisites</h2>
 <ul>
 <li>A running <code>dom0-replica-fed37</code> Podman container (Fedora
 37, KWin 5.27.8 devel). Create/recreate it with
-<code>container/setup-build-container.sh</code> if absent.</li>
+<code>container/setup-build-container.sh</code> if absent. After the
+project-directory rename, its old bind source must be refreshed.
+<code>scripts/build.sh</code> detects the mismatch and invokes setup
+(replaces the container); authorize that container recreation with the
+next build. Do not use the old container directly or create an old-path
+symlink.</li>
 <li><code>dom0</code> helper on the Dev-General host
 (<code>~/.local/bin/dom0</code>).</li>
 <li><code>qvm-run</code> access from dom0 back to Dev-General (for the
@@ -552,12 +563,12 @@ plus observation that the toast’s dock-type strip gets no halo (band
 <li>Effect is always-on for app windows (the Meta+Shift+G toggle flips
 the glow class-wide, not per-window — see ROADMAP).</li>
 <li>Minimum frame-size guard (build #17): windows smaller than 48 px in
-either dimension are never haloed and never borderless-toggled — this is
-the only reliable exclusion for UNMANAGED windows (Qui-* tray sources,
-override-redirect, no WM_CLASS: class checks cannot see them; the “ghost
-square” at the screen corner was a 16×16 Qui source). Mirrored in
-kglowsync’s <code>isBorderlessTarget</code> so the script and effect
-agree.</li>
+either dimension are never haloed and never borderless-toggled. Since
+build #22 the principled first-order exclusion for UNMANAGED
+(override-redirect) windows is <code>isManaged()</code> (LL-033); the
+size guard remains as belt-and-braces for any sub-icon managed widget.
+Mirrored in kglowsync’s <code>isBorderlessTarget</code> so the script
+and effect agree.</li>
 <li>Glow visibility depends on stacking: with app windows maximized or
 stacked over each other, halos are offscreen or occluded — Meta+Shift+G
 toggling changes almost nothing VISIBLE while the desktop is fully

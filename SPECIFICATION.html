@@ -211,19 +211,19 @@
 <header id="title-block-header">
 <h1 class="title">SPECIFICATION</h1>
 </header>
-<!-- HTML sibling: regenerate ONLY via bash ~/Projects/scripts/generate-docs-html.sh QubesOS/UI-Enhancements/Kwin/kitty-glow/SPECIFICATION.md — Rule 18c left-aligned CSS. Never hand-roll pandoc. -->
-<h1 id="kitty-glow-specification">kitty-glow — Specification</h1>
+<!-- HTML sibling: regenerate ONLY via bash ~/Projects/scripts/generate-docs-html.sh QubesOS/UI-Enhancements/Kwin/qubes-glow/SPECIFICATION.md — Rule 18c left-aligned CSS. Never hand-roll pandoc. -->
+<h1 id="qubes-glow-specification">Qubes Glow — Specification</h1>
 <blockquote>
 <p><strong>Note:</strong> All documentation and code in this project are
 purely AI-generated.</p>
 </blockquote>
 <h2 id="problem-definition-root-cause">1. Problem Definition &amp; Root
 Cause</h2>
-<p>kitty is the primary terminal in this Qubes OS environment. On a
-shared X11 desktop, kitty windows are visually indistinguishable from
-other VM windows. <strong>Fix:</strong> a KWin (KDE Plasma 5.27)
-compositor effect that paints a soft yellow halo around every kitty
-window, making it instantly identifiable.</p>
+<p>Qubes Glow provides VM-label-aware halos around eligible application
+windows and focused/global border controls on the Qubes OS dom0 X11
+desktop. The original kitty-only scope is historical; menus and
+notification surfaces must not receive the application’s glow. See
+LL-026/032/033 for constraints.</p>
 <p>Root cause of the gap: KWin has no built-in “window-type glow”
 effect; the only way to add one is a custom <code>KWin::Effect</code>
 plugin compiled against the exact KWin ABI (5.27.8) and deployed into
@@ -248,9 +248,9 @@ dom0 (where the compositor runs).</p>
 <tbody>
 <tr class="odd">
 <td>Glow technique</td>
-<td>8 stacked translucent GL rects</td>
-<td>Single rect / blur shader</td>
-<td>Cheap, no shader code, soft falloff via alpha ramp</td>
+<td>GLSL SDF single quad (v3)</td>
+<td>8 stacked rects (v1/v2, historical); single rect / blur shader</td>
+<td>Per-side soft falloff in one hardware-blended draw (LL-020)</td>
 </tr>
 <tr class="even">
 <td>Where it runs</td>
@@ -309,15 +309,23 @@ Conformance Rules (KWin 5.27 effect plugin)</h2>
 <code>render(GL_TRIANGLE_STRIP)</code>.</li>
 </ul>
 <h2 id="project-structure-charter">4. Project Structure Charter</h2>
-<pre><code>kitty-glow/
+<pre><code>qubes-glow/
 ├── src/        effect source (canonical, single-responsibility files)
 ├── container/   build-env definition (Fedora 37 / KWin 5.27.8)
 ├── scripts/    build.sh, deploy.sh
 ├── dist/       build output (gitignored)
 ├── docs/       research notes
 └── logs/       documentary ledgers (committed) + runtime subdirs (gitignored)</code></pre>
-<p>Git boundary: the whole <code>kitty-glow/</code> directory. No
-cross-project dependencies.</p>
+<p>Git boundary: the whole <code>qubes-glow/</code> directory. No
+cross-project dependencies. Naming: display name <strong>Qubes
+Glow</strong>, repository/directory <code>qubes-glow</code>. Keep
+runtime IDs (<code>kittyglow</code>, <code>kglowsync</code>), config
+keys, DBus names, library basenames and shortcut IDs stable until an
+explicitly approved migration. <code>kwin-effect-qubes-glow</code> is a
+proposed future package name, not a shipped package. Research and
+rejected naming alternatives: logs/researched-ideas.md (Naming). Current
+KF6 filename-derived ID guidance is not a KF5 metadata migration
+rule.</p>
 <h2 id="build-packaging-specification">5. Build &amp; Packaging
 Specification</h2>
 <ul>
@@ -646,6 +654,32 @@ distinction (60%/30%) applied over the label hue; a relabeled VM keeps
 its cached hue until its windows reopen. LabelColor=false (kwinrc
 [Effect-kittyglow]) restores the configured gold. Dom0-native windows
 always use the configured colors — they carry no such atom.</li>
+<li><strong>LL-033</strong> — override-redirect chrome escapes deny-list
+eligibility (build #22, 2026-09-15): Qt QMenu drop-downs, combo popups
+and tooltips are override-redirect surfaces. KWin wraps them as
+unmanaged EffectWindows, they set NO _NET_WM_WINDOW_TYPE (so
+isPopupWindow/isMenu/isComboBox never match), and they inherit the
+parent’s WM_CLASS (so class denial misses them). The only reliable gate
+is <code>EffectWindow::isManaged()</code> (kwineffects.h:2588, “whether
+it’s managed or override-redirect”; managed = window-&gt;isClient(),
+effects.cpp:2003, captured at construction so popups stay classified
+after Deleted-reparent). EffectWindow has NO isUnmanaged(). Without that
+gate every open menu draws its own halo (user report: drop-down glow +
+flickering bottom-edge outline where the list overruns the window
+border). The 48 px size guard was doing this structural work by accident
+for icon surfaces; isManaged() is the principled first-order
+denial.</li>
+<li><strong>LL-034</strong> — build container package drift (2026-09-17,
+build #23): the pre-rename image <code>dom0-replica-fed37-img</code>
+carried a MANUALLY installed <code>kf5-kglobalaccel-devel</code>;
+recreating the container from the stale image silently dropped it and
+cmake failed (“Could NOT find KF5 (missing: GlobalAccel)”). Rule: every
+package the build needs MUST be in
+<code>container/setup-build-container.sh</code> dnf list (now includes
+it), and any manual in-container install must be followed by
+<code>podman commit CTR IMG</code> (done: image 657fec9e). Also fixed:
+setup script exec bit (build.sh invokes it directly; 644 → 755, exit
+126).</li>
 <li><strong>LL-029</strong> — per-action autorepeat gates (audit M3,
 2026-09-11): a single shared <code>QElapsedTimer</code> gate across all
 toggle actions silently dropped CROSS-toggle presses (B then G within
@@ -663,10 +697,10 @@ https://invent.kde.org/plasma/kwin/-/wikis/Development</li>
 <code>kwinglutils.h</code>) — pinned via the Fedora-37 replica container
 so the ABI never drifts from dom0.</li>
 </ul>
-<h2 id="appendix">10. Appendix</h2>
-<p>MVP scope: layered-alpha halo only. Window detection is by
-<code>windowClass()</code> containing “kitty” (case-insensitive);
-fullscreen windows are skipped. See ARCHITECTURE.md for the GL draw path
-and HANDBOOK.md for tuning.</p>
+<h2 id="historical-scope">10. Historical Scope</h2>
+<p>The MVP targeted kitty with a layered-alpha halo. Current
+application-window eligibility and rendering are described in
+ARCHITECTURE.md; usage is in HANDBOOK.md. Historical identifiers remain
+for compatibility, not scope.</p>
 </body>
 </html>

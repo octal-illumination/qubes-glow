@@ -1,14 +1,14 @@
-<!-- HTML sibling: regenerate ONLY via bash ~/Projects/scripts/generate-docs-html.sh QubesOS/UI-Enhancements/Kwin/kitty-glow/SPECIFICATION.md — Rule 18c left-aligned CSS. Never hand-roll pandoc. -->
-# kitty-glow — Specification
+<!-- HTML sibling: regenerate ONLY via bash ~/Projects/scripts/generate-docs-html.sh QubesOS/UI-Enhancements/Kwin/qubes-glow/SPECIFICATION.md — Rule 18c left-aligned CSS. Never hand-roll pandoc. -->
+# Qubes Glow — Specification
 
 > **Note:** All documentation and code in this project are purely AI-generated.
 
 ## 1. Problem Definition & Root Cause
 
-kitty is the primary terminal in this Qubes OS environment. On a shared X11
-desktop, kitty windows are visually indistinguishable from other VM windows.
-**Fix:** a KWin (KDE Plasma 5.27) compositor effect that paints a soft yellow
-halo around every kitty window, making it instantly identifiable.
+Qubes Glow provides VM-label-aware halos around eligible application windows
+and focused/global border controls on the Qubes OS dom0 X11 desktop.
+The original kitty-only scope is historical; menus and notification surfaces
+must not receive the application's glow. See LL-026/032/033 for constraints.
 
 Root cause of the gap: KWin has no built-in "window-type glow" effect; the only
 way to add one is a custom `KWin::Effect` plugin compiled against the exact
@@ -20,7 +20,7 @@ KWin ABI (5.27.8) and deployed into dom0 (where the compositor runs).
 
 | Decision | Chosen | Rejected | Rationale |
 |----------|--------|----------|-----------|
-| Glow technique | 8 stacked translucent GL rects | Single rect / blur shader | Cheap, no shader code, soft falloff via alpha ramp |
+| Glow technique | GLSL SDF single quad (v3) | 8 stacked rects (v1/v2, historical); single rect / blur shader | Per-side soft falloff in one hardware-blended draw (LL-020) |
 | Where it runs | dom0 KWin plugin | AppVM-side (kitty config) | The compositor owns window framing; kitty cannot draw outside its own content |
 | Build host | Fedora-37 replica container | Build on dom0 directly | dom0 has no toolchain; container matches dom0's KWin 5.27.8 ABI exactly |
 | Transfer to dom0 | qvm-run base64 pipe | qvm-copy file RPC | Filecopy RPC into dom0 was refused; qvm-run (dom0→VM exec) works |
@@ -46,7 +46,7 @@ KWin ABI (5.27.8) and deployed into dom0 (where the compositor runs).
 ## 4. Project Structure Charter
 
 ```
-kitty-glow/
+qubes-glow/
 ├── src/        effect source (canonical, single-responsibility files)
 ├── container/   build-env definition (Fedora 37 / KWin 5.27.8)
 ├── scripts/    build.sh, deploy.sh
@@ -54,7 +54,13 @@ kitty-glow/
 ├── docs/       research notes
 └── logs/       documentary ledgers (committed) + runtime subdirs (gitignored)
 ```
-Git boundary: the whole `kitty-glow/` directory. No cross-project dependencies.
+Git boundary: the whole `qubes-glow/` directory. No cross-project dependencies.
+Naming: display name **Qubes Glow**, repository/directory `qubes-glow`.
+Keep runtime IDs (`kittyglow`, `kglowsync`), config keys, DBus names, library
+basenames and shortcut IDs stable until an explicitly approved migration.
+`kwin-effect-qubes-glow` is a proposed future package name, not a shipped package.
+Research and rejected naming alternatives: logs/researched-ideas.md (Naming).
+Current KF6 filename-derived ID guidance is not a KF5 metadata migration rule.
 
 ## 5. Build & Packaging Specification
 
@@ -316,6 +322,28 @@ Git boundary: the whole `kitty-glow/` directory. No cross-project dependencies.
   its cached hue until its windows reopen. LabelColor=false (kwinrc
   [Effect-kittyglow]) restores the configured gold. Dom0-native windows
   always use the configured colors — they carry no such atom.
+- **LL-033** — override-redirect chrome escapes deny-list eligibility
+  (build #22, 2026-09-15): Qt QMenu drop-downs, combo popups and tooltips are
+  override-redirect surfaces. KWin wraps them as unmanaged EffectWindows, they
+  set NO _NET_WM_WINDOW_TYPE (so isPopupWindow/isMenu/isComboBox never match),
+  and they inherit the parent's WM_CLASS (so class denial misses them). The
+  only reliable gate is `EffectWindow::isManaged()` (kwineffects.h:2588,
+  "whether it's managed or override-redirect"; managed = window->isClient(),
+  effects.cpp:2003, captured at construction so popups stay classified after
+  Deleted-reparent). EffectWindow has NO isUnmanaged(). Without that gate every
+  open menu draws its own halo (user report: drop-down glow + flickering
+  bottom-edge outline where the list overruns the window border). The 48 px
+  size guard was doing this structural work by accident for icon surfaces;
+  isManaged() is the principled first-order denial.
+- **LL-034** — build container package drift (2026-09-17, build #23): the
+  pre-rename image `dom0-replica-fed37-img` carried a MANUALLY installed
+  `kf5-kglobalaccel-devel`; recreating the container from the stale image
+  silently dropped it and cmake failed ("Could NOT find KF5 (missing:
+  GlobalAccel)"). Rule: every package the build needs MUST be in
+  `container/setup-build-container.sh` dnf list (now includes it), and any
+  manual in-container install must be followed by `podman commit CTR IMG`
+  (done: image 657fec9e). Also fixed: setup script exec bit (build.sh
+  invokes it directly; 644 → 755, exit 126).
 - **LL-029** — per-action autorepeat gates (audit M3, 2026-09-11): a
   single shared `QElapsedTimer` gate across all toggle actions silently
   dropped CROSS-toggle presses (B then G within 220 ms lost G — a
@@ -330,8 +358,8 @@ Git boundary: the whole `kitty-glow/` directory. No cross-project dependencies.
 - KWin 5.27.8 effect plugin API (`kwineffects.h`, `kwinglutils.h`) — pinned via the
   Fedora-37 replica container so the ABI never drifts from dom0.
 
-## 10. Appendix
+## 10. Historical Scope
 
-MVP scope: layered-alpha halo only. Window detection is by `windowClass()`
-containing "kitty" (case-insensitive); fullscreen windows are skipped. See
-ARCHITECTURE.md for the GL draw path and HANDBOOK.md for tuning.
+The MVP targeted kitty with a layered-alpha halo. Current application-window
+eligibility and rendering are described in ARCHITECTURE.md; usage is in
+HANDBOOK.md. Historical identifiers remain for compatibility, not scope.

@@ -91,3 +91,38 @@ Status: [Not Completed] -> DECIDED AGAINST (2026-09-11T14:06:54+05:30)
    to GitHub as-is requires zero code changes (Qubes heuristics are inert
    no-ops on non-Qubes systems); a world-facing README + LICENSE are the
    only honest-framing items if that ever becomes wanted.
+
+## LL-033 — How KWin 5.27.8 classifies override-redirect popup surfaces for effects
+- **Status:** [Complete]
+- **What was asked:** Which effect-visible predicate can exclude menu drop-downs /
+  popup windows that currently receive the glow?
+- **Why searched:** Three user-reported glow artifacts (menus, bottom-edge outline,
+  notifications) after build #21; the type- and class-based exclusions appeared not
+  to fire.
+- **Summary of Findings:** EffectWindow exposes `isManaged()` ("whether it's managed
+  or override-redirect"), NOT `isUnmanaged()`. `managed = window->isClient()` is
+  captured at construction precisely so effects can detect unmanaged popups after
+  the Deleted-reparent. Unmanaged windows reach effects (unmanagedAdded wiring).
+  Qt QMenu popups are override-redirect, unmanaged, type-less, and inherit the
+  parent WM_CLASS — invisible to every current exclusion. Live: only tray icons
+  (Qui-*) are unmanaged; app/menu surfaces are on the current desktop question.
+- **Final Decision & Rationale:** The fix gate should be `if (!w->isManaged())
+  return false;` in glowtargets.h. Pinned-source-verified, cheap, and matches the
+  framework's documented intent. Direct per-surface capture still pending (see
+  capture plan) before implementing, per Rule 1a consent.
+
+## 2026-09-17T10:42:04.760106+05:30 — Naming [Complete]
+### What was asked / The Problem
+Choose KDE/KWin-appropriate names after the effect expanded beyond kitty.
+### Why the search was done
+Distinguish display branding, repository names, plugin identity and packages.
+### Summary of Findings
+- https://develop.kde.org/docs/plasma/kwineffect/ demonstrates Name "Hello World" and Id "hello-world"; this is an example, not a universal naming mandate.
+- https://api.kde.org/kpluginmetadata.html distinguishes user-visible Name and pluginId; current KF6 C++ IDs derive from library filenames. Do not apply KF6 metadata changes blindly to this KF5 installation.
+- https://github.com/taj-ny/kwin-effects-forceblur uses display name Better Blur.
+- https://github.com/ekaaty/kwin-effect-rounded-corners uses Rounded Corners; package naming varies.
+### Final Decision & Rationale
+User approved Qubes Glow display name and qubes-glow project directory.
+Reject mandatory CamelCase branding and a global identifier replacement.
+Preserve kittyglow/kglowsync, config keys, DBus and shortcut identities.
+kwin-effect-qubes-glow is a possible future package name, not a shipped package.

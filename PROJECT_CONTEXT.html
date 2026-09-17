@@ -211,17 +211,17 @@
 <header id="title-block-header">
 <h1 class="title">PROJECT_CONTEXT</h1>
 </header>
-<!-- HTML sibling: regenerate ONLY via bash ~/Projects/scripts/generate-docs-html.sh QubesOS/UI-Enhancements/Kwin/kitty-glow/PROJECT_CONTEXT.md — Rule 18c left-aligned CSS. Never hand-roll pandoc. -->
-<h1 id="kitty-glow-project-context">kitty-glow — Project Context</h1>
+<!-- HTML sibling: regenerate ONLY via bash ~/Projects/scripts/generate-docs-html.sh QubesOS/UI-Enhancements/Kwin/qubes-glow/PROJECT_CONTEXT.md — Rule 18c left-aligned CSS. Never hand-roll pandoc. -->
+<h1 id="qubes-glow-project-context">Qubes Glow — Project Context</h1>
 <blockquote>
 <p><strong>Note:</strong> All documentation and code in this project are
 purely AI-generated.</p>
 </blockquote>
 <h2 id="project-overview">1. Project Overview</h2>
-<p>Custom <strong>KWin (KDE Plasma 5.27.8) compositor effect</strong>
-that paints a soft yellow halo around <code>kitty</code> terminal
-windows. Platform: Qubes OS dom0 X11 compositor. Language: C++20 / Qt
-plugin. Purpose: make kitty windows visually distinct.</p>
+<p><strong>Qubes Glow</strong>: KWin 5.27.8 / Qt5 / C++20 effect for
+Qubes OS dom0 X11. VM-label-aware halos on eligible application windows,
+with focused/global border controls. Repository directory:
+<code>qubes-glow</code>; runtime IDs unchanged.</p>
 <h2 id="key-file-map">2. Key File Map</h2>
 <table>
 <colgroup>
@@ -289,27 +289,55 @@ retired)</td>
 </tbody>
 </table>
 <h2 id="architecture-summary">3. Architecture Summary</h2>
-<p><code>KittyGlowEffect</code> tracks kitty windows via
-<code>windowClass()</code> and draws ONE hardware-blended triangle-fan
-quad around the frame rect; a GLSL SDF shader
-(<code>glowshader.cpp</code>) computes per-side soft falloff (v3 —
-replaced the v2 8-stacked-rect approach).
+<p><code>KittyGlowEffect</code> tracks eligible managed application
+windows and draws ONE hardware-blended triangle-fan quad around the
+frame rect; a GLSL SDF shader (<code>glowshader.cpp</code>) computes
+per-side soft falloff (v3 — replaced the v2 8-stacked-rect approach).
 Thickness/radius/active-inactive colors come from kwinrc
 <code>[Effect-kittyglow]</code>, live-reloadable via
 <code>reconfigureEffect</code>. Damage is widened in
 <code>prePaintWindow</code> + repaint hooks on geometry/minimize so the
 halo never smears. Full design: ARCHITECTURE.md.</p>
 <h2 id="database-data-layer">4. Database / Data Layer</h2>
-<p>None. Stateless effect; no persistence beyond kwinrc enable flag.</p>
+<p>No database. <code>kittyglowrc</code> stores global glow/border
+state; kwinrc stores appearance and enable settings. Per-window
+overrides and label cache are runtime-only.</p>
 <h2 id="build-state">5. Build State</h2>
 <ul>
-<li><strong>Build #21 (v3.11.0, per-VM label hue) — IMPLEMENTED, BUILD
-PENDING CONSENT.</strong> Halo color now follows each VM’s Qubes label
-(_QUBES_LABEL_COLOR, xprop-verified 0x00EDD400 on Dev-General) — new
-src/glowlabel.{h,cpp}, cached one read per window lifetime, pruned on
-windowDeleted, active/inactive = opacity over the hue, LabelColor config
-key (default true; false = configured gold), dom0-native windows fall
-back to gold. 26 assertions; C++ syntax-verified in container.</li>
+<li><strong>Build #23 (v3.12.0, Qubes Glow branding) — SHIPPED
+2026-09-17, sha d899970d…, deployed + activation-verified (KWin PID
+102464).</strong> Display metadata now “Qubes Glow” (verified on dom0);
+runtime IDs (kittyglow.so/kglowsync/kittyglowrc/DBus/shortcut IDs)
+unchanged by design. Deploy sha-gated (all four artifacts OK); restart
+102178 → 102464; plugin mapped, EFFECT_LOADED=true. Container recreated
+on the qubes-glow mount with kf5-kglobalaccel-devel installed (was
+missing from the stale image — LL-034, setup script fixed + image
+re-committed 657fec9e…). Zero-warning compile; 26/26 assertions.</li>
+<li><strong>Build #22 (v3.12.0, unmanaged-popup exclusion) — BUILT
+2026-09-15, sha 25169edd…, deployed and activation-verified (KWin PID
+101201).</strong> All four installed artifact hashes and both enable
+flags verified; restart 100860 → 101201, effect loaded and plugin
+mapped. User accepted all menu glow, flicker and notification fixes:
+“done. everything works.” Evidence: logs/output/build22-activation.log.
+New isManaged() gate in glowtargets.h rejects override-redirect chrome
+(Qt QMenu drop-downs, combo popups, tooltips) that previously drew their
+own halo (LL-033 — user report: menu glow + flickering bottom-edge
+outline). EffectWindow has no isUnmanaged(); isManaged() =
+window-&gt;isClient() (effects.cpp:2003). Zero-warning compile in
+container; 26/26 assertions (new ll033; earlier “27” notes were a
+miscount — HEAD had 25, +ll033 = 26).</li>
+<li><strong>Build #21 (v3.11.0, per-VM label hue) — SHIPPED 2026-09-13,
+sha 2b43c24f, kwin pid 81141.</strong> Label hues resolving live on
+first paint (dev-general:* =&gt; #edd400 each, once per window then
+cached); dom0-native windows confirmed atom-less (white fallback).
+GlowColor/ Inactive=255,255,255 (white) persisted for dom0. Cross-VM hue
+proof pending a red/blue VM window. Batch: Halo color now follows each
+VM’s Qubes label (_QUBES_LABEL_COLOR, xprop-verified 0x00EDD400 on
+Dev-General) — new src/glowlabel.{h,cpp}, cached one read per window
+lifetime, pruned on windowDeleted, active/inactive = opacity over the
+hue, LabelColor config key (default true; false = configured gold),
+dom0-native windows fall back to gold. 26 assertions; C++
+syntax-verified in container.</li>
 <li><strong>Build #20 (v3.10.1, re-audit-2 fix batch) — SHIPPED
 2026-09-11, sha f9389aec, kwin pid 65324.</strong> Functional probe
 identical to #19 (G+Alt+G 80 ms both fired; master restored on) —
@@ -405,34 +433,37 @@ and <code>/usr/share/kwin/effects/kittyglow/metadata.json</code> (both
 byte-for-byte.</li>
 <li>Enabled in <code>kwinrc</code>
 <code>[Plugins] kittyglowEnabled=true</code>; live via
-<code>org.kde.kwin.Effects.loadEffect</code> → <code>true</code>. Live
-kwin PID 15974 (<code>--crashes 1</code> — recovered from the test-time
-crash; stable since).</li>
+<code>org.kde.kwin.Effects.loadEffect</code> → <code>true</code>.
+Historical reference: kwin PID 15974 (2026-09-07 era,
+<code>--crashes 1</code> recovered); current live reference: PID 101201
+(build #22 activation, 2026-09-15).</li>
 <li>Parity at rest: <code>rules=kitty-borderless</code>,
 <code>noborder=true</code> (borderless).</li>
 </ul>
 <h2 id="active-features">6. Active Features</h2>
 <ul>
 <li><strong>All-windows glow (build #15)</strong>: every normal
-application window gets the halo; dialogs, notifications, OSD, popup
-menus, tooltips, splash and utility windows are excluded (window-type
-predicates, LL-023).</li>
-<li>8-layer translucent yellow halo (RGB 255,221,0, margin 22 px, alpha
-0→70).</li>
+application window gets the halo; unmanaged override-redirect chrome
+(LL-033), dialogs, notifications, OSD, popup menus, tooltips, splash and
+utility windows are excluded (window-type + isManaged predicates,
+LL-023/LL-033).</li>
+<li>SDF soft-falloff halo (v3 shader; per-side thickness/radius/colors
+from kwinrc; label hue when LabelColor=true — LL-032). The 8-layer v2
+halo is historical.</li>
 <li>Fullscreen suppression; OpenGL-compositing guard.</li>
 <li>Live activation over DBus (<code>/Effects</code> loadEffect) — no
 compositor restart.</li>
-<li>kitty borderless window rule in <code>kwinrulesrc</code>
-(<code>[kitty-borderless]</code>, noborder Force=2, wmclassmatch
-RegExp=3, listed under <code>[General] rules=</code>).</li>
+<li>Historical: the kitty forcing rule in <code>kwinrulesrc</code>
+(<code>[kitty-borderless]</code>, noborder Force=2, RegExpMatch) was
+retired 2026-09-09 (LL-016); state lives in <code>kittyglowrc</code> +
+kglowsync. kwinrulesrc must carry no <code>noborderrule</code>.</li>
 <li><strong>Meta+Shift+B</strong> → effect-registered
-<code>Toggle Kitty Borderless</code> (build #16): persists the
-borderless state to <code>kittyglowrc</code> via
-<code>kittyglowstate.cpp</code> and stages it through
-<code>KittyToggle::requestApply()</code>; the kglowsync script
-(bootstrap + poll + sweep) applies <code>noBorder</code> live to every
-eligible app window — generalized from kitty-only by user directive
-2026-09-11 (LL-026 predicate mirror).</li>
+<code>Toggle Kitty Borderless</code> (registration ID kept for
+kglobalaccel; semantics are build #18): stages a FOCUSED-window border
+flip via <code>KittyToggle::requestWindowOp()</code>; kglowsync applies
+<code>noBorder</code> live (overrides map shields it from the sweep —
+LL-027). The persisted class-wide/global master is
+Meta+Shift+Alt+B.</li>
 <li><strong>Meta+Shift+G</strong> → effect-registered
 <code>Toggle Glow</code> (build #16): flips <code>kittyglowrc</code>
 <code>glowEnabled</code> + full repaint; the glow switch moved off B by
@@ -446,10 +477,15 @@ kwin_x11 last (LL-011).</li>
 </ul>
 <h2 id="pending-in-progress">7. Pending / In-Progress</h2>
 <ul>
-<li>User acceptance of the all-windows glow (build #15): subjective look
-of halos on non-kitty apps (konsole, firefox) + notification/menu
-exclusion aesthetics. Programmatic verification already passed (kitty
-1,287 px; dialog 112 = noise; notification dock-strip 0).</li>
+<li>Branding source metadata updated to Qubes Glow; not built or
+deployed.</li>
+<li>Next build needs old-path container mount recreated (HANDBOOK
+Section 2).</li>
+<li>Repository renamed to <code>qubes-glow</code>; installed runtime
+names remain unchanged.</li>
+<li>Superseded 2026-09-15: all-windows-glow aesthetics acceptance
+resolved — user accepted build #22 end-to-end (“done. everything
+works.”).</li>
 </ul>
 <h2 id="known-issues">8. Known Issues</h2>
 <ul>
@@ -483,7 +519,8 @@ legacy <code>/home/user/kitty-glow</code></del> <strong>RESOLVED
 2026-09-06T23:50:19Z:</strong> container re-created mounting this
 project’s <code>src/</code> at <code>/src</code> (committed image
 <code>dom0-replica-fed37-img</code> preserves toolchain).</li>
-<li>No per-window toggle yet (always-on for kitty). See ROADMAP.</li>
+<li>Historical: per-window toggles shipped in build #18 (ROADMAP Phase
+5).</li>
 <li>Pre-existing: three chromium UUID rule groups in
 <code>kwinrulesrc</code> are not listed under
 <code>[General] rules=</code> → silently inert (user data, left
@@ -508,17 +545,22 @@ deployment + activation target.</li>
 build env (KWin 5.27.8 devel).</li>
 </ul>
 <h2 id="last-updated">10. Last Updated</h2>
-<p>2026-09-11T10:5x — Build #18 SHIPPED + user-accepted (sha 7df23937,
-kwin 62946): per-window B/G toggles + global Alt-masters; LL-027
-recorded (single-writer overrides map, pointer-set pruning,
-/component/kwin, synthetic-key trap). 20 regression assertions green.
-2026-09-11T09:2x — Build #17 SHIPPED + verified live (sha d66b9009, kwin
-60603): ghost square eliminated (size guard; unmanaged Qui-* sources),
-kglowsync watchdog (lost-reply re-arm), B/G toggles verified end-to-end
-(14-window sweep both directions), 17 regression assertions green.
-2026-09-11T08:4x — Build #16 implemented (shortcut split B/G + LL-026
-chrome-class exclusion + app-wide kglowsync); ghost-square evidence
-documented (docs/research/2026-09-11-ghost-square-qubes-tray-ghosts.md);
+<p>2026-09-15 — Renamed to Qubes Glow / <code>qubes-glow</code>
+(branding + docs; runtime IDs unchanged). Container mount recreation +
+display-metadata build/deploy pending. Audit corrections: regression
+count is 26 (not 27); build #15-era entries below are historical records
+superseded by builds #17–#22. 2026-09-11T10:5x — Build #18 SHIPPED +
+user-accepted (sha 7df23937, kwin 62946): per-window B/G toggles +
+global Alt-masters; LL-027 recorded (single-writer overrides map,
+pointer-set pruning, /component/kwin, synthetic-key trap). 20 regression
+assertions green. 2026-09-11T09:2x — Build #17 SHIPPED + verified live
+(sha d66b9009, kwin 60603): ghost square eliminated (size guard;
+unmanaged Qui-* sources), kglowsync watchdog (lost-reply re-arm), B/G
+toggles verified end-to-end (14-window sweep both directions), 17
+regression assertions green. 2026-09-11T08:4x — Build #16 implemented
+(shortcut split B/G + LL-026 chrome-class exclusion + app-wide
+kglowsync); ghost-square evidence documented
+(docs/research/2026-09-11-ghost-square-qubes-tray-ghosts.md);
 GLOBAL-TODO Step 12 registered. Build pending consent. 2026-09-11T08:0x
 — All-windows glow shipped (#15, sha 6d8886da, kwin 56055): type-based
 eligibility (LL-023), kglowsync resilient bootstrap (LL-025), benign
@@ -552,5 +594,11 @@ panel test + re-run panel probe (expect gold ≡ 48 px baseline).
 evidence: 1,450 gold px on panel vs 48 px baseline, static clipping
 re-verified clean). HANDBOOK occlusion section synced. Build #9 + KWin
 restart pending user consent.</p>
+<h3 id="branding-update-2026-09-17t104204.7601060530">Branding update —
+2026-09-17T10:42:04.760106+05:30</h3>
+<p>Qubes Glow source branding implemented; directory qubes-glow. Runtime
+IDs and build #22 deployment unchanged; user accepted menu/notification
+fixes. Existing container still references old source path; recreation
+deferred to next build.</p>
 </body>
 </html>

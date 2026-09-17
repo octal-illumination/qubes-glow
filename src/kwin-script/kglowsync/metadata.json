@@ -1,12 +1,12 @@
 {
     "KPackageStructure": "KWin/Script",
     "KPlugin": {
-        "Description": "kittyglow borderless live-sync poller",
+        "Description": "Qubes Glow border-control synchronization",
         "Icon": "preferences-system-windows-effect",
         "Id": "kglowsync",
         "License": "MIT",
-        "Name": "kglowsync",
-        "Version": "3.11.0"
+        "Name": "Qubes Glow Border Sync",
+        "Version": "3.12.0"
     },
     "X-KDE-PluginKeyword": "kglowsync",
     "X-Plasma-API": "javascript",

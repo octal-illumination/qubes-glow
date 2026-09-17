@@ -10,6 +10,12 @@
 #      This is what makes builds reproducible without re-installing packages.
 #   2. (Re)create the container mounting this project's src/ at /src.
 #
+# LL-034 (2026-09-17): the pre-rename image carried a MANUALLY installed
+# kf5-kglobalaccel-devel; recreating from the stale image silently dropped it
+# and cmake failed with "Could NOT find KF5 (missing: GlobalAccel)". Every
+# package the build needs MUST be in this dnf list, and the image must be
+# re-committed after any manual install (podman commit CTR IMG).
+#
 # Fedora 37 is EOL, so a from-scratch build pulls from the Fedora vault archive.
 set -euo pipefail
 
@@ -35,7 +41,7 @@ else
       cmake gcc-c++ extra-cmake-modules \
       kwin-devel kf5-kcoreaddons-devel kf5-kwindowsystem-devel \
       kf5-kconfig-devel kf5-kservice-devel kf5-kpackage-devel \
-      kf5-kdeclarative-devel libepoxy-devel qt5-qtbase-devel \
+      kf5-kdeclarative-devel kf5-kglobalaccel-devel libepoxy-devel qt5-qtbase-devel \
       qt5-qtdeclarative-devel
   "
   podman commit "$CTR" "$IMG"

@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>2026-09-15-ll033-surface-eligibility</title>
+  <style>
+    html {
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <style>
+  html{margin:0!important}body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;max-width:960px;margin:0;padding:2em;line-height:1.6;color:#1a1a1a;background:#fff}
+  h1,h2,h3,h4{margin-top:1.5em;margin-bottom:0.5em}
+  code{background:#f0f0f0;padding:.2em .4em;border-radius:3px;font-size:.9em}
+  pre code{background:none;padding:0}
+  pre{background:#f5f5f5;padding:1em;border-radius:5px;overflow-x:auto}
+  table{border-collapse:collapse;width:100%}
+  th,td{border:1px solid #ddd;padding:.5em;text-align:left}
+  th{background:#f0f0f0}
+  a{color:#0366d6}
+  blockquote{border-left:4px solid #ddd;padding-left:1em;color:#666}
+  @media(prefers-color-scheme:dark){
+  body{color:#e1e1e1;background:#1a1a1a}
+  code{background:#2d2d2d}
+  pre{background:#2d2d2d}
+  th{background:#2d2d2d}
+  th,td{border-color:#444}
+  a{color:#58a6ff}
+  blockquote{border-left-color:#555;color:#aaa}
+  }
+  </style>
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+    document.addEventListener('DOMContentLoaded', () => {
+      // Pandoc outputs <pre class="mermaid"><code>...</code></pre>. 
+      // Mermaid expects the text directly inside the element.
+      document.querySelectorAll('pre.mermaid code').forEach((el) => {
+        const pre = el.parentElement;
+        pre.textContent = el.textContent; // Strip the code tag
+      });
+      mermaid.initialize({ 
+        startOnLoad: true,
+        theme: window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'default'
+      });
+    });
+  </script>
+</head>
+<body>
+<div style="background-color: #fff3cd; color: #856404; padding: 10px 15px; margin-bottom: 20px; border-radius: 4px; border: 1px solid #ffeeba; text-align: center; font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+    ⚠️ Note: All documentation and code in this project are purely AI-generated.
+</div>
+<header id="title-block-header">
+<h1 class="title">2026-09-15-ll033-surface-eligibility</h1>
+</header>
+<!-- HTML sibling: regenerate ONLY via bash ~/Projects/scripts/generate-docs-html.sh <this-file> — Rule 18c left-aligned CSS. Never hand-roll pandoc. -->
+<h1
+id="ll-033-surface-eligibility-gap-menus-popups-notifications-2026-09-15">LL-033
+— Surface eligibility gap: menus, popups, notifications
+(2026-09-15)</h1>
+<blockquote>
+<p><strong>Note:</strong> All documentation and code in this project are
+purely AI-generated.</p>
+</blockquote>
+<p>Diagnosis for the three user-reported artifacts after build #21
+(v3.11.0): (1) glow around expanded menu-bar drop-downs, (2) a
+flickering glow outline left where a drop-down extends past its window’s
+bottom border, (3) notifications that sometimes carry a halo.</p>
+<h2 id="verdict">Verdict</h2>
+<p><strong>Root cause is a single eligibility gap, not three
+bugs.</strong> The report is satisfied by the unmanaged-popup half of
+the hypothesis; the notification half is a separate gap. One structural
+defect was found in the current predicate that also explains the
+historical ghost-square workaround.</p>
+<h2 id="confirmed-facts-pinned-kwin-5.27.8-source-tmpkwinsrc">Confirmed
+facts (pinned KWin 5.27.8 source, <code>/tmp/kwinsrc</code>)</h2>
+<ul>
+<li><strong><code>EffectWindow</code> has no
+<code>isUnmanaged()</code>.</strong> The API is <code>isManaged()</code>
+— installed header <code>/usr/include/kwineffects.h:2588</code>:
+<em>“whether it’s managed or override-redirect”</em>. Any proposed
+<code>isUnmanaged()</code> exclusion would not have compiled.</li>
+<li><strong><code>isManaged()</code> is the durable flag.</strong>
+<code>effects.cpp:2003</code> (<code>EffectWindowImpl</code> ctor) sets
+<code>managed = window-&gt;isClient()</code>, with a comment explaining
+the flag is captured <em>precisely</em> so effects can still distinguish
+managed from unmanaged windows once a <code>Deleted</code> parent
+replaces the original (“e.g. combo box popups, popup menus, etc”).</li>
+<li><strong>Unmanaged windows DO reach effects.</strong>
+<code>effects.cpp</code> connects <code>Workspace::unmanagedAdded</code>
+→ <code>setupUnmanagedConnections</code>, wiring
+closed/opacity/frame-geometry/damaged/visibleGeometry signals, and
+<code>slotUnmanagedShown</code> asserts
+<code>qobject_cast&lt;Unmanaged *&gt;</code>. So this project’s
+predicate really is consulted for popups.</li>
+<li><strong>Type predicates cannot see Qt menus.</strong>
+<code>Window::isPopupWindow()</code> (<code>window.h:2340</code>)
+matches only
+<code>NET::ComboBox / DropdownMenu / PopupMenu   / Tooltip</code>. Qt’s
+<code>QMenu</code> popups are override-redirect, set no type atom, and
+inherit the parent’s <code>WM_CLASS</code> (<code>konsole</code>) — so
+every type- and class-based exclusion in <code>glowtargets.h</code>
+misses them.</li>
+<li><strong><code>isManaged()</code> is live-verifiable.</strong>
+<code>xprop -root _NET_CLIENT_LIST</code> membership is the CLI
+equivalent of <code>window-&gt;isClient()</code>.</li>
+</ul>
+<h2
+id="structure-gaps-in-the-current-predicate-srcglowtargets.h">Structure
+gaps in the current predicate (<code>src/glowtargets.h</code>)</h2>
+<p>Order of checks today: deleted → desktop/dock →
+dialog/notification/OSD → splash/tooltip/popupWindow/utility → class
+(<code>plasmashell</code>, <code>qui-*</code>,
+<code>xembedsniproxy</code>, <code>krunner</code>) → <strong>size &lt;
+48 px</strong>. Missing:</p>
+<ol type="1">
+<li><strong>No <code>isManaged()</code> check</strong> —
+override-redirect surfaces are eligible whenever they clear the
+type/class/size filters. This is the direct cause of the menu
+artifacts.</li>
+<li><strong>No <code>isOnCurrentDesktop()</code> /
+<code>isOnCurrentActivity()</code> check</strong> — robust even if
+KWin’s window list is per-desktop as in 5.27 (not confirmed on this box;
+the check is cheap and closes an unknown).</li>
+<li><strong>The 48 px size guard is doing structural work it should
+not.</strong> It is the <em>only</em> thing excluding the unmanaged
+<code>Qui-*</code> tray-source windows (16x16 icons, class
+<code>Qui-devices</code> etc., <strong>confirmed unmanaged</strong> in
+the live census). Those are excluded by <code>qui-</code> class today,
+so the guard appears to be covering override-redirect surfaces with any
+other class, or class-less ones. <code>isManaged()</code> makes the
+guard redundant as popup-chrome protection.</li>
+<li><strong>Occluder transparency rule interacts with
+notifications/photographic overlays.</strong>
+<code>occludedAbove()</code> skips non-dock windows with
+<code>opacity() &lt; 0.99</code>, so a translucent surface stacked above
+a glowing window lets the halo bloom through it. Live check: the Plasma
+notification (<code>plasmashell</code>, 332x74,
+<code>_NET_WM_WINDOW_OPACITY</code> <strong>unset</strong> →
+effect-facing <code>opacity() == 1.0</code>, type NOTIFICATION,
+<code>skipTaskbar</code>/
+<code>skipPager</code>/<code>SkipSwitcher</code>,
+<strong>managed</strong>) is therefore <em>already</em> a correct
+occluder and is already class-excluded from glowing — so this
+notification is not the source of artifact (3).</li>
+</ol>
+<h2 id="evidence-gaps-honest-status">Evidence gaps (honest status)</h2>
+<p>Per-artifact on-screen A/B reproduction was <strong>not</strong>
+achieved. Automated menu opening failed on this box: the target Konsole
+sits on a non-current desktop (the display is at desktop index 9 of 10,
+with the Visible <code>plasmashell</code> surfaces spanning all
+desktops) and every drive attempt produced a full-screen desktop switch
+rather than a popup, yielding <strong>0 new root-tree windows and 0 new
+client-list ids</strong> for click, <code>Alt+F</code> and
+<code>F10</code>. Earlier pixel probes were invalidated by a masking
+error: build #21 set <code>GlowColor=255,255,255</code> on dom0, so a
+gold-colored halo mask was measuring wallpaper (the recurring 165x17,
+fill-0.995 cluster in both “menu” and “notif” frames).</p>
+<p>Still unproven, therefore: <strong>which</strong> class/geometry each
+of the three artifacts belongs to. A human-in-the-loop capture is the
+remaining step (see the plan), not more remote automation.</p>
+<h2
+id="fix-implemented-build-22-v3.12.0-sha-25169edd-deployed-pending-consent">Fix
+(implemented build #22, v3.12.0, sha 25169edd — deployed pending
+consent)</h2>
+<ul>
+<li><code>glowtargets.h</code>:
+<code>if (!w-&gt;isManaged()) return false;</code> as the FIRST denial,
+before type/class/size — kills override-redirect chrome (Qt menus,
+tooltips, popup windows — artifact 1 and the menu half of artifact
+2).</li>
+<li>Artifact 3: not independently sealed; plasmashell notifications were
+already excluded and the VM-notification capture produced no surface.
+The <code>isManaged()</code> gate closes the unmanaged-notification
+case; re-check on-screen after deploy.</li>
+<li>Artifact 2: re-test after deploy; if flicker persists the remaining
+path is the damage/repaint hooks issuing ring repaints for a surface
+that is not itself drawn.</li>
+</ul>
+<h2 id="method-notes">Method notes</h2>
+<p>Probes: <code>logs/probe/ll033_surface_diag{,2..7}.py</code> (v1–v6
+superseded; v1’s managed/hex comparison was invalid —
+<code>xdotool</code> emits decimal ids, <code>xprop</code> hex). Logs:
+<code>logs/run/ll033*-diag-*.log</code>. Crop images:
+<code>logs/probe/ll033/</code>.</p>
+</body>
+</html>

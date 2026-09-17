@@ -1,11 +1,11 @@
 {
     "KPackageStructure": "KWin/Effect",
     "KPlugin": {
-        "Name": "Kitty Glow",
-        "Description": "Soft yellow halo around every eligible application window",
+        "Name": "Qubes Glow",
+        "Description": "VM-label-aware window glow and border controls for Qubes OS",
         "Id": "kittyglow",
         "Category": "Appearance",
-        "Version": "3.11.0",
+        "Version": "3.12.0",
         "License": "GPL",
         "Authors": [
             { "Name": "AI-generated" }

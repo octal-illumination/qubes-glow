@@ -445,3 +445,150 @@
 - reconfigureEffect returns bare method-return (no boolean) — retry
   pattern corrected (was "boolean true", never matches).
 - Cross-VM proof pending: no non-yellow VM window open at verify time.
+
+## 2026-09-15T—LL-033 surface-eligibility diagnosis (docs/research/2026-09-15-ll033-surface-eligibility.md)
+- User reported three glow artifacts after build #21: menu-bar drop-downs
+  glow, a flickering glow outline where a list extends past its window's
+  bottom edge, and occasional notification glow.
+- Root cause (pinned KWin 5.27.8 source + installed header): NO `isUnmanaged()`
+  on EffectWindow; the API is `isManaged()` (kwineffects.h:2588, effects.cpp:2003).
+  Unmanaged windows DO reach the effect (workspace::unmanagedAdded → setupUnmanagedConnections),
+  and Qt QMenu popups/menus are override-redirect with no type atom and the parent's
+  WM_CLASS — so all type+class predicates in glowtargets.h miss them. There is no
+  `isManaged()` gate anywhere in the predicate.
+- Also: current desktop is 2 (earlier 9); dom0 Konsole id 71303181 confirmed managed
+  via _NET_CLIENT_LIST; live census shows only Qui-*/Nm-applet are unmanaged 16px icons.
+- New docs: docs/research/2026-09-15-ll033-surface-eligibility.md (verdict + proposal),
+  docs/research/2026-09-15-ll033-capture-plan.md (operator-assisted capture).
+- New probes: logs/probe/ll033_surface_diag{1..7}.py (v7 current; v1–v6 superseded),
+  logs/probe/ll033_capture.py (human-in-the-loop capture, --map-only smoke-tested).
+- NOTE: per-window A/B reproduction not yet achieved (concluded in eligibility doc);
+  capture plan is the pending next step. No src/build change made this session.
+
+## 2026-09-15 — Build #22 (v3.12.0): unmanaged-popup exclusion (LL-033)
+- User artifacts: menu-bar drop-down glow + a flickering glow outline where
+  a list overruns the window's bottom border + occasional notification glow.
+- Root cause: Qt QMenu drop-downs are override-redirect (unmanaged)
+  surfaces. KWin wraps them as EffectWindows, they set no _NET_WM_WINDOW_TYPE
+  (type predicates blind), inherit the parent WM_CLASS (class denial blind),
+  and there was no isManaged() gate — every open menu drew its own halo.
+- Fix (src/glowtargets.h): `if (!w->isManaged()) return false;` as the first
+  denial, before the type/class/size predicates. EffectWindow has NO
+  isUnmanaged(); isManaged() = window->isClient() (kwineffects.h:2588,
+  effects.cpp:2003).
+- Version → 3.12.0 (kittyglow.json, CMakeLists, kittyglow.cpp header,
+  kglowsync metadata). Regression assertion ll033 (27 total green).
+- Zero-warning compile in dom0-replica-fed37; dist sha 25169edd (not yet
+  deployed). SPEC LL-033; HANDBOOK §1/§11; PROJECT_CONTEXT #22; research docs
+  updated. Notification path (artifact 3) shares the same gate; VM-scoped
+  notification capture returned no surface (see §8 note in eligibility doc).
+
+## 2026-09-17T09:02:21.377491+05:30
+Deployment attempt partially completed: plugin SHA 25169edd63f783f547603902f88d6323c3ba6fafe117ef71f7fa28f450d1615e verified; later authorization denied. No restart confirmed.
+
+## 2026-09-17T10:21:49.287013+05:30
+Command: `bash scripts/deploy.sh`
+Reason: finish user-authorized build #22 deployment. Exit: 1. Output: `logs/output/deploy-final.log`. Restart not yet performed; remote artifacts still require verification.
+
+## 2026-09-17T10:22:40.887138+05:30
+Command: `bash scripts/deploy.sh`
+Reason: user requested retry after incorrect password. Exit: 1. Output: `logs/output/deploy-retry.log`. Activation not yet verified.
+
+## 2026-09-17T10:24:12.796890+05:30
+Command argv: `['/home/user/.local/bin/dom0', 'printf "AUTH_OK\\n"']` (stdin /dev/null).
+Reason: user-authorized harmless authentication test before deployment retry. Exit: 0. Output: 'A dom0 password dialog will appear — enter your password.\nAUTH_OK'. No remote changes or restart requested.
+
+## 2026-09-17T10:24:55.760547+05:30
+Command: `bash scripts/deploy.sh` (stdin /dev/null).
+Reason: authorized deployment retry after successful authentication test. Exit: 0. Output: `logs/output/deploy-retry.log`. Restart not yet performed.
+
+## 2026-09-17T10:25:17.976130+05:30
+Command: `dom0 'set -e; sha256sum /usr/lib64/qt5/plugins/kwin/effects/plugins/kittyglow.so /usr/share/kwin/effects/kittyglow/metadata.json /home/chenpan/.local/share/kwin/scripts/kglowsync/metadata.json /home/chenpan/.local/share/kwin/scripts/kglowsync/contents/code/main.js; sudo -u chenpan env HOME=/home/chenpan kreadconfig5 --file kwinrc --group Plugins --key kittyglowEnabled; sudo -u chenpan env HOME=/home/chenpan kreadconfig5 --file kwinrc --group Plugins --key kglowsyncEnabled; pgrep -a -u chenpan -x kwin_x11'`
+Reason: verify every deployed artifact and desktop-user enable flags before authorized restart. Result: False; exit 1.
+```
+Access denied.
+A dom0 password dialog will appear — enter your password.
+```
+
+## 2026-09-17T10:26:31.045735+05:30
+Command: `dom0 'set -e; printf %s '"'"'25169edd63f783f547603902f88d6323c3ba6fafe117ef71f7fa28f450d1615e  /usr/lib64/qt5/plugins/kwin/effects/plugins/kittyglow.so
+21a39c053019ee5ca6009ebc1327c34a4c38b42ac1059ea435a2e28cf55068a9  /usr/share/kwin/effects/kittyglow/metadata.json
+74e152dac7a3a09752a4066f8fdbb83ab3ead44a2bcb6ffe54046273e2c9cf8e  /home/chenpan/.local/share/kwin/scripts/kglowsync/metadata.json
+fb5642b77c0a655ad2acc63e35d2f1752edcef107db9618761894f9022e3e6c7  /home/chenpan/.local/share/kwin/scripts/kglowsync/contents/code/main.js
+'"'"' | sha256sum -c -; sudo -u chenpan env HOME=/home/chenpan DISPLAY=:0 XDG_RUNTIME_DIR=/run/user/1000 DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1000/bus XDG_DATA_DIRS=/usr/local/share:/usr/share bash -c '"'"'set -eu
+[ "$(kreadconfig5 --file kwinrc --group Plugins --key kittyglowEnabled)" = true ]
+[ "$(kreadconfig5 --file kwinrc --group Plugins --key kglowsyncEnabled)" = true ]
+old=$(pgrep -u "$(id -u)" -x kwin_x11)
+[ -n "$old" ]
+command -v qdbus >/dev/null
+command -v systemd-cat >/dev/null
+printf '"'"'"'"'"'"'"'"'DEPLOY_GATE_PASS old_pid=%s
+'"'"'"'"'"'"'"'"' "$old"
+setsid kwin_x11 --replace </dev/null > >(systemd-cat -t kittyglow-build22-restart) 2>&1 &
+sleep 12
+new=$(pgrep -u "$(id -u)" -x kwin_x11)
+[ -n "$new" ] && [ "$new" != "$old" ]
+printf '"'"'"'"'"'"'"'"'NEW_KWIN_PID=%s
+'"'"'"'"'"'"'"'"' "$new"
+loaded=$(qdbus org.kde.KWin /Effects org.kde.kwin.Effects.isEffectLoaded kittyglow)
+printf '"'"'"'"'"'"'"'"'EFFECT_LOADED=%s
+'"'"'"'"'"'"'"'"' "$loaded"
+[ "$loaded" = true ]
+grep -F '"'"'"'"'"'"'"'"'/usr/lib64/qt5/plugins/kwin/effects/plugins/kittyglow.so'"'"'"'"'"'"'"'"' /proc/$new/maps
+journalctl -b -t kittyglow-build22-restart --since '"'"'"'"'"'"'"'"'2 minutes ago'"'"'"'"'"'"'"'"' --no-pager -n 100
+printf '"'"'"'"'"'"'"'"'ACTIVATION_CHECK_PASS
+'"'"'"'"'"'"'"'"'
+'"'"''`
+Reason: authorized deployment integrity gate and dom0 KWin restart. Exit: 0. Evidence: `logs/output/build22-activation.log`. Activation pass marker: True. Visual acceptance pending.
+
+## 2026-09-17T10:26:47.147784+05:30
+Build #22 activation verified: four artifact hashes match; both desktop-user enable flags true; KWin PID 100860 replaced by 101201; effect loaded and plugin mapped. Updated PROJECT_CONTEXT.md; visual acceptance pending. User request: "rettry". Regenerate HTML with `bash /home/user/Projects/scripts/generate-docs-html.sh PROJECT_CONTEXT.md` and verify resulting sibling.
+
+## 2026-09-17T10:41:07.669837+05:30
+Approved branding: Qubes Glow display name; qubes-glow directory. Updated effect/script source metadata, SPECIFICATION.md, HANDBOOK.md, ARCHITECTURE.md, ROADMAP.md and PROJECT_CONTEXT.md; runtime IDs unchanged. Build #22 user acceptance recorded. No build/deploy/restart.
+
+## 2026-09-17T10:41:07.669837+05:30
+Command/action: Python `Path("kitty-glow").rename(Path("qubes-glow"))` in UI-Enhancements/Kwin.
+Reason: approved repository rename; .git and all existing working-tree changes preserved. Container mount recreation deferred until separately approved build.
+
+## 2026-09-17T10:42:04.760106+05:30
+Rewrote README.md for current application-window scope, Qubes Glow branding, stable runtime names, documentation links and container-mount prerequisite. Verified README below 150 lines and all relative Markdown targets exist.
+
+## 2026-09-17T10:42:04.760106+05:30
+Recorded naming research and implementation approval; corrected root HTML-generator pointers for directory rename; updated PROJECT_CONTEXT.md branding state.
+
+## 2026-09-17T10:42:58.957471+05:30
+Rename verification: metadata identity and root HTML branding passed; no stale absolute source paths in active shell scripts. Validation command failures: []. Build/container recreation/deployment remain unexecuted.
+
+## 2026-09-17T10:45:40.414340+05:30
+Rename audit: recursively decoded every repository file including hidden files; token regex `kitty-glow|kitty_glow|kittyglow|Kitty Glow|QubesGlow|qubes-glow|Qubes Glow`; NUL/non-UTF8 binaries excluded from textual interpretation. Results: {'text_files': 166, 'git-history/config': 8, 'active': 557, 'built-artifact': 4, 'history/evidence': 270}; binaries 100, errors ['Broken symlink logs/build.log', 'Broken symlink logs/build9.log']. Full line evidence: logs/output/rename-token-inventory.tsv. No implementation edits.
+
+## 2026-09-17T10:46:32.238839+05:30
+Recorded rename audit findings in Audit-CHANGELOG.md and output-history.md; line inventory in logs/output/rename-token-inventory.tsv. Implementation unchanged.
+
+## 2026-09-17T10:46:57.590508+05:30
+Command/check: Python Path("logs/build/2026-09-09T18xxZ-build9.log").is_file().
+Reason: adjudicate broken-link cause. Confirmed: logs/build.log and logs/build9.log point to the removed kitty-glow directory; their target file exists at the same relative path under qubes-glow. These are rename-broken monitoring symlinks, not an unexplained pre-existing failure.
+
+## 2026-09-17T10:47:28.690596+05:30
+Commands: `git diff -- scripts/regression-checks.sh`; `git show HEAD:scripts/regression-checks.sh`.
+Reason: targeted assertion-gap check requested by user. HEAD=25, working=26, added=['ll033-unmanaged-popup-excluded'], removed=[]. Exit statuses 0/0.
+
+## 2026-09-17T10:50:02.449832+05:30
+Command: replace rename-broken symlinks with a single corrected `logs/build.log -> build/2026-09-09T18xxZ-build9.log`; remove redundant broken `logs/build9.log` (duplicate of the same target).
+Reason: Rule 2 monitoring-link cleanup verified by is_file() checks.
+
+## 2026-09-17T11:07:10.863242+05:30
+Build executed per explicit user consent ("do both 1 and 2"). Exit 126. If rc==0, verify container mount + zero warnings before deploy.
+
+## 2026-09-17T11:08:28.316324+05:30
+Build retry after exec-bit fix. Exit 1. Zero-warning and mount verification next if green.
+
+## 2026-09-17T11:14:02.817225+05:30
+Deploy attempt for build #23 (v3.12.0 branding). Exit 0. Result: see deploy log.
+
+## 2026-09-17T11:15:02.741754+05:30
+Activation for build #23. Exit 1. Evidence: logs/output/deploy23-activation.log.
+
+## 2026-09-17T11:17:05
+Build #23 SHIPPED + activated (Qubes Glow branding, KWin 102464, sha d899970d…). LL-034 recorded (container package drift; setup script fixed; image re-committed). Architecture method-name corrections applied (item 2). All ledgers updated.
