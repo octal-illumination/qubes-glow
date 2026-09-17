@@ -510,3 +510,13 @@ then do it
 
 #### Verbatim Output Response
 User authorized commit/push to origin/master. Corrected missed HANDBOOK.md GlowBottom example to 16 and PROJECT_CONTEXT.md stray parenthesis; no code or runtime changes. Regenerate both HTML siblings before commit.
+
+## 2026-09-17T06:56:44.373429+00:00 — Publication receipt
+Committed and pushed b1142851631d93eb738fc298cab870d7acc39616 to origin/master; remote head verified. Post-publication command receipts remain local/uncommitted.
+
+## 2026-09-17T07:00:16.229716+00:00
+#### User Request
+do it
+
+#### Verbatim Output Response
+Publishing remaining audit receipts; completion results will be reported in chat and logs/output/audit-receipts-publish.log.

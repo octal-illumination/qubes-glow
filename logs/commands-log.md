@@ -1523,3 +1523,28 @@ printf '"'"'"'"'"'"'"'"'ACTIVATION_CHECK_PASS
 - Command: `git add -- src/glowconfig.h HANDBOOK.md HANDBOOK.html PROJECT_CONTEXT.md PROJECT_CONTEXT.html logs/Action-History.md logs/Audit-CHANGELOG.md logs/CHANGELOG.md logs/SESSION_STATE.md logs/commands-log.md`
 - Reason: Stage reviewed default-16 change and its documentation/audit records.
 - Exit: 0
+
+## 2026-09-17T06:56:40.022423+00:00
+- Command: `git commit -m 'Set default glow radius to 16 and record verified build 24'`
+- Reason: Commit user-approved changes.
+- Exit: 0
+
+## 2026-09-17T06:56:43.089835+00:00
+- Command: `git push origin master`
+- Reason: Push reviewed commit to the established GitHub remote.
+- Exit: 0
+
+## 2026-09-17T06:56:43.095113+00:00
+- Command: `git rev-parse HEAD`
+- Reason: Identify published revision.
+- Exit: 0
+
+## 2026-09-17T06:56:44.373305+00:00
+- Command: `git ls-remote origin refs/heads/master`
+- Reason: Verify GitHub branch head matches local commit.
+- Exit: 0
+
+## 2026-09-17T07:00:16.229716+00:00 — Publish final audit receipts
+- User authorization: "do it".
+- Planned commands: `git add -- logs/commands-log.md logs/Action-History.md`; `git commit -m "Record build 24 publication audit receipts"`; `git push origin master`; `git rev-parse HEAD`; `git ls-remote origin refs/heads/master`; `git status --porcelain`.
+- Reason: Publish remaining audit receipts; actual results recorded immediately in ignored logs/output/audit-receipts-publish.log to avoid a recursive tracked-log change.
