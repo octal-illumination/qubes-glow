@@ -171,11 +171,11 @@ KWin reconfigure) — no rebuild needed:
 ```ini
 [Effect-kittyglow]
 Enabled=true
-GlowRadius=32        # default thickness for all sides (px)
-GlowLeft=32          # per-side overrides
-GlowTop=32
-GlowRight=32
-GlowBottom=32
+GlowRadius=16        # default thickness for all sides (px)
+GlowLeft=16          # per-side overrides
+GlowTop=16
+GlowRight=16
+GlowBottom=16
 GlowCornerRadius=8   # 0..64
 GlowColor=255,215,0     # active window halo color (RGB)
 GlowColorInactive=255,215,0
@@ -212,13 +212,16 @@ borderless after a "clean" rollback (re-audit 2 M5).
 
 | Knob | Default | Meaning |
 |------|---------|---------|
-| `GlowRadius` | 32 | halo thickness on all sides (px) |
+| `GlowRadius` | 16 | halo thickness on all sides (px) |
 | `GlowLeft/Top/Right/Bottom` | = GlowRadius | per-side thickness overrides |
 | `GlowCornerRadius` | 8 | corner rounding (0–64 px) |
 | `GlowColor` / `GlowColorInactive` | 255,215,0 (gold) | halo RGB (fallback when `LabelColor=false`) |
 | `GlowOpacity` / `GlowOpacityInactive` | 60 / 30 | peak opacity % (applied over the label hue too) |
 | `LabelColor` (v3.11) | true | per-VM Qubes label hue (`_QUBES_LABEL_COLOR`); false = configured gold |
 | `Enabled` | true | master switch |
+
+Live tuned value on this install: `GlowRadius=16` (user-settled; recorded
+2026-09-17). 16 is also the code default as of this session.
 
 Edit kwinrc in dom0, then apply live with the `reconfigureEffect` command in
 §6c — the SDF shader rebuilds from config, no recompile.

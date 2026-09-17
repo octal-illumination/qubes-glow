@@ -35,6 +35,20 @@ No database. `kittyglowrc` stores global glow/border state; kwinrc stores
 appearance and enable settings. Per-window overrides and label cache are runtime-only.
 
 ## 5. Build State
+- **Build #24 (v3.12.0, default GlowRadius=16) — SHIPPED;
+  activation verified after authorized restart.**
+  SHA256: `84f2a03161aa7a6d4fcdf2fb092b1793e80b99f666bc60dfac98e9d312a4b0ac`.
+  Container configure/build: zero warnings/errors; 26/26 regression checks.
+  Evidence: logs/build/build24*.log; logs/output/build24-verification.log.
+  All four installed hashes match; modes 644; GlowRadius=16; both enable
+  flags true. Authorized restart: PID 103269 -> 103625; effect loaded=true,
+  new plugin mapped, GlowRadius=16. Evidence: logs/output/build24-activation.log.
+  Earlier unloaded-effect state resolved; its cause was not established.
+- Settled live appearance: `GlowRadius=16` in dom0 kwinrc
+  `[Effect-kittyglow]`; prior read-back confirmed 16. Code default
+  changed to 16 (glowconfig.h defaults + kwinrc fallback); build #24
+  compiled and deployed — dom0 configuration already specifies 16
+  explicitly. Tuning reference: HANDBOOK.md Section 9.
 - **Build #23 (v3.12.0, Qubes Glow branding) — SHIPPED 2026-09-17,
   sha d899970d…, deployed + activation-verified (KWin PID 102464).**
   Display metadata now "Qubes Glow" (verified on dom0); runtime IDs
@@ -229,6 +243,14 @@ appearance and enable settings. Per-window overrides and label cache are runtime
 - **dom0-replica-fed37** Podman container — Fedora 37 build env (KWin 5.27.8 devel).
 
 ## 10. Last Updated
+2026-09-17 — Union Alpha: build #24 restart authorized and completed;
+PID 103625, effect loaded, plugin mapping and GlowRadius=16 verified.
+Exact activation timestamp is recorded in logs/CHANGELOG.md.
+2026-09-17T07:25:00Z — Union Alpha: code default GlowRadius changed from 32
+ to 16 (glowconfig.h fallback + struct init); documentation examples
+ synced. Not yet built/deployed — dom0 already carries the explicit 16.
+2026-09-17T06:35:59Z — Union Alpha: recorded the user-settled GlowRadius=16;
+ documentation-only sync, no new dom0 command, build, deploy, or restart.
 2026-09-15 — Renamed to Qubes Glow / `qubes-glow` (branding + docs; runtime
 IDs unchanged). Container mount recreation + display-metadata build/deploy
 pending. Audit corrections: regression count is 26 (not 27); build #15-era

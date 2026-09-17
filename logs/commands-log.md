@@ -1,5 +1,7 @@
 # Commands Log
 
+> **Note:** All documentation and code in this project are purely AI-generated.
+
 ## 2026-09-06T23:50:19Z — Re-point build container
 - Command: `bash container/setup-build-container.sh`
 - Reason: address item #2 — make the build container mount the project's `src/`
@@ -1314,3 +1316,210 @@ Reason: user-supplied GitHub PAT verification — identity, scopes, target-repo 
 ## 2026-09-17T11:47:39.328182+05:30
 Commands: stat/read-first-line of ~/.keys/github (type classification only); then either ssh-keygen -lf + git ls-remote (ssh URL) or curl api.github.com /user + /repos/octal-illumination/qubes-glow with the key loaded in-memory (never echoed, never written to disk/config).
 Reason: user directed that the existing key at ~/.keys/github be used READ-ONLY — verify identity, repo existence/privacy, and push-permission flag without performing any write and without echoing the secret.
+
+## 2026-09-17T11:57:59.458652+05:30
+Command: dom0 kreadconfig5 loop over Effect-kittyglow keys (read-only).
+Reason: report live glow thickness values for the user thickness-reduction question.
+
+## 2026-09-17T11:59:15.181002+05:30
+Command: dom0 kwriteconfig5 Effect-kittyglow GlowRadius 20 + qdbus org.kde.KWin /KWin reconfigure (as chenpan) + kreadconfig5 readback.
+Reason: user-approved thickness reduction 32 -> 20 px; live-tunable per HANDBOOK §5, no rebuild/restart. Exit 0.
+
+## 2026-09-17T12:00:39.315731+05:30
+Command: dom0 kwriteconfig5 Effect-kittyglow GlowRadius 16 + reconfigure + readback.
+Reason: user requested trial value 16 after 20. Exit 0.
+
+## 2026-09-17T12:02:14.498016+05:30
+Command: dom0 kwriteconfig5 Effect-kittyglow GlowRadius 18 + reconfigure + readback.
+Reason: user requested trial value 18 (between 20 and 16). Exit 0.
+
+## 2026-09-17T12:03:09.313895+05:30
+Command: dom0 kwriteconfig5 Effect-kittyglow GlowRadius 16 + reconfigure + readback.
+Reason: user requested re-trial of 16 after comparing with 18. Exit 0.
+
+## 2026-09-17T06:35:59Z — Documentation timestamp
+- Command: `date -u +%Y-%m-%dT%H:%M:%SZ`
+- Reason: Timestamp the approved GlowRadius=16 documentation sync; no dom0 command executed.
+
+## 2026-09-17T06:35:59Z — Settled glow thickness documentation
+Documentation edits performed with the edit tool. Earlier tuning commands are historical, not re-executed in this turn; do not infer new live verification. Timestamp obtained with `date -u +%Y-%m-%dT%H:%M:%SZ`. Ledger entries appended with Python pathlib; HTML generation and validation commands are recorded separately below.
+
+## 2026-09-17T06:35:59Z — HTML regeneration
+- Command: `bash /home/user/Projects/scripts/generate-docs-html.sh HANDBOOK.md PROJECT_CONTEXT.md`
+- Reason: Regenerate the two approved documentation siblings.
+- Exit status: 0
+
+## 2026-09-17T06:35:59Z — HTML verification
+- Command: `bash /home/user/Projects/scripts/generate-docs-html.sh --check .`
+- Reason: Verify canonical stylesheet, generation pointers, and source/HTML file-set equality.
+- Exit status: 0
+
+## 2026-09-17T06:35:59Z — Whitespace verification
+- Command: `git diff --check`
+- Reason: Check changed documentation for whitespace errors.
+- Exit status: 0
+
+## 2026-09-17T07:25:00Z — GlowRadius code default 32 to 16
+Approved change applied: GlowRadius code default 32 -> 16 in src/glowconfig.h (edit tool), HANDBOOK.md/PROJECT_CONTEXT.md synced (edit tool).
+
+## 2026-09-17T07:25:00Z — HTML regeneration
+- Command: `bash /home/user/Projects/scripts/generate-docs-html.sh HANDBOOK.md PROJECT_CONTEXT.md`
+- Reason: Regenerate the approved documentation siblings after the default change.
+- Exit status: 0
+
+## 2026-09-17T07:25:00Z — HTML verification
+- Command: `bash /home/user/Projects/scripts/generate-docs-html.sh --check .`
+- Reason: Verify canonical stylesheet, pointers, and source/HTML file-set equality.
+- Exit status: 0
+
+## 2026-09-17T07:25:00Z — Consistency verification
+- Command: `grep -RIn GlowRadius src HANDBOOK.md PROJECT_CONTEXT.md SPECIFICATION.md ROADMAP.md`
+- Reason: Confirm no stale default-32 references remain in code or docs.
+- Exit status: 0
+
+## 2026-09-17T07:25:00Z — Header syntax check
+- Command: `g++ -std=c++20 -fsyntax-only -I src src/glowconfig.h` (best-effort local)
+- Reason: Quick sanity parse after edit; full container build happens on next approved build.
+- Exit status: 0 (non-zero tolerated — header needs KConfig headers only available in container)
+
+## 2026-09-17T07:25:00Z — Whitespace verification
+- Command: `git diff --check`
+- Reason: Check changed files for whitespace errors.
+- Exit status: 0
+
+## 2026-09-17T06:41:47.292720+00:00 — Build #24
+- Command: `bash scripts/build.sh`
+- Reason: User authorized build, deploy, verify of default-16 change.
+- Exit status: 0
+
+## 2026-09-17T06:41:47.664489+00:00 — Build #24
+- Command: `podman cp dom0-replica-fed37:/tmp/b_cmake.log logs/build/build24-cmake.log`
+- Reason: Preserve complete container configure/compiler output for warning review.
+- Exit status: 0
+
+## 2026-09-17T06:41:47.984184+00:00 — Build #24
+- Command: `podman cp dom0-replica-fed37:/tmp/b_make.log logs/build/build24-make.log`
+- Reason: Preserve complete container configure/compiler output for warning review.
+- Exit status: 0
+
+## 2026-09-17T06:41:48.828942+00:00 — Build #24
+- Command: `bash scripts/regression-checks.sh`
+- Reason: Verify existing regression assertions after default change.
+- Exit status: 0
+
+## 2026-09-17T06:42:07.713087+00:00
+- Command: `bash /home/user/Projects/scripts/generate-docs-html.sh PROJECT_CONTEXT.md`
+- Reason: Regenerate build-state HTML.
+- Exit: 0
+
+## 2026-09-17T06:43:18.624621+00:00 — Build #24 deployment
+- Command: `bash scripts/deploy.sh`
+- Reason: User authorized deployment of default-16 build.
+- Exit: 0
+- Evidence: logs/output/build24-deploy.log. No restart performed; independent verification pending.
+
+## 2026-09-17T06:43:43.883081+00:00 — Build #24 installed verification
+- Command: `/home/user/.local/bin/dom0 'set -e; printf %s '"'"'84f2a03161aa7a6d4fcdf2fb092b1793e80b99f666bc60dfac98e9d312a4b0ac  /usr/lib64/qt5/plugins/kwin/effects/plugins/kittyglow.so
+0e5ea96e147f5ef35b0cd4ed0531426627a628fa2140a848a6f24cea5150fa9e  /usr/share/kwin/effects/kittyglow/metadata.json
+0587525d2c47321fcf133f41fb55b6848acffb9c4467af47a9053cd27ad005b0  /home/chenpan/.local/share/kwin/scripts/kglowsync/metadata.json
+fb5642b77c0a655ad2acc63e35d2f1752edcef107db9618761894f9022e3e6c7  /home/chenpan/.local/share/kwin/scripts/kglowsync/contents/code/main.js
+'"'"' | sha256sum -c -; stat -c '"'"'%a %n'"'"' /usr/lib64/qt5/plugins/kwin/effects/plugins/kittyglow.so /usr/share/kwin/effects/kittyglow/metadata.json /home/chenpan/.local/share/kwin/scripts/kglowsync/metadata.json /home/chenpan/.local/share/kwin/scripts/kglowsync/contents/code/main.js; v=$(sudo -u chenpan env HOME=/home/chenpan kreadconfig5 --file kwinrc --group Effect-kittyglow --key GlowRadius); printf '"'"'GlowRadius=%s\n'"'"' "$v"; test "$v" = 16; for key in kittyglowEnabled kglowsyncEnabled; do v=$(sudo -u chenpan env HOME=/home/chenpan kreadconfig5 --file kwinrc --group Plugins --key "$key"); printf '"'"'%s=%s\n'"'"' "$key" "$v"; test "$v" = true; done; pgrep -a -u chenpan -x kwin_x11; sudo -u chenpan env DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1000/bus XDG_RUNTIME_DIR=/run/user/1000 dbus-send --session --print-reply --dest=org.kde.KWin /Effects org.kde.kwin.Effects.isEffectLoaded string:kittyglow'`
+- Reason: Independently check four installed hashes, modes, live GlowRadius, enable flags and effect status without restart.
+- Exit: 0; gates passed: False.
+- Evidence: logs/output/build24-verification.log. Loaded effect status does not prove new binary activation; restart pending.
+
+## 2026-09-17T06:44:16.574008+00:00
+- Command: `bash /home/user/Projects/scripts/generate-docs-html.sh PROJECT_CONTEXT.md`
+- Reason: Regenerate and validate build-state documentation.
+- Exit: 0
+
+## 2026-09-17T06:44:16.574008+00:00
+- Command: `bash /home/user/Projects/scripts/generate-docs-html.sh --check .`
+- Reason: Regenerate and validate build-state documentation.
+- Exit: 0
+
+## 2026-09-17T06:44:16.574008+00:00
+- Command: `git diff --check`
+- Reason: Regenerate and validate build-state documentation.
+- Exit: 0
+
+## 2026-09-17T06:45:48.302459+00:00 — Authorized build #24 restart
+- Command: `/home/user/.local/bin/dom0 'sudo -u chenpan env HOME=/home/chenpan DISPLAY=:0 XDG_RUNTIME_DIR=/run/user/1000 DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1000/bus XDG_DATA_DIRS=/usr/local/share:/usr/share bash -c '"'"'set -eu
+printf '"'"'"'"'"'"'"'"'%s
+'"'"'"'"'"'"'"'"' '"'"'"'"'"'"'"'"'84f2a03161aa7a6d4fcdf2fb092b1793e80b99f666bc60dfac98e9d312a4b0ac  /usr/lib64/qt5/plugins/kwin/effects/plugins/kittyglow.so'"'"'"'"'"'"'"'"' | sha256sum -c -
+[ "$(kreadconfig5 --file kwinrc --group Plugins --key kittyglowEnabled)" = true ]
+old=$(pgrep -u "$(id -u)" -x kwin_x11)
+printf '"'"'"'"'"'"'"'"'OLD_KWIN_PID=%s
+'"'"'"'"'"'"'"'"' "$old"
+start=$(date '"'"'"'"'"'"'"'"'+%Y-%m-%d %H:%M:%S'"'"'"'"'"'"'"'"')
+setsid kwin_x11 --replace </dev/null > >(systemd-cat -t qubes-glow-build24-restart) 2>&1 &
+sleep 12
+new=$(pgrep -u "$(id -u)" -x kwin_x11)
+[ -n "$new" ] && [ "$new" != "$old" ]
+printf '"'"'"'"'"'"'"'"'NEW_KWIN_PID=%s
+'"'"'"'"'"'"'"'"' "$new"
+loaded=$(qdbus org.kde.KWin /Effects org.kde.kwin.Effects.isEffectLoaded kittyglow)
+printf '"'"'"'"'"'"'"'"'EFFECT_LOADED=%s
+'"'"'"'"'"'"'"'"' "$loaded"
+radius=$(kreadconfig5 --file kwinrc --group Effect-kittyglow --key GlowRadius)
+printf '"'"'"'"'"'"'"'"'GlowRadius=%s
+'"'"'"'"'"'"'"'"' "$radius"
+grep -F '"'"'"'"'"'"'"'"'/usr/lib64/qt5/plugins/kwin/effects/plugins/kittyglow.so'"'"'"'"'"'"'"'"' /proc/$new/maps
+journalctl -b -t qubes-glow-build24-restart --since "$start" --no-pager -n 100
+[ "$loaded" = true ] && [ "$radius" = 16 ]
+printf '"'"'"'"'"'"'"'"'ACTIVATION_CHECK_PASS
+'"'"'"'"'"'"'"'"'
+'"'"''`
+- Reason: User requested "restart"; activate rebuilt library and verify PID, mapping, effect status and radius.
+- Exit: 0
+- Evidence: logs/output/build24-activation.log.
+
+## 2026-09-17T06:46:19.845461+00:00
+- Command: `bash /home/user/Projects/scripts/generate-docs-html.sh PROJECT_CONTEXT.md`
+- Reason: Regenerate and verify activation-state documentation.
+- Exit: 0
+
+## 2026-09-17T06:46:19.845461+00:00
+- Command: `bash /home/user/Projects/scripts/generate-docs-html.sh --check .`
+- Reason: Regenerate and verify activation-state documentation.
+- Exit: 0
+
+## 2026-09-17T06:46:19.845461+00:00
+- Command: `git diff --check`
+- Reason: Regenerate and verify activation-state documentation.
+- Exit: 0
+
+## 2026-09-17T06:56:01Z — Commit preflight
+- Command: `git status --short && git diff --stat && git remote -v && git branch --show-current`
+- Reason: Inspect changes and destination before user-authorized commit/push.
+- Exit: 0
+
+## 2026-09-17T06:56:07Z — Commit review
+- Command: `git diff -- src/glowconfig.h HANDBOOK.md PROJECT_CONTEXT.md && git diff --check`
+- Reason: Review source/default documentation and whitespace before commit.
+- Exit: 0
+
+## 2026-09-17T06:56:25.730137+00:00
+- Command: `bash /home/user/Projects/scripts/generate-docs-html.sh HANDBOOK.md PROJECT_CONTEXT.md`
+- Reason: Validate corrected documentation before publishing.
+- Exit: 0
+
+## 2026-09-17T06:56:25.730137+00:00
+- Command: `bash /home/user/Projects/scripts/generate-docs-html.sh --check .`
+- Reason: Validate corrected documentation before publishing.
+- Exit: 0
+
+## 2026-09-17T06:56:25.730137+00:00
+- Command: `git diff --check`
+- Reason: Validate corrected documentation before publishing.
+- Exit: 0
+
+## 2026-09-17T06:56:39.720126+00:00
+- Command: `git diff --unified=0`
+- Reason: Check added text for obvious credential patterns before push.
+- Exit: 0
+
+## 2026-09-17T06:56:39.737024+00:00
+- Command: `git add -- src/glowconfig.h HANDBOOK.md HANDBOOK.html PROJECT_CONTEXT.md PROJECT_CONTEXT.html logs/Action-History.md logs/Audit-CHANGELOG.md logs/CHANGELOG.md logs/SESSION_STATE.md logs/commands-log.md`
+- Reason: Stage reviewed default-16 change and its documentation/audit records.
+- Exit: 0

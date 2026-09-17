@@ -453,11 +453,11 @@ under <code>[Effect-kittyglow]</code> and reload on
 <div class="sourceCode" id="cb6"><pre
 class="sourceCode ini"><code class="sourceCode ini"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[Effect-kittyglow]</span></span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="dt">Enabled</span><span class="ot">=</span><span class="kw">true</span></span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="dt">GlowRadius</span><span class="ot">=</span><span class="st">32        # default thickness for all sides (px)</span></span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="dt">GlowLeft</span><span class="ot">=</span><span class="st">32          # per-side overrides</span></span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="dt">GlowTop</span><span class="ot">=</span><span class="dv">32</span></span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="dt">GlowRight</span><span class="ot">=</span><span class="dv">32</span></span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="dt">GlowBottom</span><span class="ot">=</span><span class="dv">32</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="dt">GlowRadius</span><span class="ot">=</span><span class="st">16        # default thickness for all sides (px)</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="dt">GlowLeft</span><span class="ot">=</span><span class="st">16          # per-side overrides</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="dt">GlowTop</span><span class="ot">=</span><span class="dv">16</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="dt">GlowRight</span><span class="ot">=</span><span class="dv">16</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="dt">GlowBottom</span><span class="ot">=</span><span class="dv">16</span></span>
 <span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="dt">GlowCornerRadius</span><span class="ot">=</span><span class="st">8   # 0..64</span></span>
 <span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="dt">GlowColor</span><span class="ot">=</span><span class="st">255,215,0     # active window halo color (RGB)</span></span>
 <span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a><span class="dt">GlowColorInactive</span><span class="ot">=</span><span class="st">255,215,0</span></span>
@@ -506,7 +506,7 @@ rebuild — kwinrc <code>[Effect-kittyglow]</code>, see §6c)</h2>
 <tbody>
 <tr class="odd">
 <td><code>GlowRadius</code></td>
-<td>32</td>
+<td>16</td>
 <td>halo thickness on all sides (px)</td>
 </tr>
 <tr class="even">
@@ -542,6 +542,9 @@ configured gold</td>
 </tr>
 </tbody>
 </table>
+<p>Live tuned value on this install: <code>GlowRadius=16</code>
+(user-settled; recorded 2026-09-17). 16 is also the code default as of
+this session.</p>
 <p>Edit kwinrc in dom0, then apply live with the
 <code>reconfigureEffect</code> command in §6c — the SDF shader rebuilds
 from config, no recompile.</p>

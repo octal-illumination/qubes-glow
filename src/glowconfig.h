@@ -12,10 +12,10 @@ namespace KittyGlow {
 // All thickness/radius values are logical pixels; they are scaled by
 // effects->renderTargetScale() at draw time (projection works in device px).
 struct GlowConfig {
-    float widthLeft = 32.0f;
-    float widthTop = 32.0f;
-    float widthRight = 32.0f;
-    float widthBottom = 32.0f;
+    float widthLeft = 16.0f;
+    float widthTop = 16.0f;
+    float widthRight = 16.0f;
+    float widthBottom = 16.0f;
     float cornerRadius = 8.0f;
     QColor colorActive = QColor(255, 215, 0, 153);    // gold @ 60%
     QColor colorInactive = QColor(255, 215, 0, 77);   // gold @ 30%
@@ -41,7 +41,7 @@ inline GlowConfig loadGlowConfig(const KSharedConfigPtr &cfg)
 {
     GlowConfig c;
     const KConfigGroup g = cfg->group(QStringLiteral("Effect-kittyglow"));
-    const float def = g.readEntry("GlowRadius", 32);
+    const float def = g.readEntry("GlowRadius", 16);
     c.widthLeft = g.readEntry("GlowLeft", def);
     c.widthTop = g.readEntry("GlowTop", def);
     c.widthRight = g.readEntry("GlowRight", def);

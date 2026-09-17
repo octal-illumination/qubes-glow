@@ -1,5 +1,7 @@
 # Action History
 
+> **Note:** All documentation and code in this project are purely AI-generated.
+
 ## 2026-09-06T23:40:28Z
 #### User Request
 create a Project directory ~/Projects/QubesOS/UI-Enhancements/Kwin/ and an appropriately named sub directory, git init it, create project structure like all other projects, update everything including code, podman container files, scripts, logs and documents, then come back to prompt.
@@ -473,3 +475,38 @@ Applied audit corrections: PROJECT_CONTEXT assertion-count/PID/halo/rule/toggle/
 
 ## 2026-09-17T11:17:05
 Build #23 SHIPPED + activated (Qubes Glow branding, KWin 102464, sha d899970d…). LL-034 recorded (container package drift; setup script fixed; image re-committed). Architecture method-name corrections applied (item 2). All ledgers updated.
+
+## 2026-09-17T06:35:59Z — Settled glow thickness documentation
+#### User Request
+implement changes
+
+#### Verbatim Output Response
+Recording the previously selected GlowRadius=16 in HANDBOOK.md and PROJECT_CONTEXT.md, regenerating their HTML siblings and checking documentation consistency.
+
+## 2026-09-17T07:25:00Z — GlowRadius code default 32 to 16
+#### User Request
+16 as the standard default
+
+#### Verbatim Output Response
+Changed GlowRadius code default 32 -> 16 in src/glowconfig.h, updated HANDBOOK.md Section 9 defaults and examples, synced PROJECT_CONTEXT.md, regenerated HTML siblings.
+
+## 2026-09-17T06:44:16.574008+00:00 — Build/deploy verification
+#### User Request
+built deploy, verify
+
+#### Verbatim Output Response
+Build #24 compiled with zero warnings/errors; 26 regression assertions pass. Four deployed hashes and modes verified; GlowRadius=16 and both enable flags true. isEffectLoaded=false, KWin PID 103269 --crashes 1; cause/timing unknown. No restart performed. PROJECT_CONTEXT.md records activation blocker.
+
+## 2026-09-17T06:46:19.845461+00:00 — Build #24 activated
+#### User Request
+restart
+
+#### Verbatim Output Response
+Authorized KWin restart completed: PID 103269 -> 103625; effect loaded=true, SHA-verified plugin mapped, GlowRadius=16. Build #24 activated. Scoped restart journal returned no entries (not proof of absence of all runtime warnings). PROJECT_CONTEXT.md updated.
+
+## 2026-09-17T06:56:25.730137+00:00 — Commit/push preparation
+#### User Request
+then do it
+
+#### Verbatim Output Response
+User authorized commit/push to origin/master. Corrected missed HANDBOOK.md GlowBottom example to 16 and PROJECT_CONTEXT.md stray parenthesis; no code or runtime changes. Regenerate both HTML siblings before commit.

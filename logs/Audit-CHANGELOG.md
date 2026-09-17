@@ -1,5 +1,7 @@
 # Audit-CHANGELOG
 
+> **Note:** All documentation and code in this project are purely AI-generated.
+
 ## 2026-09-06T23:40:28Z — dom0 deployment audit (carried from prior session)
 - Effect plugin deployed into dom0 privileged paths:
   - `/usr/lib64/qt5/plugins/kwin/effects/kittyglow.so` (root:root, mode 644)
@@ -226,3 +228,71 @@ Activation for build #23. Exit 1. Evidence: logs/output/deploy23-activation.log.
 
 ## 2026-09-17T11:17:05
 Build #23 SHIPPED + activated (Qubes Glow branding, KWin 102464, sha d899970d…). LL-034 recorded (container package drift; setup script fixed; image re-committed). Architecture method-name corrections applied (item 2). All ledgers updated.
+
+## 2026-09-17T06:35:59Z — Settled glow thickness documentation
+Approved documentation-only tuning sync. No source, credentials, policy, dom0 configuration, build, deployment, or process changes.
+
+## 2026-09-17T07:25:00Z — GlowRadius code default 32 to 16
+Approved code-default change: GlowRadius 32 -> 16 in glowconfig.h only (a display-appearance fallback). No policy, credential, dom0, or process changes. Pending next build/deploy.
+
+## 2026-09-17T06:41:47.984365+00:00 — Build #24
+Build command exit 0; artifacts in dist/, output in logs/build/build24*.log. Deployment and activation pending.
+
+## 2026-09-17T06:42:07.713087+00:00 — Build #24 gates passed
+PROJECT_CONTEXT.md updated: build successful, zero warnings/errors, 26 assertions pass; sha 84f2a03161aa7a6d4fcdf2fb092b1793e80b99f666bc60dfac98e9d312a4b0ac. Deployment pending.
+
+## 2026-09-17T06:43:18.624621+00:00 — Build #24 deployment
+- Command: `bash scripts/deploy.sh`
+- Reason: User authorized deployment of default-16 build.
+- Exit: 0
+- Evidence: logs/output/build24-deploy.log. No restart performed; independent verification pending.
+
+## 2026-09-17T06:43:43.883081+00:00 — Build #24 installed verification
+- Command: `/home/user/.local/bin/dom0 'set -e; printf %s '"'"'84f2a03161aa7a6d4fcdf2fb092b1793e80b99f666bc60dfac98e9d312a4b0ac  /usr/lib64/qt5/plugins/kwin/effects/plugins/kittyglow.so
+0e5ea96e147f5ef35b0cd4ed0531426627a628fa2140a848a6f24cea5150fa9e  /usr/share/kwin/effects/kittyglow/metadata.json
+0587525d2c47321fcf133f41fb55b6848acffb9c4467af47a9053cd27ad005b0  /home/chenpan/.local/share/kwin/scripts/kglowsync/metadata.json
+fb5642b77c0a655ad2acc63e35d2f1752edcef107db9618761894f9022e3e6c7  /home/chenpan/.local/share/kwin/scripts/kglowsync/contents/code/main.js
+'"'"' | sha256sum -c -; stat -c '"'"'%a %n'"'"' /usr/lib64/qt5/plugins/kwin/effects/plugins/kittyglow.so /usr/share/kwin/effects/kittyglow/metadata.json /home/chenpan/.local/share/kwin/scripts/kglowsync/metadata.json /home/chenpan/.local/share/kwin/scripts/kglowsync/contents/code/main.js; v=$(sudo -u chenpan env HOME=/home/chenpan kreadconfig5 --file kwinrc --group Effect-kittyglow --key GlowRadius); printf '"'"'GlowRadius=%s\n'"'"' "$v"; test "$v" = 16; for key in kittyglowEnabled kglowsyncEnabled; do v=$(sudo -u chenpan env HOME=/home/chenpan kreadconfig5 --file kwinrc --group Plugins --key "$key"); printf '"'"'%s=%s\n'"'"' "$key" "$v"; test "$v" = true; done; pgrep -a -u chenpan -x kwin_x11; sudo -u chenpan env DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1000/bus XDG_RUNTIME_DIR=/run/user/1000 dbus-send --session --print-reply --dest=org.kde.KWin /Effects org.kde.kwin.Effects.isEffectLoaded string:kittyglow'`
+- Reason: Independently check four installed hashes, modes, live GlowRadius, enable flags and effect status without restart.
+- Exit: 0; gates passed: False.
+- Evidence: logs/output/build24-verification.log. Loaded effect status does not prove new binary activation; restart pending.
+
+## 2026-09-17T06:44:16.574008+00:00 — Build/deploy verification
+Build #24 compiled with zero warnings/errors; 26 regression assertions pass. Four deployed hashes and modes verified; GlowRadius=16 and both enable flags true. isEffectLoaded=false, KWin PID 103269 --crashes 1; cause/timing unknown. No restart performed. PROJECT_CONTEXT.md records activation blocker.
+
+## 2026-09-17T06:45:48.302459+00:00 — Authorized build #24 restart
+- Command: `/home/user/.local/bin/dom0 'sudo -u chenpan env HOME=/home/chenpan DISPLAY=:0 XDG_RUNTIME_DIR=/run/user/1000 DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1000/bus XDG_DATA_DIRS=/usr/local/share:/usr/share bash -c '"'"'set -eu
+printf '"'"'"'"'"'"'"'"'%s
+'"'"'"'"'"'"'"'"' '"'"'"'"'"'"'"'"'84f2a03161aa7a6d4fcdf2fb092b1793e80b99f666bc60dfac98e9d312a4b0ac  /usr/lib64/qt5/plugins/kwin/effects/plugins/kittyglow.so'"'"'"'"'"'"'"'"' | sha256sum -c -
+[ "$(kreadconfig5 --file kwinrc --group Plugins --key kittyglowEnabled)" = true ]
+old=$(pgrep -u "$(id -u)" -x kwin_x11)
+printf '"'"'"'"'"'"'"'"'OLD_KWIN_PID=%s
+'"'"'"'"'"'"'"'"' "$old"
+start=$(date '"'"'"'"'"'"'"'"'+%Y-%m-%d %H:%M:%S'"'"'"'"'"'"'"'"')
+setsid kwin_x11 --replace </dev/null > >(systemd-cat -t qubes-glow-build24-restart) 2>&1 &
+sleep 12
+new=$(pgrep -u "$(id -u)" -x kwin_x11)
+[ -n "$new" ] && [ "$new" != "$old" ]
+printf '"'"'"'"'"'"'"'"'NEW_KWIN_PID=%s
+'"'"'"'"'"'"'"'"' "$new"
+loaded=$(qdbus org.kde.KWin /Effects org.kde.kwin.Effects.isEffectLoaded kittyglow)
+printf '"'"'"'"'"'"'"'"'EFFECT_LOADED=%s
+'"'"'"'"'"'"'"'"' "$loaded"
+radius=$(kreadconfig5 --file kwinrc --group Effect-kittyglow --key GlowRadius)
+printf '"'"'"'"'"'"'"'"'GlowRadius=%s
+'"'"'"'"'"'"'"'"' "$radius"
+grep -F '"'"'"'"'"'"'"'"'/usr/lib64/qt5/plugins/kwin/effects/plugins/kittyglow.so'"'"'"'"'"'"'"'"' /proc/$new/maps
+journalctl -b -t qubes-glow-build24-restart --since "$start" --no-pager -n 100
+[ "$loaded" = true ] && [ "$radius" = 16 ]
+printf '"'"'"'"'"'"'"'"'ACTIVATION_CHECK_PASS
+'"'"'"'"'"'"'"'"'
+'"'"''`
+- Reason: User requested "restart"; activate rebuilt library and verify PID, mapping, effect status and radius.
+- Exit: 0
+- Evidence: logs/output/build24-activation.log.
+
+## 2026-09-17T06:46:19.845461+00:00 — Build #24 activated
+Authorized KWin restart completed: PID 103269 -> 103625; effect loaded=true, SHA-verified plugin mapped, GlowRadius=16. Build #24 activated. Scoped restart journal returned no entries (not proof of absence of all runtime warnings). PROJECT_CONTEXT.md updated.
+
+## 2026-09-17T06:56:25.730137+00:00 — Commit/push preparation
+User authorized commit/push to origin/master. Corrected missed HANDBOOK.md GlowBottom example to 16 and PROJECT_CONTEXT.md stray parenthesis; no code or runtime changes. Regenerate both HTML siblings before commit.
